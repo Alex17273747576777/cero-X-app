@@ -42,6 +42,11 @@ import kotlinx.coroutines.launch
  */
 class CatalogoActivity : AppCompatActivity() {
 
+    private companion object {
+        const val MENU_SINCRONIZAR = 0x0C3
+    }
+
+
     private val alcance = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var repo: ContentRepository
 
@@ -112,6 +117,11 @@ class CatalogoActivity : AppCompatActivity() {
 
         // Un ScrollView envolvería la lista y rompería el desplazamiento: el
         // ListView tiene que quedarse con todo el alto que sobre.
+        // Botón de sincronización con el tracker. Sin esto, la pantalla que
+        // escribe en AniList/MAL existía y no había forma de llegar a ella
+        // desde ningún sitio de la app.
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         setContentView(contenedor)
     }
 
@@ -206,6 +216,34 @@ class CatalogoActivity : AppCompatActivity() {
                 putExtra(ReaderActivity.EXTRA_MODO, ReaderState.Modo.WEBTOON.name)
             }
         )
+    }
+
+    /**
+     * La barra de acciones del catálogo.
+     *
+     * Hoy tiene un destino: sincronizar el capítulo abierto con el tracker. El
+     * id de la obra en AniList/MAL **no se adivina**: se pide en la pantalla de
+     * sincronización, porque una obra de una carpeta local no tiene id de
+     * AniList y suponerlo escribiría el progreso en otra serie.
+     */
+    override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
+        menu.add(0, MENU_SINCRONIZAR, 0, "Sincronizar con tracker")
+            .setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_IF_ROOM)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        if (item.itemId == MENU_SINCRONIZAR) {
+            startActivity(
+                Intent(this, com.ceroX.app.modules.houri.tracker.TrackerActivity::class.java)
+            )
+            return true
+        }
+        if (item.itemId == android.R.id.home) {
+            onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     @Suppress("DEPRECATION")

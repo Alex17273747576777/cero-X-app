@@ -184,6 +184,13 @@
             android:label="Sincronización"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Estado del sistema: privilegios, motor JS y fuentes, comprobados. -->
+        <activity
+            android:name=".ui.estado.EstadoSistemaActivity"
+            android:exported="false"
+            android:label="Estado del sistema"
+            android:parentActivityName=".ui.main.MainActivity" />
+
         <!-- Actividad de pruebas de estrés -->
         <activity
             android:name=".ui.StressTestActivity"

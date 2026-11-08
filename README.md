@@ -47,6 +47,8 @@ no se puede comprobar con un comando, no está en este README.
 | 📖 | **Caché de páginas** con tope en bytes y prefetch adaptado a la red | funciona |
 | 🔌 | **Extensiones JVM** del ecosistema Mihon, cargadas en aislamiento | funciona |
 | 💾 | **Importador de backups** de 6 formatos, detectados por bytes | funciona |
+| 🩺 | **Estado del sistema**: privilegios, motor JS y fuentes, medidos y visibles | funciona |
+| 🔗 | **Camino completo** Panel → Catálogo → Lector → Tracker, declarado y probado | funciona |
 
 «Funciona (falta pantalla)» merece una explicación, porque es fácil decirlo y
 difícil que sea verdad. El modelo carga, ejecuta inferencia —medido— **y existe
@@ -339,6 +341,15 @@ Esta sección existe porque un README sin ella es publicidad. Cada línea dice
 - ❌ **No hay lector de EPUB ni de novelas ligeras** más allá de la fuente de
   carpetas con imágenes.
 
+- ⚠️ **La instalación silenciosa no se ha ejecutado nunca en un teléfono.** Están
+  el sondeo de privilegios (`PrivilegeProbe`: root > Shizuku > Dhizuku > normal,
+  con `usable = instalado && servicioVivo && autorizado`) y el instalador
+  (`SilentInstaller`: sha256 → `pm install -r -t` → `"Success"` +
+  `getPackageInfo`), con sus pruebas. Y ahora **se pueden ver** desde la app:
+  el botón de estado del sistema muestra el nivel detectado y el motivo de cada
+  negativa. Lo que no se ha hecho es instalar una APK de verdad por ese camino:
+  requiere un teléfono con Shizuku o root, y aquí no hay ninguno.
+
 ---
 
 ## Los números
@@ -353,7 +364,7 @@ Todo lo de esta tabla se midió con un comando en la máquina donde se construy�
 | librerías nativas (4 ABIs) | 62,32 MiB |
 | `classes.dex` | 39,84 MiB |
 | archivos Kotlin | 125 |
-| pruebas unitarias (app Android) | **348, todas pasando** |
+| pruebas unitarias (app Android) | **353, todas pasando** |
 | pruebas del núcleo compartido | **41 en JVM y 33 en JS, todas pasando** |
 | comprobaciones del `.js` desde Node | **15, todas en verde** |
 | errores de compilación | **0** (venían de 519) |
@@ -362,7 +373,7 @@ Todo lo de esta tabla se midió con un comando en la máquina donde se construy�
 ```bash
 # verificable en cualquier clon
 $ ANDROID_HOME=/opt/android-sdk ./gradlew testDebugUnitTest
-348 tests completed, 0 failed
+353 tests completed, 0 failed
 
 # el núcleo compartido, en las dos plataformas que esta máquina compila
 $ cd comun && gradle jvmTest jsNodeTest

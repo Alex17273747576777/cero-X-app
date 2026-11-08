@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,6 +35,7 @@ import com.ceroX.app.modules.theme.ThemeSwitcherFragment
 import com.ceroX.app.ui.theme.CeroXTheme
 import android.content.Intent
 import com.ceroX.app.ui.catalogo.CatalogoActivity
+import com.ceroX.app.ui.estado.EstadoSistemaActivity
 
 /**
  * MainActivity — la pantalla que ve el usuario al abrir cero-X.
@@ -76,6 +78,9 @@ class MainActivity : AppCompatActivity() {
                     onReadClick = {
                         startActivity(Intent(this, CatalogoActivity::class.java))
                     },
+                    onEstadoClick = {
+                        startActivity(Intent(this, EstadoSistemaActivity::class.java))
+                    },
                 )
             }
         }
@@ -115,6 +120,7 @@ fun CeroXApp(
     onThemeClick: () -> Unit,
     onModeClick: () -> Unit,
     onReadClick: () -> Unit = {},
+    onEstadoClick: () -> Unit = {},
 ) {
     var seleccionado by remember { mutableStateOf(DESTINOS.first().id) }
 
@@ -131,6 +137,11 @@ fun CeroXApp(
                     }
                     IconButton(onClick = onThemeClick) {
                         Icon(Icons.Default.Refresh, contentDescription = "Diseño")
+                    }
+                    // Estado del sistema: privilegios, motor JS y fuentes. Antes
+                    // eran tres comprobaciones que existían y no se podían ver.
+                    IconButton(onClick = onEstadoClick) {
+                        Icon(Icons.Default.Settings, contentDescription = "Estado del sistema")
                     }
                 },
             )
