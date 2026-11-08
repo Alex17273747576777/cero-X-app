@@ -41,15 +41,20 @@ no se puede comprobar con un comando, no está en este README.
 | 🖼️ | **Booru** y **Catálogo** de apps del ecosistema | funciona |
 | 📰 | **Feed multi-entrada**: seis tipos de entrada, cada una con su cursor | funciona |
 | ✨ | **Sugerencias sin red** calculadas con lo que ya lees | funciona |
-| 🎨 | **Colorización de páginas** con modelo ONNX dentro del APK | motor listo |
-| 🔍 | **Reescalado ×4** con dos modelos, elegidos según la página | motor listo |
+| 🎨 | **Colorización de páginas** con modelo ONNX dentro del APK | funciona (falta pantalla) |
+| 🔍 | **Reescalado ×4** con dos modelos, elegidos según la página | funciona (falta pantalla) |
 | 📖 | **Caché de páginas** con tope en bytes y prefetch adaptado a la red | funciona |
 | 🔌 | **Extensiones JVM** del ecosistema Mihon, cargadas en aislamiento | funciona |
 | 💾 | **Importador de backups** de 6 formatos, detectados por bytes | funciona |
 
-«Motor listo» significa que el modelo carga y ejecuta inferencia —comprobado con
-ONNX Runtime— pero todavía no está conectado a la pantalla del lector. La
-diferencia importa y por eso está marcada.
+«Funciona (falta pantalla)» merece una explicación, porque es fácil decirlo y
+difícil que sea verdad. El modelo carga, ejecuta inferencia —medido— **y existe
+un pipeline que recibe la página, aplica el motor y devuelve el bitmap listo para
+pintar** (`ReaderPipeline`, 6 pruebas). Lo que todavía no hay es la pantalla de
+lector que llame a ese pipeline: cero-X no tiene aún una vista de lectura.
+
+Es un avance real sobre «motor listo» —antes no había nada entre el modelo y la
+nada— y sigue sin ser «lector completo». Las dos cosas son verdad a la vez.
 
 ---
 
@@ -263,8 +268,9 @@ Esta sección existe porque un README sin ella es publicidad.
   construyó no tiene `/dev/kvm` ni RAM para un emulador. Lo verificado es
   estático: actividad de arranque declarada, tema presente, 26 899 clases en 3
   dex, icono en 6 variantes, firma v2 válida.
-- ❌ **No lee manga de punta a punta todavía.** Los modelos están, cargan y
-  ejecutan; falta cablear la inferencia a la pantalla del lector.
+- ❌ **No lee manga de punta a punta todavía.** El pipeline de IA está hecho y
+  probado; falta la pantalla de lector que lo invoque. cero-X no tiene vista de
+  lectura, así que no hay nada que abrir.
 - ❌ **No sincroniza con AniList ni MyAnimeList** contra servidores reales. Está
   el código y faltan las credenciales.
 - ⚠️ **Las extensiones JavaScript no tienen motor elegido.** Hay tres candidatos
@@ -287,14 +293,16 @@ Todo lo de esta tabla se midió con un comando en la máquina donde se construy�
 | librerías nativas (4 ABIs) | 62,32 MiB |
 | `classes.dex` | 39,84 MiB |
 | archivos Kotlin | 125 |
-| pruebas unitarias | **19, todas pasando** |
+| pruebas unitarias | **40, todas pasando** |
 | errores de compilación | **0** (venían de 519) |
 | tamaños de backup detectados | 6 de 6 |
 
 ```bash
 # verificable en cualquier clon
 $ ANDROID_HOME=/opt/android-sdk ./gradlew testDebugUnitTest
-19 tests completed, 0 failed   # FeedManager 6 · SuggestionEngine 6 · PageCache 7
+40 tests completed, 0 failed
+# FeedManager 6 · SuggestionEngine 6 · PageCache 7 · ReaderPipeline 6
+# ModelHonesty 5 · StressBackup 5 · StressFeed 5
 
 $ apksigner verify --print-certs app-release.apk
 Signer #1 certificate DN: CN=cero-X, O=La Bandita, C=DO
@@ -345,6 +353,10 @@ cd android && /opt/gradle-8.11.1/bin/gradle testDebugUnitTest --no-daemon
 | `FeedManagerTest` | fusión por id, entrada caída, aparcado tras 3 fallos, desactivar no borra, máximo de entradas, orden por fecha |
 | `SuggestionEngineTest` | mismo autor primero, no recomienda lo leído, sin historial no inventa, normalización, coseno en 0–1 |
 | `PageCacheTest` | tope en bytes, página mayor que el caché no lo vacía, hit rate, recorte, claves distintas |
+| `ReaderPipelineTest` | sin IA no se toca ni un píxel, fallo devuelve el original, excepción no se propaga, reescalar antes de colorizar |
+| `ModelHonestyTest` | ningún módulo anuncia un modelo que no esté en el APK |
+| `StressBackupDetectorTest` | 4 000 entradas de ruido, firmas truncadas, 16 MiB en <2 s, 1 000 aperturas sin fugar descriptores |
+| `StressFeedConcurrencyTest` | 8 hilos × 400 ops, ids únicos en paralelo, entrada caída aparcada, borrar durante refresco no resucita |
 
 El caso más importante es el de **normalización**: sin él, una obra con 20
 etiquetas genéricas gana siempre a una que comparte las dos etiquetas reales del
