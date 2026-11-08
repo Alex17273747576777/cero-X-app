@@ -90,6 +90,13 @@ android {
     }
 
 
+    // Los modelos ONNX NO se comprimen dentro del APK: el runtime los mapea
+    // directamente desde el archivo. Comprimirlos obliga a descomprimir cientos
+    // de MB en memoria al abrirlos, que es exactamente lo que tumba a un móvil.
+    androidResources {
+        noCompress 'onnx'
+    }
+
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'

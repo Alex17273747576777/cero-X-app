@@ -1,5 +1,5 @@
 # Built application files
-*.apk
+# Los APK no se versionan: van en Releases con su sha256.
 *.aab
 
 # Gradle files
@@ -34,3 +34,10 @@ Thumbs.db
 
 # Env
 ceroX_config*
+# Los binarios no van en el árbol de git:
+#  - GitHub rechaza archivos de más de 100 MB, y tres de los cuatro modelos
+#    pesan más (163, 117 y 64 MiB) y el APK pesa 448 MiB.
+#  - Se reconstruyen solos con scripts/bajar-modelos.py, que fija URL y sha256.
+#  - El APK va en Releases, con su hash al lado.
+android/app/src/main/assets/models/*.onnx
+apk/*.apk

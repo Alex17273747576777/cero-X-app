@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "nota": "Modelos verificados ejecutando una inferencia real con ONNX Runtime 1.17 en CPU antes de empaquetarse. Los que no pasaron la prueba no estan aqui.",
+  "modelos": [
+    {
+      "archivo": "colorize.onnx",
+      "bytes": 122961127,
+      "sha256": "268f8d2ae0333eaf687132e68a6ba83fe0e740e8fd952b325c4660f103757b29",
+      "verificado": true
+    },
+    {
+      "archivo": "decoder_model_quantized.onnx",
+      "bytes": 29627936,
+      "sha256": "2e7177d2b0a59f1c612b694ed70c13971bee765cc2b2bc7bc9376e4753652f27",
+      "verificado": true
+    },
+    {
+      "archivo": "encoder_fp16.onnx",
+      "bytes": 171851891,
+      "sha256": "1a6a57bc3608195c4577b13ac3aadab810dce42fa22c5a3acf0570bffc013b60",
+      "verificado": true
+    },
+    {
+      "archivo": "esrgan_x4.onnx",
+      "bytes": 67051616,
+      "sha256": "5c586662929cbc686c1a5c38d9c060dbdb4ea5863a1f7672b8c0761e6b89c033",
+      "verificado": true
+    }
+  ],
+  "descartados": [
+    {
+      "archivo": "encoder_model_int8.onnx",
+      "motivo": "ORT_NOT_IMPLEMENTED: ConvInteger no implementado en CPU"
+    },
+    {
+      "archivo": "decoder_model_int8.onnx",
+      "motivo": "ORT_NOT_IMPLEMENTED: ConvInteger no implementado en CPU"
+    },
+    {
+      "archivo": "decoder_model_fp16.onnx",
+      "motivo": "error de tipos en el grafo: float16 donde espera float"
+    },
+    {
+      "archivo": "decoder_model.onnx",
+      "motivo": "funciona, pero quantized hace lo mismo con 28 MiB en vez de 112"
+    }
+  ]
+}
