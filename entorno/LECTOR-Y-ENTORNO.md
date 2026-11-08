@@ -212,3 +212,64 @@ No es lo mismo que ejecutarlo, pero tampoco es nada:
   14 carpeta local, 14 orquestador de fuentes.
 - Un falso positivo de root corregido, una encuadernación invertida corregida,
   una ruta de API inexistente descubierta y sustituida por la real.
+
+---
+
+## 6. Cómo se probó el lector sin un teléfono (y qué no se probó)
+
+El README decía «no lee manga de punta a punta: falta pantalla de lector». La
+pantalla **ya existía** en el árbol (`ReaderActivity`, 416 líneas, con `LectorScreen`,
+`ReaderState`, `PageLoader`, `PageCache`, `ReadingProgress`) y lo que faltaba era
+una prueba que recorriera la cadena. Se escribió, y en el camino aparecieron
+cuatro cosas:
+
+1. **La descarga no se podía probar** porque vivía en un método privado de
+   `PageLoader`, junto a `BitmapFactory`. Se extrajo a
+   `modules/reader/DescargadorDeBytes.kt` — sin relajar ninguna regla — y ahora se
+   apunta a un servidor HTTP real.
+2. **`com.sun.net.httpserver` no está en `android.jar`**, así que la primera
+   versión de la prueba no compilaba. Se hizo un `ServerSocket` mínimo que sirve
+   HTTP/1.1 de verdad, con 302, 404, bucle de redirecciones y un caso **sin**
+   `Content-Length`.
+3. **Los nombres con acento llegaban como `Cap?tulo`**: la JVM arranca con
+   `LC_CTYPE=POSIX` en este contenedor y decodifica los nombres de archivo como
+   ASCII. No era un fallo del lector, era el entorno. Se fijan
+   `file.encoding`/`sun.jnu.encoding`/`LC_ALL` en `app/build.gradle` para que la
+   prueba mida el lector y no la máquina.
+4. **`ReaderState.desdePaginas`** no existía y hacía falta: con cero páginas el
+   `coerceIn(0, -1)` revienta y con un marcapáginas mayor que el capítulo hay que
+   abrir en la última página sin romper. Ahora es un método probado.
+
+`LectorExtremoAExtremoTest` = **14 pruebas**: carpeta temporal → fuente local →
+`RepositorioGlobal` → `ContentRepository.detalle` → `.paginas` → bytes por
+`DescargadorDeBytes` → `ReaderState`. Lo que **no** cubre: `BitmapFactory` (en la
+JVM devuelve `null`) y el dibujado en pantalla. Eso necesita un dispositivo, y
+sigue sin haberlo.
+
+## 7. El núcleo compartido: escritorio y web, con artefacto ejecutado
+
+Módulo `comun/` (Kotlin Multiplatform, targets JVM + JS(IR) + iOS declarado):
+
+| artefacto | tamaño | cómo se comprobó |
+|---|---:|---|
+| `build/libs/cerox-comun-todo.jar` | 3,29 MB | `java -jar … estado / ordenar / tracker / extension` |
+| `build/dist/js/productionLibrary/cerox-comun.js` | 39 KB | `node scripts/probar-web.mjs` → 15/15 |
+| `jvmTest` | — | 41 pruebas, 0 fallos |
+| `jsNodeTest` | — | 33 pruebas, 0 fallos |
+
+Tres defectos reales que solo aparecieron **al ejecutar**:
+
+- `ReferenceError: 'ceroX' is not defined`: el sobre termina llamando a cinco
+  objetos que en `qjs` pelado no existen. Se escribió `AnfitrionJs`, que los
+  define (`log`, `prefs`, `dom`, `ceroX`) y deja `http` **cerrado a propósito**
+  con un motivo, porque la red la pone cada anfitrión.
+- `ReferenceError: 'exports' is not defined`: el sobre definía `module.exports`
+  pero no `exports`, y todas las extensiones de Mihon usan `exports.sources`.
+- El sobre salía con sangría: `trimIndent()` **no recorta** cuando una de las
+  líneas interpoladas tiene menos sangría. Se construye con `append`.
+
+Y uno de arnés, no de producto: `var SALIDA = var ceroX = …` era un `SyntaxError`
+propio de la prueba nueva. Se separó en `AnfitrionJs.scriptConSalida`.
+
+iOS: los tres targets están declarados y Gradle los **desactiva** en Linux con un
+aviso explícito. No hay framework y no se afirma que lo haya.

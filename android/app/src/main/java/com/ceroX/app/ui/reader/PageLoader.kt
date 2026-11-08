@@ -2,12 +2,10 @@ package com.ceroX.app.ui.reader
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.ceroX.app.modules.reader.DescargadorDeBytes
 import com.ceroX.app.modules.reader.PageCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
 
 /**
  * De «aquí tengo una URL o una ruta» a «aquí tengo los píxeles que se pintan».
@@ -40,6 +38,11 @@ class PageLoader(
     private val ladoMaximo: Int = 4096,
     /** Bytes que se aceptan de una sola página. 24 MiB cubre una doble en 4K. */
     private val maxBytesPorPagina: Long = 24L * 1024 * 1024,
+    /**
+     * La descarga vive aparte para poder probarla sin Android. `PageLoader`
+     * sólo decodifica y cachea.
+     */
+    private val descargador: DescargadorDeBytes = DescargadorDeBytes(maxBytesPorPagina),
 ) {
 
     /** Lo que se pintó, o por qué no se pudo. */
@@ -129,67 +132,15 @@ class PageLoader(
         return muestra
     }
 
-    private fun leerBytes(origen: String): ByteArray {
-        if (!origen.startsWith("http://") && !origen.startsWith("https://")) {
-            val f = File(origen.replace("file://", ""))
-            require(f.exists()) { "no existe: ${f.name}" }
-            require(f.length() <= maxBytesPorPagina) { "archivo de ${f.length()} B, demasiado grande" }
-            return f.readBytes()
-        }
-
-        // Redirecciones a mano: HttpURLConnection no las sigue con POST y muchas
-        // fuentes redirigen a un CDN. Se limita a 5 saltos para no caer en un bucle.
-        var url = URL(origen)
-        var saltos = 0
-        while (saltos++ < 5) {
-            val conexion = (url.openConnection() as HttpURLConnection).apply {
-                connectTimeout = 15_000
-                readTimeout = 30_000
-                instanceFollowRedirects = false
-                setRequestProperty("User-Agent", AGENTE)
-                // Sin esto, algunas fuentes devuelven HTML de "verifica tu navegador"
-                // en vez de la imagen, y el error que llega es "no es una imagen".
-                setRequestProperty("Accept", "image/avif,image/webp,image/png,image/jpeg,*/*")
-            }
-            try {
-                val codigo = conexion.responseCode
-                if (codigo in 300..399) {
-                    val destino = conexion.getHeaderField("Location")
-                        ?: throw IllegalStateException("redirección $codigo sin Location")
-                    conexion.disconnect()
-                    url = URL(url, destino)
-                    continue
-                }
-                if (codigo !in 200..299) {
-                    throw IllegalStateException("HTTP $codigo")
-                }
-                val largo = conexion.contentLengthLong
-                if (largo > maxBytesPorPagina) {
-                    throw IllegalStateException("la imagen pesa ${largo / 1048576} MiB, más del tope")
-                }
-                conexion.inputStream.use { entrada ->
-                    // Se acota la lectura aunque no venga Content-Length: hay
-                    // servidores que mienten o no lo mandan.
-                    val salida = java.io.ByteArrayOutputStream()
-                    val buffer = ByteArray(64 * 1024)
-                    var total = 0L
-                    while (true) {
-                        val leidos = entrada.read(buffer)
-                        if (leidos < 0) break
-                        total += leidos
-                        if (total > maxBytesPorPagina) {
-                            throw IllegalStateException("la imagen pasa de ${maxBytesPorPagina / 1048576} MiB")
-                        }
-                        salida.write(buffer, 0, leidos)
-                    }
-                    return salida.toByteArray()
-                }
-            } finally {
-                conexion.disconnect()
-            }
-        }
-        throw IllegalStateException("demasiadas redirecciones")
-    }
+    /**
+     * De dónde salen los bytes.
+     *
+     * Esto era 90 líneas de red y archivo aquí dentro. Ahora es una llamada a
+     * [DescargadorDeBytes], que hace lo mismo pero se puede probar contra un
+     * servidor de verdad sin `BitmapFactory` de por medio. La única razón del
+     * cambio es que «no se puede probar» no es una excusa aceptable.
+     */
+    private fun leerBytes(origen: String): ByteArray = descargador.leer(origen)
 
     private fun describir(e: Throwable): String =
         e.message?.takeIf { it.isNotBlank() }?.let { "${e.javaClass.simpleName}: $it" }
@@ -200,7 +151,10 @@ class PageLoader(
          * Se identifica como cero-X con su versión. No se hace pasar por un
          * navegador para saltarse bloqueos: eso rompería la regla de no mentir,
          * y además hay fuentes que bloquean igual.
+         *
+         * El valor real vive en [DescargadorDeBytes.AGENTE]; aquí se reexpone
+         * para no romper a quien ya lo leía desde `PageLoader`.
          */
-        const val AGENTE: String = "cero-X/1.0.0 (+https://github.com/Alex17273747576777/cero-X-app)"
+        const val AGENTE: String = DescargadorDeBytes.AGENTE
     }
 }

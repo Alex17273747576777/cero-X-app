@@ -103,6 +103,29 @@ class TrackerClient(
         envio.copy(ms = System.currentTimeMillis() - t0, progresoRemotoAntes = remoto)
     }
 
+    /**
+     * Interpreta una respuesta de lectura de progreso ya obtenida.
+     *
+     * Existe para poder probar el análisis con **capturas reales del servidor**,
+     * sin red y sin token. Lo que se prueba no es que AniList responda —eso se
+     * comprobó a mano— sino que el código lee la respuesta correcta.
+     */
+    internal fun progresoDesdeCuerpo(tracker: Tracker, cuerpo: String): Int = when (tracker) {
+        Tracker.ANILIST -> runCatching {
+            JsonParser.parseString(cuerpo).asJsonObject
+                .getAsJsonObject("data")
+                ?.getAsJsonObject("Media")
+                ?.getAsJsonObject("mediaListEntry")
+                ?.get("progress")?.asInt
+        }.getOrNull() ?: -1
+
+        Tracker.MYANIMELIST -> runCatching {
+            JsonParser.parseString(cuerpo).asJsonObject
+                .getAsJsonObject("my_list_status")
+                ?.get("num_chapters_read")?.asInt
+        }.getOrNull() ?: -1
+    }
+
     // ── AniList (GraphQL) ────────────────────────────────────────────────────
 
     private fun leerAniList(token: String, idObra: Long): Int {
@@ -177,7 +200,8 @@ class TrackerClient(
 
     // ── Infraestructura ──────────────────────────────────────────────────────
 
-    private data class Respuesta(val codigo: Int, val cuerpo: String)
+    /** Respuesta cruda. Interna pero visible para pruebas: se prueba con capturas reales. */
+    internal data class Respuesta(val codigo: Int, val cuerpo: String)
 
     private fun abrir(url: URL, token: String, metodo: String): HttpURLConnection =
         (url.openConnection() as HttpURLConnection).apply {
@@ -212,19 +236,39 @@ class TrackerClient(
      * caducado, id inexistente). Mirar solo el código de estado daría «OK» en un
      * fallo, que es exactamente el error que no se quiere repetir aquí.
      */
-    private fun interpretar(tracker: Tracker, r: Respuesta): SyncResultado {
+    internal fun interpretar(tracker: Tracker, r: Respuesta): SyncResultado {
         val cuerpoCorto = r.cuerpo.take(300)
         if (tracker == Tracker.ANILIST) {
             val raiz = runCatching { JsonParser.parseString(r.cuerpo).asJsonObject }.getOrNull()
             val errores = raiz?.getAsJsonArray("errors")
             if (errores != null && errores.size() > 0) {
-                val texto = runCatching {
+                val mensaje = runCatching {
                     errores[0].asJsonObject.get("message").asString
                 }.getOrNull().orEmpty()
+                val estado = runCatching {
+                    errores[0].asJsonObject.get("status").asInt
+                }.getOrNull() ?: r.codigo
+
+                // MEDIDO CONTRA EL SERVIDOR REAL el 2026-11-08:
+                //
+                //   Authorization: Bearer token-invalido-de-prueba
+                //   → HTTP 400 {"data":null,"errors":[{"message":"Invalid token","status":400}]}
+                //
+                // La primera versión clasificaba cualquier error de AniList como
+                // ERROR_SERVIDOR (reintentable) salvo que el HTTP fuera 2xx. Con
+                // eso, un token caducado se reintentaba para siempre en vez de
+                // mandar al usuario a renovarlo. Un 400 de AniList es un rechazo,
+                // no un fallo del servidor.
+                val rechazo = estado in 400..499 || mensaje.contains("Invalid token", ignoreCase = true)
                 return SyncResultado(
                     tracker,
-                    if (r.codigo in 200..299) ResultadoSync.RECHAZADO else ResultadoSync.ERROR_SERVIDOR,
-                    "AniList rechazó: ${texto.ifBlank { cuerpoCorto }} (HTTP ${r.codigo})",
+                    if (rechazo) ResultadoSync.RECHAZADO else ResultadoSync.ERROR_SERVIDOR,
+                    if (rechazo) {
+                        "AniList rechazó la petición: ${mensaje.ifBlank { cuerpoCorto }} " +
+                            "(HTTP ${r.codigo}); el token se renueva en ${tracker.urlAjustes}"
+                    } else {
+                        "AniList devolvió un error: ${mensaje.ifBlank { cuerpoCorto }} (HTTP ${r.codigo})"
+                    },
                 )
             }
             val guardado = runCatching {

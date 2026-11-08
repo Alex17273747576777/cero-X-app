@@ -43,6 +43,7 @@ no se puede comprobar con un comando, no está en este README.
 | ✨ | **Sugerencias sin red** calculadas con lo que ya lees | funciona |
 | 🎨 | **Colorización de páginas** con modelo ONNX dentro del APK | funciona (falta pantalla) |
 | 🔍 | **Reescalado ×4** con dos modelos, elegidos según la página | funciona (falta pantalla) |
+| 📖 | **Lector** con tres modos, orden natural, marcapáginas y caché en bytes | funciona (falta verlo en un panel) |
 | 📖 | **Caché de páginas** con tope en bytes y prefetch adaptado a la red | funciona |
 | 🔌 | **Extensiones JVM** del ecosistema Mihon, cargadas en aislamiento | funciona |
 | 💾 | **Importador de backups** de 6 formatos, detectados por bytes | funciona |
@@ -50,8 +51,10 @@ no se puede comprobar con un comando, no está en este README.
 «Funciona (falta pantalla)» merece una explicación, porque es fácil decirlo y
 difícil que sea verdad. El modelo carga, ejecuta inferencia —medido— **y existe
 un pipeline que recibe la página, aplica el motor y devuelve el bitmap listo para
-pintar** (`ReaderPipeline`, 6 pruebas). Lo que todavía no hay es la pantalla de
-lector que llame a ese pipeline: cero-X no tiene aún una vista de lectura.
+pintar** (`ReaderPipeline`, 6 pruebas). La pantalla de lectura **ya existe**
+(`ReaderActivity`, con los tres modos y marcapáginas); lo que no tiene todavía es
+un interruptor que encienda la colorización, porque el pipeline cuesta 1 490 ms
+por página medidos y encenderlo sin pedirlo convertiría el lector en una estufa.
 
 Es un avance real sobre «motor listo» —antes no había nada entre el modelo y la
 nada— y sigue sin ser «lector completo». Las dos cosas son verdad a la vez.
@@ -262,22 +265,79 @@ opinión. Se tomó su disciplina de prueba, no su código.
 
 ## Lo que no hace
 
-Esta sección existe porque un README sin ella es publicidad.
+Esta sección existe porque un README sin ella es publicidad. Cada línea dice
+**qué se midió** y **qué falta**, no una impresión.
 
 - ❌ **No está probado que arranque en un aparato físico.** La máquina donde se
-  construyó no tiene `/dev/kvm` ni RAM para un emulador. Lo verificado es
+  construyó no tiene `/dev/kvm`. Se intentó dos veces con emulación por software
+  (TCG) y las dos veces QEMU murió con `exit 139` y
+  `hanging thread 'QEMU2 main loop'`; los dos intentos están en
+  `entorno/LECTOR-Y-ENTORNO.md` §5 con sus comandos y su salida. Lo verificado es
   estático: actividad de arranque declarada, tema presente, 26 899 clases en 3
-  dex, icono en 6 variantes, firma v2 válida.
-- ❌ **No lee manga de punta a punta todavía.** El pipeline de IA está hecho y
-  probado; falta la pantalla de lector que lo invoque. cero-X no tiene vista de
-  lectura, así que no hay nada que abrir.
-- ❌ **No sincroniza con AniList ni MyAnimeList** contra servidores reales. Está
-  el código y faltan las credenciales.
-- ⚠️ **Las extensiones JavaScript no tienen motor elegido.** Hay tres candidatos
-  viables: QuickJS 0.9.2 (MIT), J2V8 6.3.4 y Rhino 1.9.2. La elección tiene
-  consecuencias de tamaño y licencia y no se ha tomado a la ligera.
-- ❌ **No hay versión de escritorio ni iOS.** Están en el código como módulos; no
-  hay binarios y no se anuncia lo que no se puede instalar.
+  dex, icono en 6 variantes, firma v2 válida. **No se afirma que arranque.**
+
+- ⚠️ **Lee manga de punta a punta en las pruebas; falta verlo en una pantalla.** Lo
+  que sí hay y está probado:
+  `CatalogoActivity` → ficha → `ReaderActivity` → `ReaderState` → `PageLoader`,
+  con 14 pruebas que recorren la cadena contra un servidor HTTP real
+  (`LectorExtremoAExtremoTest`). Lo que no se ha visto es **un píxel en un panel**:
+  aquí no hay dispositivo ni emulador. La decodificación final usa
+  `BitmapFactory`, que en la JVM de pruebas devuelve `null` y por eso no se
+  simula. Dicho de otro modo: la lógica está medida, el dibujado no.
+
+- ✅ **Sincroniza con AniList contra el servidor real.** Medido con `curl`:
+  consulta pública `HTTP 200` con `ONE PIECE`; token inválido `HTTP 400`
+  (`errors[].status`); MAL sin token `HTTP 403`. Esa medición destapó y corrigió
+  un fallo real —el `400` se clasificaba como error reintentable y ahora es
+  `RECHAZADO`— y quedó fijada en 12 pruebas (`TrackerRespuestasRealesTest`).
+  Lo que **sigue faltando** son credenciales de una cuenta real: no hay token de
+  AniList ni de MAL en este entorno, así que no hay ninguna lista sincronizada.
+  Se prueba la conversación con el servidor, no una cuenta.
+
+- ✅ **Las extensiones JavaScript tienen motor, elegido con números medidos.**
+
+  | motor | licencia | binario | bytecode | veredicto |
+  |---|---|---|---|---|
+  | `app.cash.quickjs:quickjs-android:0.9.2` | Apache-2.0 | 854 KB (arm64) | Java 8 | **elegido** — es el que usa Mihon |
+  | j2v8 6.3.4 | EPL-1.0 | 53 MB por ABI | — | descartado: tamaño y licencia |
+  | Rhino 1.9.2 | MPL-2.0 | 1,6 MB, 710 clases | Java 11 | descartado: sin JIT |
+
+  QuickJS ejecuta JavaScript real: 11 pruebas de sintaxis con el `qjs` oficial
+  (`scripts/probar-quickjs-linux.py`), 11 del anfitrión en Android
+  (`MotorJsTest`) y 8 que **lanzan el binario** y comparan su salida
+  (`ExtensionEjecutadaTest`). Lo que no hace: `quickjs-android` no expone
+  `interruptHandler`, así que un script que no termina deja el motor marcado
+  como contaminado y el hilo atascado no se puede matar. En escritorio sí se
+  mata, porque es un proceso.
+
+- ⚠️ **Hay escritorio en forma de biblioteca ejecutable; no hay aplicación de
+  escritorio.** Lo que existe y se ejecuta:
+
+  ```bash
+  java -jar cerox-comun-todo.jar estado      # plataforma, motor y tabla de capacidades
+  java -jar cerox-comun-todo.jar ordenar     # orden natural, leyendo de la entrada
+  java -jar cerox-comun-todo.jar tracker 12 40 200
+  java -jar cerox-comun-todo.jar extension ejemplo.js   # ejecuta la extensión en QuickJS
+  ```
+
+  Ese `.jar` (3,29 MB, con stdlib y coroutines dentro) y el `.js`
+  (`cerox-comun.js`, 39 KB, con 15 comprobaciones en verde desde Node) salen del
+  **mismo** fuente Kotlin que la app, no de una copia. Lo que no hay es ventana,
+  ni instalador, ni empaquetado por plataforma. No hay una app de escritorio que
+  abrir.
+
+- ⚠️ **iOS está declarado y compila a medias: no hay binario.** Los targets
+  `iosX64`, `iosArm64` e `iosSimulatorArm64` están en el build y el código común
+  los contempla, pero enlazar un framework de Kotlin/Native necesita macOS con
+  Xcode. En esta máquina Gradle los desactiva y lo dice. **No hay aplicación de
+  iOS.**
+
+- ❌ **No hay traducción neuronal japonés→español.** Hay reglas de variante
+  (`es-DO`, `es-AR`, neutra) y glosario del usuario, probadas. Un modelo de
+  traducción no está, y no se presenta como si estuviera.
+
+- ❌ **No hay lector de EPUB ni de novelas ligeras** más allá de la fuente de
+  carpetas con imágenes.
 
 ---
 
@@ -293,16 +353,25 @@ Todo lo de esta tabla se midió con un comando en la máquina donde se construy�
 | librerías nativas (4 ABIs) | 62,32 MiB |
 | `classes.dex` | 39,84 MiB |
 | archivos Kotlin | 125 |
-| pruebas unitarias | **40, todas pasando** |
+| pruebas unitarias (app Android) | **348, todas pasando** |
+| pruebas del núcleo compartido | **41 en JVM y 33 en JS, todas pasando** |
+| comprobaciones del `.js` desde Node | **15, todas en verde** |
 | errores de compilación | **0** (venían de 519) |
 | tamaños de backup detectados | 6 de 6 |
 
 ```bash
 # verificable en cualquier clon
 $ ANDROID_HOME=/opt/android-sdk ./gradlew testDebugUnitTest
-40 tests completed, 0 failed
-# FeedManager 6 · SuggestionEngine 6 · PageCache 7 · ReaderPipeline 6
-# ModelHonesty 5 · StressBackup 5 · StressFeed 5
+348 tests completed, 0 failed
+
+# el núcleo compartido, en las dos plataformas que esta máquina compila
+$ cd comun && gradle jvmTest jsNodeTest
+jvmTest: 41 pruebas, 0 fallos
+jsNodeTest: 33 pruebas, 0 fallos
+
+# y el artefacto web, ejecutado
+$ node comun/scripts/probar-web.mjs
+15/15 en verde
 
 $ apksigner verify --print-certs app-release.apk
 Signer #1 certificate DN: CN=cero-X, O=La Bandita, C=DO

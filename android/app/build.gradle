@@ -210,6 +210,12 @@ dependencies {
     ksp 'androidx.room:room-compiler:2.7.0'
     implementation 'androidx.room:room-ktx:2.7.0'
 
+    // Motor JavaScript para las extensiones .js. Elegido con numeros medidos:
+    // Apache-2.0 como el resto del proyecto, 854 KB en arm64 (frente a 53 MB de
+    // j2v8 por ABI), bytecode Java 8 y el mismo motor que usa Mihon.
+    // Ver modules/source_js/MotorJs.kt para la comparacion completa.
+    implementation 'app.cash.quickjs:quickjs-android:0.9.2'
+
     // Shizuku: ejecutar `pm install` sin root, con el permiso de ADB.
     // `api` trae el binder; `provider` trae el ContentProvider que Shizuku usa
     // para descubrir la app autorizada. Sin el segundo, el permiso nunca llega.
@@ -266,6 +272,17 @@ dependencies {
 tasks.withType(Test).configureEach {
     systemProperty "robolectric.dependency.dir", "/opt/robolectric"
     systemProperty "maven.repo.local", "/opt/m2"
+
+    // Los nombres de archivo se decodifican con el juego de caracteres del
+    // entorno. En un contenedor sin locale (LC_CTYPE=POSIX) la JVM los lee como
+    // ASCII y «Capítulo» llega como «Cap?tulo»: el lector parece roto cuando el
+    // roto es el entorno de compilación. Se fija UTF-8 aquí para que la prueba
+    // mida el lector y no la configuración de la máquina.
+    systemProperty "file.encoding", "UTF-8"
+    systemProperty "sun.jnu.encoding", "UTF-8"
+    jvmArgs "-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8", "-Duser.language=es", "-Duser.country=DO"
+    environment "LC_ALL", "C.UTF-8"
+    environment "LANG", "C.UTF-8"
 }
 
 

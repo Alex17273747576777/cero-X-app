@@ -114,4 +114,22 @@ class ReaderState(
     /** Copia para un capítulo nuevo, conservando el modo de lectura. */
     fun paraCapitulo(nuevoTotal: Int, inicial: Int = 0): ReaderState =
         ReaderState(nuevoTotal, inicial, modo)
+
+    companion object {
+        /**
+         * El estado que corresponde a un capítulo ya cargado.
+         *
+         * POR QUÉ ESTO ES UN MÉTODO Y NO UNA LÍNEA EN LA ACTIVITY
+         * ------------------------------------------------------
+         * Porque es lógica y tenía dos fallos posibles que nadie estaba
+         * comprobando: con cero páginas reventaba el `coerceIn` (rango
+         * `0..-1`) y con un marcapáginas mayor que el capítulo abría en la
+         * última página sin decirlo. Aquí se corrige una vez y se prueba de
+         * punta a punta en `LectorExtremoAExtremoTest`.
+         */
+        fun desdePaginas(paginas: List<String>, inicial: Int = 0, modo: Modo = Modo.LTR): ReaderState {
+            if (paginas.isEmpty()) return ReaderState(0, 0, modo)
+            return ReaderState(paginas.size, inicial.coerceIn(0, paginas.size - 1), modo)
+        }
+    }
 }
