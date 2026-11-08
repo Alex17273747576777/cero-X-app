@@ -35,7 +35,12 @@ class ModelAssets(private val context: Context) {
         "ocr-encoder" to Modelo("encoder_fp16.onnx", 171_855_254, "pixel_values", "last_hidden_state"),
         "ocr-decoder" to Modelo("decoder_model_quantized.onnx", 29_631_616, "input_ids", "logits"),
         "colorize" to Modelo("colorize.onnx", 122_961_127, "input", "rgb"),
-        "upscale-x4" to Modelo("esrgan_x4.onnx", 67_065_453, "input", "output"),
+        "upscale-x4" to Modelo("esrgan_x4.onnx", 67_051_616, "input", "output"),
+        // El upscaler específico de anime: mismo resultado ×4 en 2 673 ms frente
+        // a 24 587 ms del general, y pesa 4,92 MiB en vez de 63,95. Se ofrecen
+        // los dos porque el general va mejor en fotografía y el de anime en
+        // línea clara; la app elige según el tipo de página.
+        "upscale-anime-x4" to Modelo("anime4x.onnx", 5_156_099, "image.1", "output"),
     )
 
     /** Lo que el usuario ve: qué modelos hay, cuánto pesan y si están verificados. */

@@ -54,6 +54,11 @@ android {
             if (System.getenv('CEROX_KEYSTORE') != null) {
                 signingConfig signingConfigs.release
             }
+            // v1 (JAR) sigue haciendo falta para Android 8.0-8.1, que es el
+            // minimo declarado (API 26). Sin el esquema v1, un movil con
+            // Android 8 no instala el APK. v2 y v3 los pone el firmador solo.
+            signingConfigs.release.v1SigningEnabled = true
+            signingConfigs.release.v2SigningEnabled = true
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

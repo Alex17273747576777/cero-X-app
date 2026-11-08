@@ -1,7 +1,13 @@
 {
-  "version": 1,
-  "nota": "Modelos verificados ejecutando una inferencia real con ONNX Runtime 1.17 en CPU antes de empaquetarse. Los que no pasaron la prueba no estan aqui.",
+  "version": 2,
+  "nota": "Cada modelo de aqui se cargo y ejecuto una inferencia real con ONNX Runtime 1.17 en CPU antes de empaquetarse. Los que no pasaron la prueba estan en 'descartados' con el error exacto.",
   "modelos": [
+    {
+      "archivo": "anime4x.onnx",
+      "bytes": 5156099,
+      "sha256": "2208c7ae8db793330abf1248fbce15585ad317e921c456265572836b92926c9a",
+      "verificado": true
+    },
     {
       "archivo": "colorize.onnx",
       "bytes": 122961127,
@@ -30,19 +36,23 @@
   "descartados": [
     {
       "archivo": "encoder_model_int8.onnx",
-      "motivo": "ORT_NOT_IMPLEMENTED: ConvInteger no implementado en CPU"
+      "motivo": "ORT_NOT_IMPLEMENTED: no hay implementacion de ConvInteger(10) en CPU"
     },
     {
       "archivo": "decoder_model_int8.onnx",
-      "motivo": "ORT_NOT_IMPLEMENTED: ConvInteger no implementado en CPU"
+      "motivo": "ORT_NOT_IMPLEMENTED: no hay implementacion de ConvInteger(10) en CPU"
     },
     {
       "archivo": "decoder_model_fp16.onnx",
-      "motivo": "error de tipos en el grafo: float16 donde espera float"
+      "motivo": "error de tipos al cargar el grafo: tensor(float16) donde espera tensor(float)"
     },
     {
       "archivo": "decoder_model.onnx",
-      "motivo": "funciona, pero quantized hace lo mismo con 28 MiB en vez de 112"
+      "motivo": "funciona, pero el quantized hace lo mismo con 28 MiB en vez de 112"
+    },
+    {
+      "archivo": "real_esrgan_x2.onnx",
+      "motivo": "funciona, pero el general x4 ya cubre el caso y el de anime es 9 veces mas rapido"
     }
   ]
 }

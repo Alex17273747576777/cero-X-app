@@ -49,7 +49,16 @@ MODELOS = [
         "esrgan_x4.onnx",
         "https://huggingface.co/SceneWorks/real-esrgan-onnx/resolve/main/real_esrgan_x4.onnx",
         "5c586662929cbc686c1a5c38d9c060dbdb4ea5863a1f7672b8c0761e6b89c033",
-        67_065_453,
+        67_051_616,
+    ),
+    (
+        # Upscaler de anime: 9 veces mas rapido que el general y 59 MiB mas
+        # ligero. El paquete de origen no declara licencia, por eso se cita el
+        # repo de donde sale y no se le atribuye ninguna que no tenga.
+        "anime4x.onnx",
+        "https://huggingface.co/xiongjie/lightweight-real-ESRGAN-anime/resolve/main/RealESRGAN_x4plus_anime_4B32F.onnx",
+        "2208c7ae8db793330abf1248fbce15585ad317e921c456265572836b92926c9a",
+        5_156_099,
     ),
 ]
 
