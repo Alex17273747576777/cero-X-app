@@ -273,3 +273,23 @@ propio de la prueba nueva. Se separó en `AnfitrionJs.scriptConSalida`.
 
 iOS: los tres targets están declarados y Gradle los **desactiva** en Linux con un
 aviso explícito. No hay framework y no se afirma que lo haya.
+
+## 8. El APK de esta ronda, verificado por dentro
+
+| | valor |
+|---|---|
+| APK | `app-debug.apk`, `-PsoloAbi=x86_64 -PsinModelos` |
+| bytes | 59 633 910 |
+| sha256 | `8e3024fbaed11f1c9e7554d71643b92a20572821c2bf86d13149a9a82bf93606` |
+| firma | `CN=Android Debug` (debug; no es la release) |
+| `lib/x86_64/libquickjs.so` | **928 224 B — el motor JS está dentro del APK** |
+| `lib/x86_64/libonnxruntime.so` | 17 798 640 B |
+| clases de `EstadoSistemaActivity` | en `classes8.dex` |
+
+El manifiesto **del APK**, no del fuente, declara las cinco pantallas:
+`MainActivity`, `CatalogoActivity`, `ReaderActivity`,
+`modules.houri.tracker.TrackerActivity` y `ui.estado.EstadoSistemaActivity`.
+Comprobado con `aapt2 dump xmltree --file AndroidManifest.xml app-debug.apk`.
+
+Que el `.so` esté en el APK prueba que la dependencia se empaquetó; **no** prueba
+que cargue en un teléfono. Eso necesita un aparato, y sigue sin haberlo.
