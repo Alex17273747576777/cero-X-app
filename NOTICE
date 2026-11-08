@@ -1,0 +1,74 @@
+cero-X
+Copyright 2026 La Bandita
+
+Este producto incluye software desarrollado por terceros. Las atribuciones van
+aquí porque Apache-2.0 las exige, no por cortesía.
+
+================================================================================
+Linaje del que sale cero-X
+================================================================================
+
+cero-X es un fork del ecosistema Mihon. La cadena es:
+
+  Tachiyomi  →  TachiyomiSY  →  Mihon  →  Komikku  →  Houri  →  cero-X
+
+Licencias verificadas por la API de GitHub el 2026-11-08:
+
+  mihonapp/mihon              Apache-2.0
+  komikku-app/komikku         Apache-2.0
+  PineappleTwilight/houri     Apache-2.0
+  tachiyomiorg/tachiyomi      sin licencia declarada (el repositorio ya no la expone)
+
+  Copyright 2015-2026 The Tachiyomi Open Source Project
+  Copyright 2024-2026 Mihon contributors
+  Copyright 2024-2026 Komikku contributors
+
+================================================================================
+Contrato de extensiones
+================================================================================
+
+El contrato `eu.kanade.tachiyomi.source` se reimplementa aquí por reflexión para
+poder cargar extensiones del ecosistema. No se distribuye código de Mihon: se
+implementa el mismo contrato para que las extensiones funcionen.
+
+================================================================================
+Modelos incluidos en el APK
+================================================================================
+
+Los cinco modelos ONNX que viajan dentro del APK y sus licencias:
+
+  encoder_fp16.onnx            apache-2.0
+  colorize.onnx                apache-2.0   (ifritraen/manga-colorization-v2-fp32)
+  esrgan_x4.onnx               BSD-3-Clause (SceneWorks/real-esrgan-onnx)
+  decoder_model_quantized.onnx apache-2.0
+  anime4x.onnx                 licencia NO DECLARADA en origen
+
+  ATENCIÓN — anime4x.onnx: el repositorio de origen
+  (xiongjie/lightweight-real-ESRGAN-anime) **no declara licencia**. Se incluye
+  porque se obtuvo de una fuente pública, pero su situación legal es
+  indeterminada. Si el autor reclama, hay que quitarlo o pedir permiso. Queda
+  escrito aquí precisamente para que esto no se descubra tarde.
+
+  manga-ocr (usado para OCR)   apache-2.0  (onnx-community/manga-ocr-base-ONNX)
+
+================================================================================
+Bibliotecas principales
+================================================================================
+
+  ONNX Runtime              MIT
+  AndroidX / Jetpack        Apache-2.0
+  Kotlin stdlib             Apache-2.0
+  OkHttp                    Apache-2.0
+  Coil                      Apache-2.0
+  Robolectric (solo test)   MIT
+  JUnit (solo test)         EPL-1.0
+
+La lista completa y exacta se puede generar con `./gradlew dependencies`; esta
+es la de las que viajan en el APK.
+
+================================================================================
+Lo que este archivo NO hace
+================================================================================
+
+No acredita autoría sobre el trabajo de los demás. cero-X no es sucesor de
+Mihon ni de Komikku: es un fork, y el trabajo que lo hizo posible es de ellos.

@@ -20,7 +20,45 @@
 
     <!-- Permisos de instalación de extensiones (SanTBox) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
+
+    <!--
+      INSTALL_PACKAGES es un permiso de sistema: NO se concede a apps de usuario.
+      Se declara porque sin él la app no puede pedirlo por la vía de Shizuku o
+      root, y porque declararlo hace visible en el manifiesto que cero-X puede
+      instalar paquetes si el dispositivo le da ese poder.
+
+      Lo que NO hace: concedérselo a sí misma. En un teléfono sin root, este
+      permiso no se otorga nunca y la instalación pasa por PackageInstaller con
+      confirmación del usuario. PrivilegeProbe comprueba el nivel real antes de
+      prometer nada.
+    -->
+    <uses-permission
+        android:name="android.permission.INSTALL_PACKAGES"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission
+        android:name="android.permission.DELETE_PACKAGES"
+        tools:ignore="ProtectedPermissions" />
+
+    <!--
+      QUERY_ALL_PACKAGES (API 30+): necesario para QUE Shizuku, el instalador del
+      sistema y los gestores de paquetes sean visibles al preguntar por ellos.
+      Sin esto, getPackageInfo("moe.shizuku.privileged.api") devuelve "no
+      instalado" aunque esté instalado, y la app diría que no hay Shizuku
+      cuando sí lo hay. Es un falso negativo, y es peor que un fallo.
+
+      Google Play restringe este permiso. Fuera de Play (F-Droid, GitHub
+      Releases, APK directa) no hay problema, y cero-X se distribuye por APK.
+    -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!--
+      Permiso para el servicio de instalación en segundo plano. En Android 14+
+      el tipo tiene que existir y ser explícito, o el servicio no arranca.
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_INSTALL_PACKAGES"
+        tools:targetApi="34" />
 
     <!-- Servicios en primer plano -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -58,6 +96,23 @@
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
+
+    <!--
+      Visibilidad de paquetes por nombre, que es la forma precisa de hacerlo.
+      Se listan solo los que la app necesita ver; QUERY_ALL_PACKAGES queda arriba
+      como red de seguridad para variantes de Shizuku que no se conocen.
+    -->
+    <queries>
+        <package android:name="moe.shizuku.privileged.api" />
+        <package android:name="moe.shizuku.manager" />
+        <package android:name="rikka.shizuku" />
+        <package android:name="com.mixplorer" />
+        <package android:name="eu.kanade.tachiyomi.extension" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="application/vnd.android.package-archive" />
+        </intent>
+    </queries>
 
     <application
         android:name=".core.CeroXApplication"

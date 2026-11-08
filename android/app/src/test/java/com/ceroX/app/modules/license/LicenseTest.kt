@@ -40,8 +40,33 @@ class LicenseTest {
     }
 
     @Test
-    fun `el spdx de cero-X es GPL-3-0-only`() {
-        assertEquals("GPL-3.0-only", LicenseId.GPL3.spdx)
+    fun `el spdx de cero-X es Apache-2-0`() {
+        // Medido por API contra mihonapp/mihon, komikku-app/komikku y
+        // PineappleTwilight/houri: los tres son Apache-2.0. El linaje no es GPL,
+        // y una suposición anterior de GPL en este repositorio era falsa.
+        assertEquals("Apache-2.0", LicenseId.APACHE2.spdx)
+    }
+
+    @Test
+    fun `el linaje es apache, asi que no obliga a publicar el codigo`() {
+        assertFalse(
+            "Apache-2.0 permite distribuir un fork cerrado; la GPL no",
+            LicenseId.APACHE2.requiresSourceOnDistribution,
+        )
+    }
+
+    @Test
+    fun `apache si obliga a conservar el aviso de copyright`() {
+        // La obligación real de Apache-2.0 no es publicar el código: es el NOTICE.
+        val c = LicenseCompliance(
+            license = LicenseId.APACHE2,
+            hasLicenseFile = true,
+            hasNoticeFile = false,
+            sourcePublished = true,
+            bundledAssets = emptyList(),
+        )
+        assertFalse(c.isCompliant())
+        assertTrue(c.pending().any { it.id == "notice" })
     }
 
     // ── Cumplimiento: no se declara cumplido sin evidencia ───────────────────
@@ -52,7 +77,7 @@ class LicenseTest {
         source: Boolean = true,
         assets: List<LicenseCompliance.BundledAsset> = emptyList(),
     ) = LicenseCompliance(
-        license = LicenseId.GPL3,
+        license = LicenseId.APACHE2,
         hasLicenseFile = license,
         hasNoticeFile = notice,
         sourcePublished = source,
@@ -66,8 +91,19 @@ class LicenseTest {
     }
 
     @Test
-    fun `con GPL el codigo tiene que estar publicado`() {
+    fun `con Apache no publicar el codigo no es incumplimiento`() {
         val c = compliance(source = false)
+        assertTrue("con Apache-2.0 no hay obligación de publicar", c.isCompliant())
+        assertFalse(c.obligations().any { it.id == "source-available" })
+    }
+
+    @Test
+    fun `con GPL si lo seria, y el comprobador lo sabe`() {
+        val c = LicenseCompliance(
+            license = LicenseId.GPL3,
+            hasLicenseFile = true, hasNoticeFile = true, sourcePublished = false,
+            bundledAssets = emptyList(),
+        )
         assertFalse(c.isCompliant())
         assertTrue(c.pending().any { it.id == "source-available" })
     }

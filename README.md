@@ -367,7 +367,19 @@ cubierto por una prueba que falla si se rompe.
 
 ## Licencia
 
-Apache-2.0. Los modelos tienen las suyas, en
+Apache-2.0, igual que el linaje del que sale cero-X. Verificado por la API de
+GitHub el 2026-11-08: `mihonapp/mihon`, `komikku-app/komikku` y
+`PineappleTwilight/houri` son los tres Apache-2.0.
+
+Apache-2.0 **no** obliga a publicar el código modificado —eso es la GPL— pero sí
+obliga a conservar el aviso y el `NOTICE`. Por eso existe
+[`NOTICE`](NOTICE), con la cadena completa y las licencias de los cinco modelos.
+
+Un aviso que no es cosmético: **`anime4x.onnx` no tiene licencia declarada en su
+repositorio de origen**. Está escrito en el `NOTICE` porque descubrirlo después de
+publicar es peor que decirlo ahora.
+
+Los modelos tienen las suyas, en
 [`README_MODELS.md`](android/app/src/main/assets/models/README_MODELS.md).
 
 ---

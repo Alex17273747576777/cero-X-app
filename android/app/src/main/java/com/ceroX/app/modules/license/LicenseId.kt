@@ -3,16 +3,29 @@ package com.ceroX.app.modules.license
 /**
  * Qué licencia tiene cero-X y por qué.
  *
- * cero-X es un fork del linaje Mihon/Tachiyomi/Komikku, y ese linaje es
- * **GPL-3.0**. Lo que impone la GPL y lo que no, dicho sin letra pequeña:
+ * **Medido, no supuesto.** El 2026-11-08 se consultó la licencia real por la API
+ * de GitHub de toda la cadena de la que sale cero-X:
  *
- *   • Obliga a publicar el código modificado al distribuirlo.
- *   • Obliga a mantener la misma licencia en las modificaciones.
- *   • **No** obliga a cobrar ni prohíbe cobrar.
- *   • **No** obliga a dar soporte.
+ * ```
+ * mihonapp/mihon            -> Apache-2.0
+ * komikku-app/komikku       -> Apache-2.0
+ * PineappleTwilight/houri   -> Apache-2.0
+ * tachiyomiorg/tachiyomi    -> NONE (el repositorio ya no declara licencia)
+ * ```
  *
- * La consecuencia práctica que más se ignora: si distribuyes una APK
- * modificada, tienes que ofrecer el código. Publicar solo la APK no cumple.
+ * Es decir: **el linaje es Apache-2.0**, no GPL. Una suposición inicial de GPL
+ * en este mismo archivo era falsa y se corrigió antes de publicarla.
+ *
+ * Lo que impone Apache-2.0, sin letra pequeña:
+ *
+ *   • **No** obliga a publicar el código modificado. Se puede distribuir un fork
+ *     cerrado; es la diferencia grande con la GPL.
+ *   • Sí obliga a **conservar el aviso de copyright y el NOTICE**.
+ *   • Sí obliga a indicar qué archivos se modificaron.
+ *   • Concede una licencia de patentes que no se puede retirar.
+ *
+ * El repositorio declara `Apache-2.0` en su `LICENSE`, y por coherencia cero-X
+ * sigue esa misma licencia.
  */
 enum class LicenseId(val id: String, val spdx: String, val displayName: String) {
     GPL3(
@@ -46,10 +59,11 @@ enum class LicenseId(val id: String, val spdx: String, val displayName: String) 
         get() = this == GPL3 || this == LGPL3
 
     /**
-     * Si se puede relicenciar a algo más permisivo.
+     * Si se puede relicenciar a algo **más** permisivo.
      *
-     * La GPL no permite bajar a MIT: quien recibe puede exigir los mismos
-     * derechos que la GPL le dio. Esto no es una opinión, es la cláusula 2.
+     * Apache-2.0 y MIT sí: los dos permiten redistribuir bajo otros términos
+     * mientras se conserve el aviso. La GPL no, porque quien ya recibió bajo GPL
+     * conserva esos derechos y no se le pueden quitar.
      */
     val canRelicensePermissively: Boolean
         get() = this == APACHE2 || this == MIT

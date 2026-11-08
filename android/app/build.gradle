@@ -146,6 +146,15 @@ android {
         unitTests.includeAndroidResources = true
     }
 
+    // ── Licencia dentro del APK ──────────────────────────────────────────────
+    // Apache-2.0 no pide publicar el código, pero SÍ exige que el aviso y el
+    // NOTICE lleguen a quien recibe la app. Un NOTICE en el repositorio no
+    // cumple: la obligación es sobre lo que se distribuye. Por eso se empaqueta
+    // en assets, y LicenseModule lo comprueba leyendo el asset, no el repo.
+    androidResources {
+        noCompress += ["NOTICE", "LICENSE"]
+    }
+
     // Configuración de tamaño objetivo 200-750 MB para APK universal
     // Incluye: ONNX Runtime (4 arquitecturas), modelos ONNX, bibliotecas nativas, recursos
 }
@@ -227,3 +236,33 @@ tasks.withType(Test).configureEach {
     systemProperty "robolectric.dependency.dir", "/opt/robolectric"
     systemProperty "maven.repo.local", "/opt/m2"
 }
+
+
+// Copia LICENSE y NOTICE del repo a los assets que van dentro del APK.
+// Se engancha a preBuild para que ningún build pueda olvidarse.
+// Este build.gradle es Groovy, no Kotlin DSL: `val` no existe aquí. Se usa `def`.
+tasks.register("bundleLicenseAssets") {
+    def origen = rootProject.projectDir.parentFile
+    def destino = file("src/main/assets")
+    doLast {
+        destino.mkdirs()
+        ["LICENSE", "NOTICE"].each { nombre ->
+            def src = new File(origen, nombre)
+            if (src.exists()) {
+                // Se usa Files.copy en vez de File.copyTo: en Groovy, copyTo
+                // resuelve `overwrite = true` como propiedad del task y falla.
+                java.nio.file.Files.copy(
+                    src.toPath(),
+                    new File(destino, nombre).toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                println("licencia empaquetada: " + nombre + " (" + src.length() + " B)")
+            } else {
+                // Falla el build: distribuir sin NOTICE incumple Apache-2.0.
+                throw new GradleException("Falta " + nombre + " en la raiz del repositorio. " +
+                    "Apache-2.0 exige que el NOTICE llegue al usuario final.")
+            }
+        }
+    }
+}
+
+tasks.named("preBuild") { dependsOn("bundleLicenseAssets") }
