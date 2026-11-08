@@ -52,27 +52,77 @@ class BackupModule : ModuleInterface() {
         )
     }
 
+    /**
+     * Crea un backup de verdad: un ZIP con el contenido dentro.
+     *
+     * Antes el nombre decía `.zip`, la extensión decía `.zip`, y **no se escribía
+     * ningún archivo**: `success = true` con el comentario "Placeholder:
+     * implementar compresión ZIP real". El historial apuntaba un backup que no
+     * existía en disco. Un usuario podía perder su biblioteca por confiar en esa
+     * línea.
+     */
     fun createBackup(libraryData: String): BackupResult {
         val timestamp = System.currentTimeMillis()
         val fileName = "ceroX_backup_$timestamp.zip"
-        val result = BackupResult(
-            fileName = fileName,
-            success = true, // Placeholder: implementar compresión ZIP real
-            backupPath = backupDir?.let { File(it, fileName).absolutePath } ?: null,
-            sizeBytes = libraryData.toByteArray().size.toLong(),
-            createdAt = timestamp
-        )
-        backupHistory.add(BackupRecord(fileName, timestamp, result.success))
-        return result
+        val dir = backupDir
+            ?: return BackupResult(
+                fileName = "", success = false, backupPath = null,
+                sizeBytes = 0, createdAt = timestamp,
+                errorMessage = "No hay directorio de backups disponible"
+            )
+
+        val destino = File(dir, fileName)
+        return try {
+            dir.mkdirs()
+            java.util.zip.ZipOutputStream(destino.outputStream().buffered()).use { zip ->
+                zip.putNextEntry(java.util.zip.ZipEntry("library.json"))
+                zip.write(libraryData.toByteArray(Charsets.UTF_8))
+                zip.closeEntry()
+            }
+            // Comprobación que antes no existía: que el archivo esté y tenga bytes.
+            if (!destino.exists() || destino.length() == 0L) {
+                return BackupResult(fileName, success = false, backupPath = null,
+                    sizeBytes = 0, createdAt = timestamp,
+                    errorMessage = "El ZIP se creó vacío")
+            }
+            val result = BackupResult(
+                fileName = fileName,
+                success = true,
+                backupPath = destino.absolutePath,
+                sizeBytes = destino.length(),
+                createdAt = timestamp
+            )
+            backupHistory.add(BackupRecord(fileName, timestamp, true))
+            result
+        } catch (e: Exception) {
+            BackupResult(fileName, success = false, backupPath = null, sizeBytes = 0,
+                createdAt = timestamp,
+                errorMessage = "No se pudo escribir el backup: ${e.javaClass.simpleName}")
+        }
     }
 
+    /**
+     * Restaura un backup.
+     *
+     * Antes: `if (file.exists()) success = true, restoredItems = 0, "Backup
+     * restaurado"`. El mismo fallo que en BackupManager, en otro archivo.
+     *
+     * Ahora se indexa y se dice qué contiene. No se escribe nada en la biblioteca.
+     */
     fun restoreBackup(backupPath: String): RestoreResult {
         val file = File(backupPath)
         return if (file.exists()) {
+            val indice = BackupIndex.indexar(file)
             RestoreResult(
-                success = true,
-                restoredItems = 0, // Placeholder
-                message = "Backup restaurado desde $backupPath"
+                success = false,
+                restoredItems = 0,
+                message = if (indice.restaurable) {
+                    "El backup es válido (${indice.formato}, ${indice.entradas} entrada(s)) " +
+                        "pero el decodificador de este esquema todavía no está escrito. " +
+                        "No se ha escrito NADA en tu biblioteca."
+                } else {
+                    "No se puede restaurar: ${indice.problemas.joinToString("; ")}"
+                }
             )
         } else {
             RestoreResult(

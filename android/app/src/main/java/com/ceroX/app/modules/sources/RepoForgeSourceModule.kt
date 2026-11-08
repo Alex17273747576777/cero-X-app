@@ -48,7 +48,13 @@ class RepoForgeSourceModule : ModuleInterface() {
             mapOf(
                 "generated_sources" to generatedSources.size,
                 "cloudflare_bypass" to cloudflareBypassEnabled,
-                "keiyoushi_compatible" to true
+// keiyoushi (4.866 estrellas) es el repositorio de fuentes del ecosistema Mihon.
+                // Un `true` literal afirmaba una compatibilidad que no se comprobo nunca.
+                // Lo que si se comprueba: si el contrato eu.kanade esta en el APK, que
+                // es la condicion necesaria para que una extension de ese repositorio cargue.
+                "keiyoushi_contrato_presente" to
+                    com.ceroX.app.modules.extension_sandbox.ExtensionSandboxModule
+                        .LOADER_DISPONIBLE
             )
         )
     }

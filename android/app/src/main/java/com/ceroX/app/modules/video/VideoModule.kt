@@ -47,10 +47,37 @@ class VideoModule : ModuleInterface() {
 
     fun listLibrary(): List<VideoItem> = library.toList()
 
+    private var appContext: android.content.Context? = null
+
+    /**
+     * Reproduce un vídeo.
+     *
+     * Antes: buscaba el vídeo, no lanzaba nada y devolvía `true`. El usuario
+     * pulsaba play y la app decía que estaba reproduciendo.
+     *
+     * Ahora comprueba que el archivo exista y delega en el reproductor del sistema
+     * con un Intent real. Si no hay contexto o el archivo no está, devuelve false.
+     */
     fun play(videoId: String): Boolean {
         val item = library.firstOrNull { it.id == videoId } ?: return false
-        // Placeholder: launch video player
-        return true
+        if (item.path.isBlank()) return false
+        val archivo = java.io.File(item.path)
+        if (!archivo.exists() || !archivo.canRead()) return false
+        val ctx = appContext ?: return false
+        return try {
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                ctx, "${ctx.packageName}.extensions", archivo
+            )
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "video/*")
+                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            ctx.startActivity(intent)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 

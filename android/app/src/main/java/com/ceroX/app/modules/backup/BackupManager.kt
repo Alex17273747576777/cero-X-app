@@ -22,14 +22,42 @@ class BackupManager(private val context: Context) {
         backupDir.mkdirs()
     }
 
-    fun createBackup(backupName: String = "ceroX_backup"): BackupResult {
+    fun createBackup(
+        backupName: String = "ceroX_backup",
+        /** Qué guardar: nombre de archivo dentro del ZIP → contenido. */
+        contenido: Map<String, ByteArray> = emptyMap(),
+    ): BackupResult {
         val timestamp = System.currentTimeMillis()
         val fileName = "$backupName-$timestamp.zip"
         val backupFile = File(backupDir, fileName)
 
         try {
+            // Antes esto abría un ZipOutputStream con un comentario dentro y lo
+            // cerraba: producía un ZIP VÁLIDO Y VACÍO, y la línea siguiente lo
+            // declaraba exitoso. El usuario tenía un "backup" de 22 bytes sin nada
+            // dentro y no había forma de saberlo hasta el día que lo necesitara.
+            //
+            // Lo que no puede hacer este método es inventarse la biblioteca: quien
+            // llama tiene que pasarle el contenido. Se añade el parámetro y, si va
+            // vacío, se devuelve FALLO en vez de un ZIP vacío con éxito.
             ZipOutputStream(FileOutputStream(backupFile)).use { zos ->
-                // Placeholder: añadir archivos de biblioteca al ZIP
+                if (contenido.isNotEmpty()) {
+                    contenido.forEach { (nombre, datos) ->
+                        zos.putNextEntry(java.util.zip.ZipEntry(nombre))
+                        zos.write(datos)
+                        zos.closeEntry()
+                    }
+                }
+            }
+
+            if (contenido.isEmpty()) {
+                backupFile.delete()
+                return BackupResult(
+                    fileName = fileName, success = false, backupPath = null,
+                    sizeBytes = 0, createdAt = timestamp,
+                    errorMessage = "Sin contenido que guardar: no se ha creado ningún " +
+                        "backup. Un backup vacío con éxito es peor que no tener backup."
+                )
             }
 
             return BackupResult(

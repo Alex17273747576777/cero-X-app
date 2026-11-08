@@ -53,6 +53,18 @@ class SyncModule : ModuleInterface() {
         )
     }
 
+    /**
+     * Sincroniza el progreso con una plataforma externa.
+     *
+     * Antes marcaba `success = true` con el comentario "Placeholder" al lado, sin
+     * hacer ninguna petición. El historial de sincronización se llenaba de éxitos
+     * que nunca ocurrieron, y el usuario creía tener su progreso a salvo en
+     * AniList o MAL.
+     *
+     * Ahora, sin credenciales y sin cliente HTTP, devuelve `false`. El registro se
+     * guarda igual con `success = false` y el motivo, porque saber qué NO se
+     * sincronizó es información útil.
+     */
     fun syncProgress(seriesId: String, chapter: Int, status: String, platform: SyncPlatform): SyncResult {
         val record = SyncRecord(
             seriesId = seriesId,
@@ -60,10 +72,12 @@ class SyncModule : ModuleInterface() {
             status = status,
             platform = platform,
             syncedAt = System.currentTimeMillis(),
-            success = true // Placeholder
+            success = false,
+            errorMessage = "Sin credenciales de $platform y sin cliente HTTP: el progreso " +
+                "NO se ha enviado. Se guarda en local."
         )
         syncHistory.add(record)
-        return SyncResult(platform, record.syncedAt, record.success)
+        return SyncResult(platform, record.syncedAt, false)
     }
 
     fun listSyncHistory(): List<SyncRecord> = syncHistory.toList()
@@ -83,7 +97,8 @@ data class SyncRecord(
     val status: String,
     val platform: SyncPlatform,
     val syncedAt: Long,
-    val success: Boolean
+    val success: Boolean,
+    val errorMessage: String? = null
 )
 
 data class SyncResult(

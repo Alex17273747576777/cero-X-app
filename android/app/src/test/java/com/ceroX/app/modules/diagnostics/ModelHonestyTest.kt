@@ -32,6 +32,15 @@ class ModelHonestyTest {
     private fun onnxEnDisco(): Set<String> =
         dirModelos.listFiles { f -> f.name.endsWith(".onnx") }?.map { it.name }?.toSet() ?: emptySet()
 
+    /**
+     * Palabras que convierten una mención en un informe de ausencia.
+     * Si la línea dice "no está", "no disponible", "falta" o "sin", no anuncia nada.
+     */
+    private val NEGACIONES = listOf(
+        "no está", "no esta", "no disponible", "no se empaquet", "falta",
+        "sin ", "no hay", "no existe", "descartad", "ausente",
+    )
+
     /** Línea de código, no comentario. Documentar lo descartado está bien. */
     private fun esCodigo(linea: String): Boolean {
         val t = linea.trim()
@@ -97,6 +106,11 @@ class ModelHonestyTest {
             .forEach { archivo ->
                 archivo.readLines().forEachIndexed { i, linea ->
                     if (!esCodigo(linea)) return@forEachIndexed
+                    // Tercer falso positivo encontrado: un MENSAJE DE ERROR que
+                    // dice que algo NO está ("Sin inpainting: el modelo LaMa no está
+                    // empaquetado") es justo lo contrario de anunciarlo. Se perdonan
+                    // las líneas que llevan una negación.
+                    if (NEGACIONES.any { linea.contains(it, ignoreCase = true) }) return@forEachIndexed
                     // Una clave que empieza por "no_" o "sin_" es un informe de lo
                     // que FALTA (p. ej. "no_empaquetados"). Documentar la ausencia
                     // es justo lo contrario de anunciar una mentira.
@@ -126,6 +140,11 @@ class ModelHonestyTest {
             .forEach { archivo ->
                 archivo.readLines().forEachIndexed { i, linea ->
                     if (!esCodigo(linea)) return@forEachIndexed
+                    // Tercer falso positivo encontrado: un MENSAJE DE ERROR que
+                    // dice que algo NO está ("Sin inpainting: el modelo LaMa no está
+                    // empaquetado") es justo lo contrario de anunciarlo. Se perdonan
+                    // las líneas que llevan una negación.
+                    if (NEGACIONES.any { linea.contains(it, ignoreCase = true) }) return@forEachIndexed
                     Regex("[A-Za-z0-9._-]*_[A-Za-z0-9._-]*\\.onnx").findAll(linea).forEach { m ->
                         if (m.value !in enDisco) {
                             culpables.add("${archivo.path.substringAfterLast('/')}:${i + 1} → '${m.value}'")

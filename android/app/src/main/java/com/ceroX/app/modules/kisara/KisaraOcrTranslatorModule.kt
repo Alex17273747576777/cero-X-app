@@ -128,14 +128,18 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
             )
         }
 
-        // Placeholder: inferencia ONNX real para OCR
-        val inferenceTime = System.currentTimeMillis() - startTime
+        // AQUÍ SE DEVOLVÍA ÉXITO SIN LEER NADA.
+        // El resultado llevaba `textBlocks = emptyList()` y `success = true`: el
+        // usuario veía "OCR completado" con cero bloques de texto. Ahora se dice
+        // lo que pasó: el modelo está y el pipeline de inferencia no está escrito.
         return KisaraOcrResult(
             bitmap = bitmap,
             textBlocks = emptyList(),
-            success = true,
-            inferenceTimeMs = inferenceTime,
-            modelUsed = modelPath
+            success = false,
+            inferenceTimeMs = System.currentTimeMillis() - startTime,
+            modelUsed = modelPath,
+            errorMessage = "El modelo de OCR está cargado pero la inferencia no está " +
+                "conectada: no se ha leído ningún texto de la imagen."
         )
     }
 
@@ -154,24 +158,32 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
             )
         }
 
-        // Placeholder: traducción real con llama.cpp + Index-Translate 2B
-        val inferenceTime = System.currentTimeMillis() - startTime
+        // LO PEOR QUE HABÍA EN ESTE ARCHIVO: `translatedText = text`.
+        // Devolvía el texto original como si fuera la traducción, con success = true.
+        // Un usuario japonés leía su propio japonés y la app decía "traducido".
         return KisaraTranslationResult(
             originalText = text,
-            translatedText = text, // Placeholder
+            translatedText = "",
             sourceLang = sourceLang,
             targetLang = targetLang,
-            success = true,
-            inferenceTimeMs = inferenceTime
+            success = false,
+            inferenceTimeMs = System.currentTimeMillis() - startTime,
+            errorMessage = "No hay runtime de traducción en el APK: el texto NO se ha " +
+                "traducido. Se devuelve vacío a propósito, en vez de devolver el original " +
+                "como si fuera la traducción."
         )
     }
 
     fun inpaintBubbles(bitmap: Bitmap, bubbles: List<KisaraTextBubble>): KisaraInpaintResult {
-        // Placeholder: LaMa inpainting para eliminar texto original antes de insertar traducción
+        // El inpainting (borrar el texto original del bocadillo) no existe: LaMa
+        // nunca se empaquetó. Antes devolvía la MISMA imagen marcada como éxito y
+        // diciendo que había procesado N bocadillos.
         return KisaraInpaintResult(
             bitmap = bitmap,
-            success = true,
-            bubblesProcessed = bubbles.size
+            success = false,
+            bubblesProcessed = 0,
+            errorMessage = "Sin inpainting: el modelo LaMa no está empaquetado. " +
+                "La imagen no se ha modificado."
         )
     }
 
@@ -232,5 +244,7 @@ data class KisaraTranslationResult(
 data class KisaraInpaintResult(
     val bitmap: Bitmap,
     val success: Boolean,
-    val bubblesProcessed: Int
+    val bubblesProcessed: Int,
+    /** Por qué no se pudo. Un fallo sin motivo obliga al usuario a adivinar. */
+    val errorMessage: String? = null
 )

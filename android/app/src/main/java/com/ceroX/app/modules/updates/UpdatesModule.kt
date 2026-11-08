@@ -22,6 +22,9 @@ class UpdatesModule : ModuleInterface() {
     private val updateHistory = mutableListOf<UpdateRecord>()
 
     override fun initialize(config: Map<String, Any>): Boolean {
+        // El instalador de actualizaciones necesita contexto para lanzar el Intent
+        // del sistema. Antes no lo tenía porque el método no instalaba nada.
+        appContext = config["context"] as? android.content.Context
         val channelStr = config["channel"] as? String ?: "preview"
         currentChannel = when (channelStr.lowercase()) {
             "stable" -> UpdateChannel.STABLE
@@ -78,8 +81,38 @@ class UpdatesModule : ModuleInterface() {
 
     fun listUpdateHistory(): List<UpdateRecord> = updateHistory.toList()
 
+    /**
+     * Instala una actualización descargada.
+     *
+     * Antes: añadía una entrada al historial y devolvía `true` sin tocar el APK.
+     * El historial decía "actualizado a la versión X" cuando no se había instalado
+     * nada — y encima registraba `currentVersion`, o sea que apuntaba la versión
+     * que ya tenías como si fuera la nueva.
+     *
+     * Ahora delega en el mismo instalador de extensiones, que lanza el Intent real
+     * del sistema. Solo se apunta en el historial si el Intent se lanzó.
+     */
+    private var appContext: android.content.Context? = null
+
     fun installUpdate(apkPath: String): Boolean {
-        // Placeholder: instalar APK descargado
+        val apk = java.io.File(apkPath)
+        if (!apk.exists() || apk.length() == 0L) return false
+        val lanzado = try {
+            val ctx = appContext ?: return false
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                ctx, "${ctx.packageName}.extensions", apk
+            )
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            ctx.startActivity(intent)
+            true
+        } catch (e: Exception) {
+            false
+        }
+        if (!lanzado) return false
         updateHistory.add(UpdateRecord(
             channel = currentChannel,
             version = currentVersion,

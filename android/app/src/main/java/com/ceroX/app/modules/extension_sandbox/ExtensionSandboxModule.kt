@@ -51,7 +51,7 @@ class ExtensionSandboxModule : ModuleInterface() {
 
     private val sandboxManager = ExtensionSandboxManager()
     private val isolator = ExtensionIsolator()
-    private val installer = ExtensionInstaller()
+    private lateinit var installer: ExtensionInstaller
     private val validator = ExtensionValidator()
     private val factory = ExtensionFactory()
     // Estaba importado pero nunca instanciado: el módulo hablaba de compilar
@@ -61,11 +61,16 @@ class ExtensionSandboxModule : ModuleInterface() {
     private val installedExtensions = mutableListOf<InstalledExtension>()
 
     override fun initialize(config: Map<String, Any>): Boolean {
+        val appContext = config["context"] as? android.content.Context
         sandboxManager.initialize()
         isolator.initialize()
-        installer.initialize()
         validator.initialize()
         factory.initialize()
+        compiler.initialize()
+        // El instalador necesita contexto para lanzar el Intent del sistema y
+        // para copiar al directorio privado. Antes se creaba sin contexto y los
+        // tres metodos no hacian nada, asi que daba igual; ahora si.
+        installer = ExtensionInstaller(appContext)
         _initialized = true
         return true
     }
@@ -116,15 +121,17 @@ class ExtensionSandboxModule : ModuleInterface() {
 
     // ========== Sandbox Management ==========
 
-    fun installExtension(apkPath: String, method: InstallationMethod): InstallResult {
+    fun installExtension(apkPath: String, method: InstallationMethod): ExtensionInstaller.InstallResult {
         if (!_started) {
-            return InstallResult(false, "Sandbox no iniciado", null)
+            return ExtensionInstaller.InstallResult(false, "Sandbox no iniciado", null)
         }
 
         // 1. Validar extensión
         val validation = validator.validate(apkPath)
         if (!validation.isValid) {
-            return InstallResult(false, "Extensión no válida: ${validation.errors.joinToString(", ")}", null)
+            return ExtensionInstaller.InstallResult(
+                false, "Extensión no válida: ${validation.errors.joinToString(", ")}", null
+            )
         }
 
         // 2. Instalar según método
@@ -133,9 +140,24 @@ class ExtensionSandboxModule : ModuleInterface() {
             return result
         }
 
-        // 3. Aislar en sandbox
+        // 3. Aislar en sandbox — SOLO si el instalador dio un id.
+        //
+        // `result.extensionId!!` con doble exclamación era una bomba: el método
+        // del sistema abre el instalador de Android y devuelve extensionId = null
+        // (porque no instala él, instala el usuario). Ese `!!` habría lanzado
+        // NullPointerException en cuanto alguien usara el método por defecto.
+        // Y encima se marcaba como ACTIVE una extensión que quizá el usuario no
+        // llegó a confirmar.
+        val idInstalada = result.extensionId
+            ?: return ExtensionInstaller.InstallResult(
+                result.success,
+                result.message + " No se ha aislado nada todavía: el aislamiento " +
+                    "ocurre cuando la extensión está realmente instalada.",
+                null
+            )
+
         val installed = InstalledExtension(
-            id = result.extensionId!!,
+            id = idInstalada,
             name = java.io.File(apkPath).nameWithoutExtension,
             apkPath = apkPath,
             method = method,
@@ -146,7 +168,7 @@ class ExtensionSandboxModule : ModuleInterface() {
         isolator.isolateExtension(installed)
         installedExtensions.add(installed)
 
-        return InstallResult(true, "Extensión instalada en sandbox", installed.id)
+        return ExtensionInstaller.InstallResult(true, result.message, installed.id)
     }
 
     fun uninstallExtension(extensionId: String): Boolean {
@@ -202,12 +224,6 @@ enum class InstallationMethod {
     SYSTEM_NORMAL,     // Como Miyorare: Cara standar Android
     SANDBOX_INTERNAL   // Como Miyorare: Hanya di dalam cero-X (Private Sandbox)
 }
-
-data class InstallResult(
-    val success: Boolean,
-    val message: String,
-    val extensionId: String?
-)
 
 data class InstalledExtension(
     val id: String,
