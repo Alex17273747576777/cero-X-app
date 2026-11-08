@@ -37,3 +37,34 @@ El markdown del repo queda como versión de lectura rápida para quien no use Li
 Tener el estado ordenado no hace que la app funcione. Sigue sin haber Activity de
 lector, sin tracker vivo, sin traducción en el APK y sin verificación en
 dispositivo. Ordenar la documentación es contabilidad, no progreso del producto.
+
+## La trampa que costó un turno (2026-11-08)
+
+El build del APK reventó el presupuesto del workspace:
+**1259,4 MB en 10 833 archivos**, cuando el límite son 128 MB / 10 000 archivos.
+
+Causa exacta: **Gradle escribe sus cachés en `~/.gradle`**, y en este entorno
+`~` es `/home/user`, que es justo lo que se guarda. Los nombres excluidos del
+snapshot incluyen `.cache`, `.local`, `.npm`, `build`, `dist`… pero **`.gradle`
+no está en esa lista**. 1,3 GB de caché entraron en el snapshot y se perdieron
+10 827 archivos.
+
+### La regla, ahora explícita
+
+Nada que escriba **más de 32 MiB** va a `/home/user`. Para el build:
+
+```sh
+export GRADLE_USER_HOME=/opt/gradle-home
+export ANDROID_USER_HOME=/opt/android-home
+```
+
+Y comprobación obligatoria después de cada build:
+
+```sh
+du -sh /home/user            # 14K
+find /home/user -type f | wc -l   # 6
+```
+
+`WorkspaceBudgetTest` vigila el repositorio, pero **no puede vigilar `~/.gradle`**:
+eso depende de cómo se invoca Gradle, no del código. Por eso la comprobación es
+manual y está aquí escrita.

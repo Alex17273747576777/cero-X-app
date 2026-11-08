@@ -1,26 +1,24 @@
-POR QUE ESTE FICHERO EXISTE
-===========================
-
-Robolectric descarga `android-all-instrumented-<version>.jar`: 143,67 MiB por
-version de Android que se pruebe. Por defecto va a ~/.m2, y en este entorno
-~ = /home/user, que es el unico sitio que se guarda entre mensajes.
-
-Resultado de no haberlo tenido en cuenta: una sesion creo 143,7 MB en /home/user
-y el espacio se paso del limite (128 MB / 10.000 archivos). El trabajo no se
-perdio porque estaba en git, pero es un fallo de configuracion que se repite si
-no se arregla la causa.
-
-ARRANQUE CORRECTO (las dos variables son obligatorias)
-------------------------------------------------------
-  export GRADLE_USER_HOME=/opt/gh        # cache de Gradle fuera de /home
-  export MAVEN_OPTS="-Dmaven.repo.local=/opt/m2"   # y la de Maven/Robolectric
-
-Y en cada comando de Gradle que ejecute pruebas hay que pasar la propiedad,
-porque Robolectric la lee del sistema y no de una variable de entorno:
-
-  /opt/gradle-8.11.1/bin/gradle testDebugUnitTest \
-      -Dmaven.repo.local=/opt/m2 ...
-
-Alternativa sin tocar la linea de comandos: poner en android/gradle.properties
-    systemProp.maven.repo.local=/opt/m2
-que es lo que hace falta para que `gradle test` a secas no vuelva a llenar /home.
+# Por que GRADLE_USER_HOME tiene que apuntar a /opt
+#
+# El 2026-11-08 se reconstruyo el APK y el snapshot del workspace se paso del
+# limite: "1259.4 MB across 10,833 files". La causa no fue el codigo ni las
+# dependencias, fue esto:
+#
+#   Gradle guarda sus caches en ~/.gradle por defecto.
+#   En este entorno ~ = /home/user, que es lo unico que se guarda entre mensajes.
+#   Los nombres excluidos del snapshot son .cache, .local, .npm, build, dist...
+#   pero **.gradle no esta en esa lista**. 1,3 GB y 10.900 archivos acabaron
+#   dentro del workspace y se perdio el turno.
+#
+# La regla, ahora escrita: nada que escriba mas de 32 MiB va a /home/user.
+#
+#   export GRADLE_USER_HOME=/opt/gradle-home
+#   export ANDROID_USER_HOME=/opt/android-home
+#
+# Y asi se comprueba despues de cualquier build:
+#
+#   du -sh /home/user          # tiene que seguir en 14K
+#   find /home/user -type f | wc -l   # tiene que seguir en 6
+#
+# WorkspaceBudgetTest vigila el repo, pero no puede vigilar ~/.gradle: eso
+# depende de como se invoca gradle, no del codigo.
