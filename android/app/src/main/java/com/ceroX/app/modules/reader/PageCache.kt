@@ -31,46 +31,77 @@ class PageCache(private val topeBytes: Long = 96L * 1024 * 1024) {
 
     private data class Entrada(val bitmap: Bitmap, val bytes: Long, var ultimoUso: Long)
 
-    private val entradas = ConcurrentHashMap<String, Entrada>()
+    /**
+     * EL FALLO QUE HABÍA AQUÍ, PARA NO REPETIRLO
+     * ------------------------------------------
+     * Antes eran `private var totalBytes = 0L` y dos `Long` más de contadores,
+     * junto a un `ConcurrentHashMap` que sí era concurrente. La mezcla es la peor
+     * de las dos: da sensación de seguridad sin tenerla.
+     *
+     * Con 8 hilos guardando y leyendo, el estrés encontró tres síntomas del mismo
+     * problema:
+     *   - el contador llegó a 2 098 176 B con un tope de 2 097 152 B: por encima
+     *   - tras `recortarHasta(0)` quedaban 15 979 520 B contados
+     *   - tras 5 000 inserciones el contador marcaba el tope entero con una sola
+     *     página dentro
+     * Los tres son el mismo fallo: `totalBytes += x` y `totalBytes -= x` desde
+     * varios hilos pierden actualizaciones (no es atómico), y el mapa y el
+     * contador dejan de describir la misma realidad. Con el contador por debajo
+     * de lo real, la caché **se pasa del presupuesto de memoria**: exactamente lo
+     * que no puede hacer. En un móvil de gama baja eso es que el sistema mate la
+     * app en mitad del capítulo.
+     *
+     * Un candado sobre todo (mapa + contador) es más lento que un mapa concurrente
+     * y es lo correcto: lo que hay que proteger son las DOS cosas a la vez, no
+     * cada una por su cuenta. El coste real es despreciable —se hace una operación
+     * por cambio de página, no por fotograma— y la alternativa era seguir
+     * mintiendo en el contador.
+     */
+    private val candado = Any()
+    private val entradas = HashMap<String, Entrada>()
     private var totalBytes = 0L
     private var aciertos = 0L
     private var fallos = 0L
 
     /** Cuánto ocupa hoy el caché. */
-    fun bytesUsados(): Long = totalBytes
+    fun bytesUsados(): Long = synchronized(candado) { totalBytes }
 
     /** De 0 a 1. Es lo que permite decir "la caché sirve" con un número. */
-    fun hitRate(): Float {
+    fun hitRate(): Float = synchronized(candado) {
         val total = aciertos + fallos
-        return if (total == 0L) 0f else aciertos.toFloat() / total
+        if (total == 0L) 0f else aciertos.toFloat() / total
     }
 
-    fun aciertos(): Long = aciertos
-    fun fallos(): Long = fallos
+    fun aciertos(): Long = synchronized(candado) { aciertos }
+    fun fallos(): Long = synchronized(candado) { fallos }
 
     /**
      * Devuelve la página si está. Si no, null — y NO la carga: quien llama decide
      * si merece la pena decodificar, porque decodificar en el hilo de dibujo es
      * la forma más rápida de perder 16 ms por fotograma.
      */
-    fun obtener(clave: String): Bitmap? {
+    fun obtener(clave: String): Bitmap? = synchronized(candado) {
         val e = entradas[clave]
         if (e == null) {
             fallos++
-            return null
+            null
+        } else {
+            e.ultimoUso = System.nanoTime()
+            aciertos++
+            e.bitmap
         }
-        e.ultimoUso = System.nanoTime()
-        aciertos++
-        return e.bitmap
     }
 
-    fun guardar(clave: String, bitmap: Bitmap) {
+    fun guardar(clave: String, bitmap: Bitmap) = synchronized(candado) {
         val bytes = bitmap.allocationByteCount.toLong()
         if (bytes > topeBytes) {
-            // Una sola página más grande que todo el caché: no entra. Se dice y
-            // se sigue, en vez de vaciar el caché entero por una página enorme.
+            // Una sola página más grande que todo el caché: no entra. Se sale sin
+            // tocar nada, en vez de vaciar el caché entero por una página enorme.
             return
         }
+        // Si la clave ya estaba, primero se descuenta: si no, se contaría dos veces.
+        entradas.remove(clave)?.let { totalBytes -= it.bytes }
+
         while (totalBytes + bytes > topeBytes && entradas.isNotEmpty()) {
             val victima = entradas.entries.minByOrNull { it.value.ultimoUso } ?: break
             totalBytes -= victima.value.bytes
@@ -80,7 +111,7 @@ class PageCache(private val topeBytes: Long = 96L * 1024 * 1024) {
         totalBytes += bytes
     }
 
-    fun limpiar() {
+    fun limpiar() = synchronized(candado) {
         entradas.clear()
         totalBytes = 0L
         aciertos = 0L
@@ -93,7 +124,7 @@ class PageCache(private val topeBytes: Long = 96L * 1024 * 1024) {
      * Se llama desde `onTrimMemory`: cuando el sistema avisa de que va justo de
      * memoria, soltar el caché es preferible a que el sistema mate la app.
      */
-    fun recortarHasta(objetivo: Long) {
+    fun recortarHasta(objetivo: Long) = synchronized(candado) {
         while (totalBytes > objetivo && entradas.isNotEmpty()) {
             val victima = entradas.entries.minByOrNull { it.value.ultimoUso } ?: break
             totalBytes -= victima.value.bytes
