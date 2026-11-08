@@ -9,6 +9,11 @@ class ExtensionCompiler {
 
     private var isEnabled = true
 
+    /** Estado legible desde fuera sin abrir la puerta a escribirlo. */
+    data class CompilerState(val enabled: Boolean)
+
+    fun state(): CompilerState = CompilerState(isEnabled)
+
     fun initialize() {
         // Inicializar compilador
     }

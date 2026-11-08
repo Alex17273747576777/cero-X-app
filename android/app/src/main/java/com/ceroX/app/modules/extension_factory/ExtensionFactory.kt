@@ -7,11 +7,16 @@ import java.io.File
  */
 class ExtensionFactory {
 
-    fun initialize() {
-        // Inicializar fábrica
-    }
+    private var enabled = false
 
-    fun isEnabled(): Boolean = true
+    fun initialize() { enabled = true }
+
+    /**
+     * Antes devolvía `true` fijo, sin que nadie hubiera inicializado nada: la
+     * fábrica decía estar disponible desde el primer instante. Ahora refleja si
+     * `initialize()` se ejecutó.
+     */
+    fun isEnabled(): Boolean = enabled
 
     fun createExtension(template: ExtensionTemplate, config: ExtensionConfig): FactoryResult {
         val projectDir = File("${System.getProperty("java.io.tmpdir")}/ceroX_extensions/${config.packageName}")

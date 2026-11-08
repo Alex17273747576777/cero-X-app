@@ -51,22 +51,55 @@ class BackupManager(private val context: Context) {
         }
     }
 
+    /**
+     * Restaura un backup.
+     *
+     * ANTES ESTO MENTÍA
+     * -----------------
+     * El código era:
+     *
+     *     return if (file.exists()) RestoreResult(success = true, restoredItems = 0, ...)
+     *
+     * Comprobaba que el archivo existiera y declaraba la restauración exitosa sin
+     * restaurar nada, con `restoredItems = 0` y el comentario "Placeholder" al
+     * lado. El usuario leía "Backup restaurado" y su biblioteca seguía igual.
+     *
+     * AHORA
+     * -----
+     * Se indexa primero (patrón de houri `BackupDecoder` + `BackupIntegrityHandler`
+     * y de Kototoro `BackupIndexFactory`): se lee el archivo, se dice qué contiene
+     * y qué problemas tiene, y SOLO si el índice sale limpio se aplica.
+     *
+     * Y si el índice sale limpio pero el decodificador de este esquema todavía no
+     * existe, se devuelve fallo diciéndolo. Un "no se puede" honesto es infinitamente
+     * mejor que un "restaurado" falso: el primero te deja hacer otra cosa, el
+     * segundo te hace creer que tu biblioteca está a salvo.
+     */
     fun restoreBackup(backupPath: String): RestoreResult {
         val file = File(backupPath)
-        return if (file.exists()) {
-            RestoreResult(
-                success = true,
-                restoredItems = 0, // Placeholder
-                message = "Backup restaurado desde $backupPath"
-            )
-        } else {
-            RestoreResult(
+        val indice = BackupIndex.indexar(file)
+
+        if (!indice.restaurable) {
+            return RestoreResult(
                 success = false,
                 restoredItems = 0,
-                message = "Archivo no encontrado: $backupPath"
+                message = "No se puede restaurar ${file.name}: " +
+                    indice.problemas.joinToString("; ")
             )
         }
+
+        return RestoreResult(
+            success = false,
+            restoredItems = 0,
+            message = "El archivo ${file.name} es válido (${indice.formato}, " +
+                "${indice.entradas} entrada(s)) pero el decodificador de este esquema " +
+                "todavía no está escrito. No se ha escrito NADA en tu biblioteca."
+        )
     }
+
+    /** Índice sin restaurar, para que la interfaz pueda enseñarlo antes de decidir. */
+    fun inspeccionar(backupPath: String): BackupIndex.Indice =
+        BackupIndex.indexar(File(backupPath))
 
     fun listBackups(): List<BackupInfo> {
         return backupDir.listFiles()

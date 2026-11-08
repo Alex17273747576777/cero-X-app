@@ -39,11 +39,26 @@ object BackupFormatDetector {
         // gzip: 1F 8B. Cubre .tachibk y .proto.gz.
         if (head[0] == 0x1F.toByte() && head[1] == 0x8B.toByte()) return FORMAT_GZIP
 
-        // zip: 50 4B 03 04 (PK\x03\x04).
-        if (head.size >= 4 &&
-            head[0] == 0x50.toByte() && head[1] == 0x4B.toByte() &&
-            head[2] == 0x03.toByte() && head[3] == 0x04.toByte()
-        ) return FORMAT_ZIP
+        // zip: hay CUATRO firmas válidas, no una.
+        //
+        //   50 4B 03 04  PK\x03\x04  entrada normal
+        //   50 4B 05 06  PK\x05\x06  fin de directorio central: ZIP VACÍO
+        //   50 4B 07 08  PK\x07\x08  zip de varias partes
+        //   50 4B 06 06  PK\x06\x06  zip de 64 bits
+        //
+        // Solo se comprobaba la primera. Consecuencia real, encontrada por una
+        // prueba: un ZIP vacío se clasificaba como "desconocido" y el usuario veía
+        // "formato no reconocido" en un archivo que sí era un zip. Peor: un zip de
+        // 64 bits o de varias partes tampoco se reconocía.
+        if (head.size >= 4 && head[0] == 0x50.toByte() && head[1] == 0x4B.toByte()) {
+            val tercero = head[2].toInt() and 0xFF
+            val cuarto = head[3].toInt() and 0xFF
+            if ((tercero == 0x03 && cuarto == 0x04) ||
+                (tercero == 0x05 && cuarto == 0x06) ||
+                (tercero == 0x07 && cuarto == 0x08) ||
+                (tercero == 0x06 && cuarto == 0x06)
+            ) return FORMAT_ZIP
+        }
 
         // SQLite: "SQLite format 3" + NUL. 16 bytes exactos.
         if (head.size >= 16 && String(head, 0, 15, Charsets.US_ASCII) == "SQLite format 3"

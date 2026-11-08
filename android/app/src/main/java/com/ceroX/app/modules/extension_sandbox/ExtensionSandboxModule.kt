@@ -26,6 +26,25 @@ import com.ceroX.app.modules.extension_factory.FactoryResult
  */
 class ExtensionSandboxModule : ModuleInterface() {
 
+    companion object {
+        /** Los métodos de instalación que el módulo soporta de verdad. */
+        val INSTALLATION_METHODS = listOf("shizuku", "root", "saf")
+
+        /**
+         * Si `ExtensionSourceLoader` (el contrato eu.kanade.tachiyomi) está en el
+         * APK. Se comprueba por reflexión en vez de escribirlo a mano: si algún
+         * día se quita, esto se entera solo.
+         */
+        val LOADER_DISPONIBLE: Boolean by lazy {
+            try {
+                Class.forName("com.ceroX.app.modules.source_api.eu.kanade.tachiyomi.source.ExtensionSourceLoader")
+                true
+            } catch (e: ClassNotFoundException) {
+                false
+            }
+        }
+    }
+
     override val name = "extension-sandbox"
     override val version = "1.0.0-beta"
     override val dependencies: List<String> = emptyList()
@@ -35,6 +54,10 @@ class ExtensionSandboxModule : ModuleInterface() {
     private val installer = ExtensionInstaller()
     private val validator = ExtensionValidator()
     private val factory = ExtensionFactory()
+    // Estaba importado pero nunca instanciado: el módulo hablaba de compilar
+    // extensiones y no tenía compilador. `compiler.state()` no compilaba porque
+    // la propiedad no existía.
+    private val compiler = ExtensionCompiler()
     private val installedExtensions = mutableListOf<InstalledExtension>()
 
     override fun initialize(config: Map<String, Any>): Boolean {
@@ -64,13 +87,29 @@ class ExtensionSandboxModule : ModuleInterface() {
             name, version,
             if (_started) "healthy" else "stopped",
             mapOf<String, Any?>(
-                "sandbox_active" to sandboxManager.isSandboxActive(),
+                // Estado leído de un objeto inmutable, no de una propiedad privada
+                // que había que abrir para poder mirar.
+                "sandbox_active" to sandboxManager.state().active,
+                // Activo en memoria Y con directorio en disco son cosas distintas.
+                // Sin esto, un sandbox que no pudo crear su carpeta se anunciaba
+                // como activo y luego fallaba al instalar.
+                "sandbox_dir_existe" to sandboxManager.state().existeEnDisco,
                 "isolated_extensions" to isolator.isolatedCount(),
                 "installed_extensions" to installedExtensions.size,
-                "installation_methods" to 3,
+                "installation_methods" to INSTALLATION_METHODS.size,
                 "factory_enabled" to factory.isEnabled(),
-                "miyorare_compatible" to true,
-                "foxlations_improved" to true
+                "compiler_enabled" to compiler.state().enabled,
+                // Aquí había dos `true` escritos a mano: "miyorare_compatible" y
+                // "foxlations_improved". Nadie comprobaba nada. Miyorare es
+                // GPL-3.0 y cero-X es Apache-2.0: decir "compatible" era, en el
+                // mejor caso, no significar nada, y en el peor una promesa sobre
+                // algo que no se probó ni una vez. Se sustituyen por lo que sí se
+                // puede afirmar y se puede medir.
+                "contrato_eu_kanade" to LOADER_DISPONIBLE,
+                "carga_de_extensiones_reales" to false,
+                "nota" to ("el aislamiento y la validación están hechos y probados; " +
+                    "cargar una extensión de Mihon de verdad necesita un APK de " +
+                    "extensión, que no se empaqueta en este repo")
             )
         )
     }
