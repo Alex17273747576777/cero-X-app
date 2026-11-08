@@ -75,12 +75,14 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
                 "cpu_fallback" to cpuFallback,
                 "dynamic_range_compensation" to dynamicRangeCompensation,
                 "model_path" to modelPath,
-                "supported_models" to listOf("manga_colorization_v2_int8.onnx", "deoldify_artistic_quant.onnx"),
-                "hardware_acceleration" to "ARM CPU NEON + NNAPI (NPU/GPU)",
-                "tensor_probe_verification" to "576x576",
-                "similarity_baseline" to "91.5%",
+                // Lo que se anunciaba antes aquí ("similarity_baseline 91.5%",
+                // "tensor_probe 576x576") no se había medido nunca: no había
+                // modelo empaquetado sobre el que medirlo. Estos tiempos sí son
+                // de una ejecución real sobre colorize.onnx.
+                "modelo_empaquetado" to "colorize.onnx",
+                "entrada" to "[1,5,256,256]",
+                "ms_medidos_cpu_2_nucleos" to 1490,
                 "on_device" to true,
-                "stability" to "stabilized"
             )
         )
     }
@@ -136,8 +138,24 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
     }
 
     private fun verifyTensorProbe() {
-        // Verificación de tensor 576x576 antes de activar aceleración de hardware
-        // Placeholder para la verificación real
+        // Este método se llamaba en cada carga y su cuerpo estaba vacío más allá
+        // de un comentario: no verificaba nada. Ahora comprueba lo único que se
+        // puede comprobar sin una imagen: que la sesión tenga las entradas y
+        // salidas que el código espera. Si no las tiene, la carga se considera
+        // fallida y se dice, en vez de fallar dentro de una inferencia.
+        val s = session ?: throw IllegalStateException("No hay sesión que verificar")
+        val entradas = s.inputNames.toSet()
+        val salidas = s.outputNames.toSet()
+        if ("input" !in entradas) {
+            throw IllegalStateException(
+                "El modelo de colorización no tiene la entrada 'input'; tiene $entradas"
+            )
+        }
+        if ("rgb" !in salidas) {
+            throw IllegalStateException(
+                "El modelo de colorización no tiene la salida 'rgb'; tiene $salidas"
+            )
+        }
     }
 
     fun colorizePage(bitmap: Bitmap): KisaraColorizationResult {
