@@ -1,0 +1,2 @@
+80621e692f487cae5d7a47d951cfe6236f8f7f067e4d260e46f0f7aa1df87948  cero-X-1.0.0-beta-universal-debug.apk
+82b61926996d511ff7b15857d6a8412a01194b9ee25ba1a7ff02ae97f59d3e51  cero-X-1.0.0-beta-universal-release.apk
