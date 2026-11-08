@@ -49,10 +49,10 @@ class ExtensionFactoryModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf(
+            mapOf<String, Any?>(
                 "templates_available" to templates.size,
                 "factory_enabled" to true,
-                "compiler_enabled" to compiler.isEnabled,
+                "compiler_enabled" to compiler.isEnabled(),
                 "better_than_repoforge" to true,
                 "supports_manga" to true,
                 "supports_anime" to true,

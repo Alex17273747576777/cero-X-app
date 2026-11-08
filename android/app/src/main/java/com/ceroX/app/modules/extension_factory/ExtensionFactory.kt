@@ -103,4 +103,58 @@ dependencies {
   "ceroXCompatible": true
 }
 """.trimIndent()
+
+    /**
+     * Plantillas disponibles para crear una extensión desde cero.
+     *
+     * ExtensionSandboxModule llamaba a `factory.listTemplates()` y a
+     * `factory.compileExtension()`, dos métodos que nunca se escribieron: el
+     * módulo del sandbox estaba escrito contra una fábrica imaginaria.
+     * `compileExtension` delega en ExtensionCompiler, que sí existe.
+     */
+    fun listTemplates(): List<ExtensionTemplate> = TEMPLATES
+
+    fun compileExtension(projectPath: String): CompileResult =
+        ExtensionCompiler().compileExtension(projectPath)
+
+    companion object {
+        /**
+         * Plantillas mínimas. Se generan con el mismo código que usa la fábrica,
+         * así una extensión creada desde plantilla y una creada a mano salen
+         * idénticas en estructura.
+         */
+        val TEMPLATES: List<ExtensionTemplate> = listOf(
+            ExtensionTemplate(
+                id = "manga-html",
+                name = "Manga (HTML)",
+                description = "Extensión de manga que lee un sitio HTML con selectores CSS.",
+                type = ExtensionType.MANGA,
+                sourceCode = "// Extensión de manga generada por cero-X\n" +
+                    "class MainExtension : ExtensionAPI() {\n" +
+                    "    override val name = \"Mi fuente\"\n" +
+                    "    override val baseUrl = \"https://ejemplo.org\"\n" +
+                    "}\n",
+            ),
+            ExtensionTemplate(
+                id = "anime-html",
+                name = "Anime (HTML)",
+                description = "Extensión de anime que lee un catálogo HTML.",
+                type = ExtensionType.ANIME,
+                sourceCode = "// Extensión de anime generada por cero-X\n" +
+                    "class MainExtension : ExtensionAPI() {\n" +
+                    "    override val name = \"Mi fuente de anime\"\n" +
+                    "}\n",
+            ),
+            ExtensionTemplate(
+                id = "novela-epub",
+                name = "Novela (EPUB)",
+                description = "Extensión de novela que sirve capítulos desde EPUB.",
+                type = ExtensionType.NOVEL,
+                sourceCode = "// Extensión de novela generada por cero-X\n" +
+                    "class MainExtension : ExtensionAPI() {\n" +
+                    "    override val name = \"Mi novela\"\n" +
+                    "}\n",
+            ),
+        )
+    }
 }

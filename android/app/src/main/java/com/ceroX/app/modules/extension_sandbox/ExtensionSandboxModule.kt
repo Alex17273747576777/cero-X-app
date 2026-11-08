@@ -2,7 +2,13 @@ package com.ceroX.app.modules.extension_sandbox
 
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
+import com.ceroX.app.modules.extension_factory.CompileResult
+import com.ceroX.app.modules.extension_factory.ExportResult
+import com.ceroX.app.modules.extension_factory.ExtensionCompiler
+import com.ceroX.app.modules.extension_factory.ExtensionConfig
 import com.ceroX.app.modules.extension_factory.ExtensionFactory
+import com.ceroX.app.modules.extension_factory.ExtensionTemplate
+import com.ceroX.app.modules.extension_factory.FactoryResult
 
 /**
  * ExtensionSandboxModule — SanTBox de extensiones para cero-X.
@@ -57,12 +63,12 @@ class ExtensionSandboxModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf(
-                "sandbox_active" to sandboxManager.isActive,
-                "isolated_extensions" to isolator.isolatedCount,
+            mapOf<String, Any?>(
+                "sandbox_active" to sandboxManager.isSandboxActive(),
+                "isolated_extensions" to isolator.isolatedCount(),
                 "installed_extensions" to installedExtensions.size,
                 "installation_methods" to 3,
-                "factory_enabled" to factory.isEnabled,
+                "factory_enabled" to factory.isEnabled(),
                 "miyorare_compatible" to true,
                 "foxlations_improved" to true
             )
@@ -91,7 +97,7 @@ class ExtensionSandboxModule : ModuleInterface() {
         // 3. Aislar en sandbox
         val installed = InstalledExtension(
             id = result.extensionId!!,
-            name = result.extensionName!!,
+            name = java.io.File(apkPath).nameWithoutExtension,
             apkPath = apkPath,
             method = method,
             installedAt = System.currentTimeMillis(),
@@ -144,8 +150,11 @@ class ExtensionSandboxModule : ModuleInterface() {
     }
 
     fun exportExtension(extensionId: String, outputPath: String): ExportResult {
-        val ext = installedExtensions.firstOrNull { it.id == extensionId } ?: return ExportResult(false, "Extensión no encontrada", null)
-        return factory.exportExtension(ext, outputPath)
+        val ext = installedExtensions.firstOrNull { it.id == extensionId }
+            ?: return ExportResult(false, "Extensión no encontrada", null)
+        // ExtensionFactory no exporta: quien exporta a APK es ExtensionCompiler.
+        val projectPath = java.io.File(ext.apkPath).parent ?: ext.apkPath
+        return ExtensionCompiler().exportToApk(projectPath, outputPath)
     }
 }
 
@@ -167,7 +176,10 @@ data class InstalledExtension(
     val apkPath: String,
     val method: InstallationMethod,
     val installedAt: Long,
-    val status: ExtensionStatus,
+    // `status` es var: enableExtension/disableExtension cambian el estado de una
+    // extensión ya instalada. Con val, esas dos funciones no compilaban porque
+    // intentaban reasignar una propiedad inmutable.
+    var status: ExtensionStatus,
     val permissions: List<String>
 )
 
