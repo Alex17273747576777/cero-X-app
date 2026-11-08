@@ -286,7 +286,7 @@ Todo lo de esta tabla se midió con un comando en la máquina donde se construy�
 | modelos ONNX dentro | 378,28 MiB |
 | librerías nativas (4 ABIs) | 62,32 MiB |
 | `classes.dex` | 39,84 MiB |
-| módulos Kotlin | 111 archivos |
+| archivos Kotlin | 125 |
 | pruebas unitarias | **19, todas pasando** |
 | errores de compilación | **0** (venían de 519) |
 | tamaños de backup detectados | 6 de 6 |
@@ -294,7 +294,7 @@ Todo lo de esta tabla se midió con un comando en la máquina donde se construy�
 ```bash
 # verificable en cualquier clon
 $ ANDROID_HOME=/opt/android-sdk ./gradlew testDebugUnitTest
-26 tests completed, 0 failed   # FeedManager 6 · SuggestionEngine 6 · PageCache 7
+19 tests completed, 0 failed   # FeedManager 6 · SuggestionEngine 6 · PageCache 7
 
 $ apksigner verify --print-certs app-release.apk
 Signer #1 certificate DN: CN=cero-X, O=La Bandita, C=DO
