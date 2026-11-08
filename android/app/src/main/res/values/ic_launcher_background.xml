@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fondo obsidiana, no el negro plano ni el morado de Material. -->
+    <color name="cerox_fondo">#0B0F14</color>
+</resources>
