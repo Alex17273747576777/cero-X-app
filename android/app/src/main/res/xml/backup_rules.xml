@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Datos de usuario que se pueden respaldar -->
+    <include domain="sharedpref" path="." />
+    <include domain="database" path="library_db" />
+    <include domain="database" path="app_database" />
+    <include domain="file" path="downloads" />
+    <include domain="file" path="cache" />
+
+    <!-- Datos sensibles que NO se respaldan -->
+    <exclude domain="sharedpref" path="credentials" />
+    <exclude domain="sharedpref" path="api_keys" />
+    <exclude domain="sharedpref" path="tokens" />
+    <exclude domain="database" path="crash_reports" />
+    <exclude domain="file" path="private_keys" />
+    <exclude domain="file" path="secrets" />
+</full-backup-content>

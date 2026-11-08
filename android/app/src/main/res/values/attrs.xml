@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CeroXTheme">
+        <attr name="liquidGlassEnabled" format="boolean" />
+        <attr name="glassBlurRadius" format="float" />
+        <attr name="navigationStyle" format="enum">
+            <enum name="pillBottom" value="0" />
+            <enum name="readerPanels" value="1" />
+            <enum name="islandFeed" value="2" />
+            <enum name="cardGrid" value="3" />
+            <enum name="custom" value="4" />
+        </attr>
+        <attr name="animationStyle" format="enum">
+            <enum name="spring60fps" value="0" />
+            <enum name="fluidCompose" value="1" />
+            <enum name="glassmorphism" value="2" />
+            <enum name="smoothFade" value="3" />
+            <enum name="custom" value="4" />
+        </attr>
+    </declare-styleable>
+</resources>

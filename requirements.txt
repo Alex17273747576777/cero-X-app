@@ -1,0 +1,29 @@
+# cero-X App — Dependencias Python
+# Versión: 0.1.0
+
+# Core
+pyyaml>=6.0
+requests>=2.31.0
+python-dateutil>=2.8.0
+
+# AI / ONNX
+onnxruntime>=1.16.0
+numpy>=1.24.0
+
+# Multimedia
+ffmpeg-python>=0.2.0
+
+# Database
+sqlite3 (stdlib)
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# CLI
+typer>=0.9.0
+rich>=13.0.0
+
+# Optional
+# onnxruntime-gpu>=1.16.0  # Solo si se tiene GPU NVIDIA
+# pycryptodome>=3.19.0    # Para cifrado de descargas

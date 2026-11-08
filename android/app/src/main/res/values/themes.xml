@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Tema base de cero-X -->
+    <style name="Theme.ceroX" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#6366F1</item>
+        <item name="colorPrimaryContainer">#E0E7FF</item>
+        <item name="colorSecondary">#22D3EE</item>
+        <item name="colorSecondaryContainer">#CCFEFC</item>
+        <item name="colorTertiary">#DB2777</item>
+        <item name="colorTertiaryContainer">#FCE7F3</item>
+        <item name="colorSurface">#0F172A</item>
+        <item name="colorSurfaceContainerHighest">#1E293B</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+        <item name="colorOnSurfaceVariant">#CBD5E1</item>
+        <item name="colorBackground">#0F172A</item>
+        <item name="colorOnBackground">#FFFFFF</item>
+        <item name="colorError">#EF4444</item>
+        <item name="colorOnError">#FFFFFF</item>
+        <item name="android:windowBackground">@color/ceroX_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enableOnBackInvokedCallback">true</item>
+        <item name="android:dataExtractionRules">@xml/data_extraction_rules</item>
+    </style>
+
+    <!-- Tema oscuro AMOLED -->
+    <style name="Theme.ceroX.Amoled" parent="Theme.ceroX">
+        <item name="colorSurface">#000000</item>
+        <item name="colorSurfaceContainerHighest">#111111</item>
+        <item name="colorBackground">#000000</item>
+    </style>
+
+    <!-- Tema claro -->
+    <style name="Theme.ceroX.Light" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#6366F1</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorBackground">#FFFFFF</item>
+        <item name="colorOnSurface">#000000</item>
+        <item name="colorOnBackground">#000000</item>
+    </style>
+
+    <!-- Splash screen theme -->
+    <style name="Theme.ceroX.Splash" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/ceroX_splash_background</item>
+        <item name="android:windowSplashScreenBackground">@color/ceroX_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ceroX_splash_icon</item>
+    </style>
+
+</resources>
