@@ -1,0 +1,1347 @@
+{
+ "generado": "2026-11-08T20:33:34Z",
+ "agente": "cero-X/1.0.0 (+https://github.com/Alex17273747576777/cero-X-app)",
+ "fuente": "wotaku",
+ "urls": [
+  "https://wotaku.wiki/software",
+  "https://wotaku.wiki/websites",
+  "https://wotaku.wiki/misc",
+  "https://wotaku.wiki/ext",
+  "https://wotaku.wiki/nonen"
+ ],
+ "entradas": 156,
+ "extensiones": 0,
+ "guias": 0,
+ "datos": {
+  "apps": [
+   {
+    "nombre": "Animiru",
+    "url": "https://github.com/quickdesh/Animiru",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Hayase",
+    "url": "https://hayase.watch/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anikku",
+    "url": "https://anikku-app.github.io/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Animetail",
+    "url": "https://github.com/Animetailapp/Animetail",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "AnymeX",
+    "url": "https://anymex.vercel.app/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Cloudstream",
+    "url": "https://github.com/recloudstream/cloudstream",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Dantotsu",
+    "url": "https://github.com/itsmechinmoy/dantotsu-updater",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Mangayomi",
+    "url": "https://github.com/kodjodevf/mangayomi",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Dartotsu",
+    "url": "https://github.com/aayush2622/Dartotsu",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Nuvio",
+    "url": "https://nuvio.tv/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "NyanTV",
+    "url": "https://nyantv.vercel.app/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "App",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "KOReader",
+    "url": "https://koreader.rocks/",
+    "pagina": "software",
+    "seccion": "E-reader",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Calibre",
+    "url": "https://calibre-ebook.com/",
+    "pagina": "software",
+    "seccion": "E-reader",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Kindle Comic Converter",
+    "url": "https://github.com/ciromattia/kcc",
+    "pagina": "software",
+    "seccion": "E-reader",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "send2ereader",
+    "url": "https://github.com/daniel-j/send2ereader",
+    "pagina": "software",
+    "seccion": "E-reader",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Send to Kindle",
+    "url": "https://www.amazon.com/sendtokindle",
+    "pagina": "software",
+    "seccion": "E-reader",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Hayase",
+    "url": "https://hayase.watch/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Stremio",
+    "url": "https://www.stremio.com/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Mangayomi",
+    "url": "https://github.com/kodjodevf/mangayomi",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Seanime",
+    "url": "https://seanime.app/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Unyo",
+    "url": "https://github.com/K3vinb5/unyo-app",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "AnymeX",
+    "url": "https://anymex.vercel.app/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Dartotsu",
+    "url": "https://github.com/aayush2622/Dartotsu",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Toru",
+    "url": "https://github.com/sweetbbak/toru",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Zenshin",
+    "url": "https://hitarth-gg.github.io/zenshin-website/",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Curd",
+    "url": "https://github.com/Wraient/curd",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "ani-cli",
+    "url": "https://github.com/pystardust/ani-cli",
+    "pagina": "software",
+    "seccion": "Anime",
+    "columna": "Program",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime Downloader NX",
+    "url": "https://github.com/anidl/multi-downloader-nx",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Free Manga Downloader 2",
+    "url": "https://github.com/dazedcat19/FMD2",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "JAM",
+    "url": "https://redsquirrel87.com/jam",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "gallery-dl",
+    "url": "https://codeberg.org/mikf/gallery-dl/",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Media Downloader",
+    "url": "https://github.com/mhogomchungu/media-downloader",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "getjmanga",
+    "url": "https://github.com/eggplants/getjmanga",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "HDoujin Downloader",
+    "url": "https://doujindownloader.com/",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "BookWalker Downloader",
+    "url": "https://gist.github.com/GolyBidoof/6c9cbff7644c7078520fe45e3bcf039f",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Clip Studio Reader",
+    "url": "https://greasyfork.org/en/scripts/481576",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Mangaplus Downloader NG",
+    "url": "https://github.com/l0westbob/mloader",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Mangaplus Downloader",
+    "url": "https://github.com/hurlenko/mloader/",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Epublifier",
+    "url": "https://github.com/maoserr/epublifier",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Lightnovel Crawler",
+    "url": "https://github.com/lncrawl/lightnovel-crawler",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "WebtoEpub",
+    "url": "https://github.com/dteviot/WebToEpub",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "KeyDive",
+    "url": "https://github.com/hyugogirubato/KeyDive/",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "N_m3u8DL-RE",
+    "url": "https://github.com/nilaoda/N_m3u8DL-RE",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "PlayreadyProxy2",
+    "url": "https://github.com/DevLARLEY/PlayreadyProxy2",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "WidevineProxy2",
+    "url": "https://github.com/DevLARLEY/WidevineProxy2",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Vineless",
+    "url": "https://github.com/Ingan121/Vineless",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "pywidevine",
+    "url": "https://github.com/devine-dl/pywidevine",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Unshackle",
+    "url": "https://github.com/unshackle-dl/unshackle",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Kapowarr",
+    "url": "https://casvt.github.io/Kapowarr/",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Mylar3",
+    "url": "https://github.com/mylar3/mylar3",
+    "pagina": "software",
+    "seccion": "Downloaders",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Jellyfin",
+    "url": "https://jellyfin.org/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Plex",
+    "url": "https://www.plex.tv/your-media/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Seanime",
+    "url": "https://seanime.app/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Komga",
+    "url": "https://komga.org/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Kavita",
+    "url": "https://www.kavitareader.com/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "LANraragi",
+    "url": "https://sugoi.gitbook.io/lanraragi/dev",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Suwayomi",
+    "url": "https://github.com/Suwayomi/Suwayomi-Server",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Kavita",
+    "url": "https://www.kavitareader.com/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Komga",
+    "url": "https://komga.org/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Calibre-Web",
+    "url": "https://github.com/janeczku/calibre-web",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Librium",
+    "url": "https://librumreader.com/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "audiobookshelf",
+    "url": "https://www.audiobookshelf.org/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Booksonic",
+    "url": "https://booksonic.org/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Storyteller",
+    "url": "https://smoores.gitlab.io/storyteller/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Copyparty",
+    "url": "https://github.com/9001/copyparty/",
+    "pagina": "software",
+    "seccion": "Server",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "ani.pm",
+    "url": "https://ani.pm/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Re:ANIME",
+    "url": "https://reanime.to/home",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "AnimeStream",
+    "url": "https://anime.uniquestream.net/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Animotvslash",
+    "url": "https://www.animotvslash.org/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MKissa",
+    "url": "https://mkissa.to/anime",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "AniHQ",
+    "url": "https://anihq.cc/home/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "AnimePahe",
+    "url": "https://animepahe.pw/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime Nexus",
+    "url": "https://anime.nexus/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "AniZone",
+    "url": "https://anizone.to/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "anv",
+    "url": "https://anv.to/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Gotaku",
+    "url": "https://gotaku.to/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "KickAssAnime",
+    "url": "https://kaa.lt/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Kagane",
+    "url": "https://kagane.moe/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MangaDot",
+    "url": "https://mangadot.net/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Toonkotsu",
+    "url": "https://toonkotsu.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Weeb Central",
+    "url": "https://weebcentral.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Atsumaru",
+    "url": "https://atsu.moe/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Comix",
+    "url": "https://comix.to/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MangaBall",
+    "url": "https://mangaball.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MangaFire",
+    "url": "https://mangafire.to/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "OniSaga",
+    "url": "https://onisaga.com/home",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MangaK",
+    "url": "https://mangak.io/home",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "XComic",
+    "url": "https://xcomic.me/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MKissa",
+    "url": "https://mkissa.to/manga",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MangaKatana",
+    "url": "https://mangakatana.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Mangahub",
+    "url": "https://mangahub.io/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Dynasty Reader",
+    "url": "https://dynasty-scans.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MangaGo",
+    "url": "https://www.mangago.me/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MangaVyVy",
+    "url": "https://mangavyvy.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Yaoi.me",
+    "url": "https://yaoi.me/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "ZinManga",
+    "url": "https://www.zinmanga.net/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Websites",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "cyrisia",
+    "url": "https://cyrisia.com/?type=ln",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Ranobe",
+    "url": "https://staging.ranobe.app/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Novel Updates",
+    "url": "https://www.novelupdates.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Baka-tsuki",
+    "url": "https://www.baka-tsuki.org/project/index.php?title=Main_Page",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Ranobes",
+    "url": "https://ranobes.top/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Witch Cult Translations",
+    "url": "https://witchculttranslation.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Elscione's Library",
+    "url": "https://server.elscione.com/",
+    "pagina": "websites",
+    "seccion": "Online",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "AniChart",
+    "url": "https://anichart.net/airing",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Livechart",
+    "url": "https://www.livechart.me/schedule",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "AnimeSchedule",
+    "url": "https://animeschedule.net/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime Countdown",
+    "url": "https://animecountdown.com/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anisaki",
+    "url": "https://anisaki.vercel.app/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anica",
+    "url": "https://anica.jp/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "aniSearch Calendar",
+    "url": "https://www.anisearch.com/anime/calendar",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime Dubs Release Calendar",
+    "url": "https://teamup.com/ksdhpfjcouprnauwda",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "English Dubbed Anime Lovers",
+    "url": "https://english-dubbed.com/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Kenny Stryker’s English dublist",
+    "url": "https://myanimelist.net/forum/?topicid=1692966",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime Hack",
+    "url": "https://anime.eiga.com/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Bangumi List",
+    "url": "https://bgmlist.com/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "CoolJapan",
+    "url": "https://cooljapanportal.com/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Kansou",
+    "url": "https://www.kansou.me/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Moon Phase",
+    "url": "https://m-p.sakura.ne.jp/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Syoboi Calendar",
+    "url": "https://cal.syoboi.jp/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Blu-ray.com",
+    "url": "https://www.blu-ray.com/movies/movies.php?genre=Anime&sortby=releasetimestamp",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "TVmaze",
+    "url": "https://www.tvmaze.com/",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Yatta-Tachi Movie Schedule",
+    "url": "https://yattatachi.com/2026-anime-japanese-films-coming-to-u-s-theaters-online",
+    "pagina": "misc",
+    "seccion": "Anime",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "animate Times",
+    "url": "https://www.animatetimes.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime News Network",
+    "url": "https://www.animenewsnetwork.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime UK News",
+    "url": "https://animeuknews.net/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Crunchyroll News",
+    "url": "https://www.crunchyroll.com/news",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "GUNDAM.INFO",
+    "url": "https://en.gundam-official.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Kanzenshuu",
+    "url": "https://www.kanzenshuu.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MAL News",
+    "url": "https://myanimelist.net/news",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "ORICON NEWS",
+    "url": "https://www.oricon.co.jp/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Japan Anime News",
+    "url": "https://us.oricon-group.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Otaku News",
+    "url": "https://www.otakunews.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime Blog Tracker",
+    "url": "https://aniblogtracker.app/index.php",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime Nano",
+    "url": "https://www.animenano.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Halcyon Realms",
+    "url": "https://halcyonrealms.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Rumic World",
+    "url": "https://www.furinkan.com/",
+    "pagina": "misc",
+    "seccion": "General",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anime Bingo",
+    "url": "https://anime-bingo.aikats.us/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "due.moe",
+    "url": "https://due.moe/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Konsumr",
+    "url": "https://www.konsumr.com/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Related Anime",
+    "url": "https://relatedanime.com/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "WikiTimeline",
+    "url": "https://wiki-timeline.com/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Manga Adaptations",
+    "url": "https://anilist-adaptations.timschneeberger.me/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "MyDubList",
+    "url": "https://mydublist.com/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Randime",
+    "url": "https://randime.moe/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Spin.moe",
+    "url": "https://spin.moe/",
+    "pagina": "misc",
+    "seccion": "Anime & Manga",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Anychans",
+    "url": "https://anychans.github.io/4chan/",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "DashchanFork",
+    "url": "https://github.com/TrixiEther/DashchanFork",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "KurobaEx",
+    "url": "https://github.com/K1rakishou/Kuroba-Experimental",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "TUI-Chan",
+    "url": "https://github.com/tuqqu/tui-chan",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "4chan X",
+    "url": "https://github.com/ccd0/4chan-x",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Desu X",
+    "url": "https://greasyfork.org/en/scripts/483282",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "Dollchan",
+    "url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "OneeChan",
+    "url": "https://github.com/KevinParnell/OneeChan",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "StyleChan",
+    "url": "https://github.com/3nly/StyleChan",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "SS21",
+    "url": "https://github.com/saxamaphone69/ss21",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   },
+   {
+    "nombre": "4stats.io",
+    "url": "https://4stats.io/",
+    "pagina": "misc",
+    "seccion": "Related Software",
+    "columna": "Category",
+    "fuente": "wotaku"
+   }
+  ],
+  "secciones": [
+   "Android",
+   "Anime",
+   "E-reader",
+   "Related resources",
+   "iOS",
+   "iOS app not working. What should i do?",
+   "PC",
+   "Streaming torrents without a dedicated anime client",
+   "Tools",
+   "Downloaders",
+   "Server",
+   "Before we start",
+   "Online",
+   "Manga",
+   "Novels",
+   "Live Action",
+   "Tokusatsu",
+   "Comics",
+   "Database",
+   "General",
+   "More",
+   "Others",
+   "The More You Know",
+   "Calendar",
+   "Portals",
+   "Utility",
+   "Anime & Manga",
+   "4chan",
+   "Related Software",
+   "Extension Repos",
+   "Cross-app Support",
+   "Mihon",
+   "Aniyomi",
+   "Cloudstream",
+   "Echo",
+   "IReader",
+   "Kotatsu",
+   "LNReader",
+   "Shosetsu",
+   "Tsundoku",
+   "Aidoku",
+   "Mana",
+   "Paperback",
+   "Sora",
+   "Suwatte",
+   "Multi",
+   "Hayase",
+   "Mangayomi",
+   "Nuvio",
+   "Seanime",
+   "Stremio",
+   "Non-English",
+   "Global",
+   "Multilingual",
+   "Asia",
+   "Arabic",
+   "Chinese",
+   "Indian",
+   "Indonesian",
+   "Japanese",
+   "Korean",
+   "Turkish",
+   "Vietnamese",
+   "Europe",
+   "Catalan",
+   "French",
+   "German",
+   "Greek",
+   "Hungarian",
+   "Italian",
+   "Lithuanian",
+   "Polish",
+   "Portuguese",
+   "Romanian",
+   "Russian",
+   "Serbian",
+   "Spanish",
+   "Ukrainian"
+  ]
+ }
+}
