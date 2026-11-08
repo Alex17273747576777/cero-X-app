@@ -139,5 +139,5 @@ data class ModuleHealth(
     val name: String,
     val version: String,
     val status: String,
-    val details: Map<String, Any> = emptyMap()
+    val details: Map<String, Any?> = emptyMap()
 )

@@ -22,7 +22,7 @@ class MemoryMonitor(private val context: Context, private val lifecycleManager: 
     private val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     private var isRunning = false
     private var monitorThread: Thread? = null
-    private var checkIntervalMs = 10000 // 10 segundos
+    private var checkIntervalMs: Long = 30_000L
 
     private val memoryClass = activityManager.memoryClass // MB
 
@@ -75,7 +75,7 @@ class MemoryMonitor(private val context: Context, private val lifecycleManager: 
     }
 
     fun setCheckInterval(ms: Long) {
-        checkIntervalMs = ms.coerceIn(1000, 300000)
+        checkIntervalMs = ms.coerceIn(1_000L, 300_000L)
     }
 
     fun getMemoryInfo(): MemoryInfo {

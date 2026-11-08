@@ -63,7 +63,7 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf(
+            mapOf<String, Any?>(
                 "ocr_enabled" to ocrEnabled,
                 "translation_enabled" to translationEnabled,
                 "ml_kit_fallback" to useMlKitFallback,

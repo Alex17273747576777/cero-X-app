@@ -66,7 +66,7 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf(
+            mapOf<String, Any?>(
                 "model_loaded" to session != null,
                 "nnapi_enabled" to nnapiEnabled,
                 "cpu_fallback" to cpuFallback,

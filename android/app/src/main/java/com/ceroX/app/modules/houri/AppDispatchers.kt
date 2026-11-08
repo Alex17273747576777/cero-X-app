@@ -3,7 +3,6 @@ package com.ceroX.app.modules.houri
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.fallback
 
 /**
  * AppDispatchers — Foundation de concurrencia.
@@ -33,5 +32,13 @@ object AppDispatchers {
     // Dispatcher para descargas en background
     val Download: CoroutineDispatcher = Dispatchers.IO
 
-    fun fallback(dispatcher: CoroutineDispatcher): CoroutineDispatcher = dispatcher.fallback
+    /**
+     * Version limitada de un dispatcher, para no saturar un movil de 2 nucleos.
+     *
+     * Antes habia aquí `dispatcher.fallback`, que no existe en kotlinx-coroutines:
+     * la libreria no ofrece ningun `fallback`. Lo que si existe desde la 1.6 es
+     * `limitedParallelism(n)`, que es lo que de verdad hace falta para acotar.
+     */
+    fun limited(dispatcher: CoroutineDispatcher, parallelism: Int): CoroutineDispatcher =
+        dispatcher.limitedParallelism(parallelism.coerceAtLeast(1))
 }

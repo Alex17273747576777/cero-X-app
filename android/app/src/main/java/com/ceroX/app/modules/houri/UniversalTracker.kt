@@ -28,7 +28,7 @@ class UniversalTracker {
 
     fun syncProgress(mangaId: String, chapter: Int, status: String, platform: String): TrackerSyncResult {
         if (!isEnabled(platform)) {
-            return TrackerSyncResult(platform, mangaId, false, "Plataforma no habilitada")
+            return TrackerSyncResult(platform.toTrackerPlatform(), mangaId, false, "Plataforma no habilitada")
         }
 
         val record = TrackerSyncRecord(
@@ -41,7 +41,7 @@ class UniversalTracker {
         )
         syncHistory["$mangaId:$platform"] = record
 
-        return TrackerSyncResult(platform, mangaId, true, "Sincronizado con $platform")
+        return TrackerSyncResult(platform.toTrackerPlatform(), mangaId, true, "Sincronizado con $platform")
     }
 
     fun getLastSync(mangaId: String, platform: String): TrackerSyncRecord? {
@@ -62,9 +62,20 @@ data class TrackerSyncRecord(
     val success: Boolean
 )
 
-data class TrackerSyncResult(
-    val platform: String,
-    val mangaId: String,
-    val success: Boolean,
-    val message: String
-)
+// TrackerSyncResult ya está declarado en HoubiModule.kt con el enum
+// TrackerPlatform. Tener dos clases con el mismo nombre en el mismo paquete
+// es una redeclaración y no compila: se usa la de HoubiModule.
+
+/**
+ * Convierte el nombre de plataforma que usa UniversalTracker ("myanimelist")
+ * al enum de HoubiModule. Devuelve null-safe: una plataforma desconocida cae
+ * en MYANIMELIST en vez de lanzar una excepción en mitad de una sincronización.
+ */
+private fun String.toTrackerPlatform(): TrackerPlatform = when (this.lowercase()) {
+    "manga_baka", "mangabaka" -> TrackerPlatform.MANGA_BAKA
+    "manga_updates", "mangaupdates" -> TrackerPlatform.MANGA_UPDATES
+    "hikka" -> TrackerPlatform.HIKKA
+    "kitsu" -> TrackerPlatform.KITSU
+    "anilist" -> TrackerPlatform.ANILIST
+    else -> TrackerPlatform.MYANIMELIST
+}
