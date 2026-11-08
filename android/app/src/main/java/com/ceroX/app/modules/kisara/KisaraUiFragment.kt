@@ -31,8 +31,12 @@ class KisaraUiFragment : Fragment() {
         val app = requireActivity().application as com.ceroX.app.core.CeroXApplication
         kisaraModule = app.coreEngine.registry.getInstance("kisara-reader") as KisaraModule
 
+        // toggleBulkSelection vive en KisaraLibraryModule, no en KisaraModule.
+        // Se resuelve la instancia correcta del registro antes de usarla.
+        val libraryModule = app.coreEngine.registry.getInstance("kisara-library") as? KisaraLibraryModule
+
         adapter = KisaraLibraryAdapter(kisaraModule.listLibraryEntries()) { entryId ->
-            kisaraModule.toggleBulkSelection(entryId)
+            libraryModule?.toggleBulkSelection(entryId)
             adapter.notifyDataSetChanged()
         }
 

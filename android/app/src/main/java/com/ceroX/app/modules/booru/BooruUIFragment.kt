@@ -71,9 +71,9 @@ class BooruAdapter(private var items: List<BooruFavorite>) :
         holder.score.text = item.score.toString()
     }
 
-    fun submitList(newList: List<BooruFavorite>) {
-        submitList(newList)
-    }
+    // Aquí había un `submitList` que se llamaba a sí mismo: recursión infinita
+    // y StackOverflow en cuanto llegara la primera lista. ListAdapter ya trae
+    // submitList; la correcta es la de la clase base.
 }
 
 class BooruFavoriteDiffCallback :

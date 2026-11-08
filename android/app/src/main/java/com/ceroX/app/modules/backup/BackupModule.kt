@@ -44,8 +44,8 @@ class BackupModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf<String, Any>(
-                "backup_dir" to backupDir?.absolutePath ?: "none",
+            mapOf<String, Any?>(
+                "backup_dir" to (backupDir?.absolutePath ?: "none"),
                 "backups_created" to backupHistory.size,
                 "cloud_required" to false
             )

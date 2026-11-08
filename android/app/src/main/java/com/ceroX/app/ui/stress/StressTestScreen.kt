@@ -1,10 +1,12 @@
 package com.ceroX.app.ui.stress
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ceroX.app.core.engine.ModuleHealth
@@ -20,7 +22,9 @@ fun StressTestScreen(
     reModule: DeepReverseEngineeringModule?,
     modifier: Modifier = Modifier
 ) {
-    var testResults by remember { mutableMapOf<String, String>() }
+    // Un mapa no es un estado observable: con `by` no compila. Hay que envolver
+    // el mapa en mutableStateOf y leerlo desde .value.
+    var testResults by remember { mutableStateOf(mutableMapOf<String, String>()) }
     var isRunning by remember { mutableStateOf(false) }
 
     Column(
@@ -47,7 +51,7 @@ fun StressTestScreen(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.foundation.layout.Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = label, style = MaterialTheme.typography.bodyMedium)
                 Text(
@@ -94,9 +98,10 @@ fun StressTestWrapper(
     onBack: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
+        @OptIn(ExperimentalMaterial3Api::class)
         TopAppBar(
             title = { Text("Ingeniería Inversa y Estrés") },
-            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.Arrow_Back, contentDescription = "Volver") } }
+            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver") } }
         )
         if (reModule != null) {
             StressTestScreen(reModule)

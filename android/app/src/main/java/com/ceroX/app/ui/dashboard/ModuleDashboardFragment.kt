@@ -49,7 +49,7 @@ class ModuleDashboardFragment : Fragment() {
 
         // Observe module health
         viewModel.moduleHealth.observe(viewLifecycleOwner) { healthMap ->
-            adapter.submitList(healthMap.entries.toList())
+            adapter.mostrarSalud(healthMap.entries.toList())
         }
 
         // Refresh button
@@ -100,11 +100,15 @@ class ModuleAdapter(
         holder.itemView.setOnClickListener { onModuleClick(item.name) }
     }
 
-    fun submitList(items: List<Map.Entry<String, com.ceroX.app.core.engine.ModuleHealth>>) {
-        val moduleItems = items.map { (name, health) ->
-            ModuleItem(name, health.version, health.status)
-        }
-        submitList(moduleItems)
+    /**
+     * Convierte el mapa de salud en la lista que pinta el adaptador.
+     *
+     * Se llamaba submitList y chocaba con la de ListAdapter (misma firma JVM),
+     * además de llamarse a sí misma. Ahora es un método con nombre propio que
+     * al final delega en la submitList real de la clase base.
+     */
+    fun mostrarSalud(items: List<Map.Entry<String, com.ceroX.app.core.engine.ModuleHealth>>) {
+        submitList(items.map { (name, health) -> ModuleItem(name, health.version, health.status) })
     }
 }
 
@@ -119,6 +123,6 @@ class ModuleItemDiffCallback :
         oldItem == newItem
 }
 
-class DashboardViewModel : androidx.lifecycle.ViewModel() {
-    val moduleHealth = androidx.lifecycle.MutableLiveData<Map<String, com.ceroX.app.core.engine.ModuleHealth>>()
-}
+// DashboardViewModel vive en su propio archivo (ui/dashboard/DashboardViewModel.kt)
+// y ya tiene un metodo refresh(). Esta segunda definicion, sin refresh, era una
+// redeclaracion en el mismo paquete.

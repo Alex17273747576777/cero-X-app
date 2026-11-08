@@ -14,8 +14,11 @@ class BackupManager(private val context: Context) {
     private val backupDir: File
 
     init {
-        // externalFilesDirs devuelve Array<File>? — puede ser null si no hay almacenamiento externo
-        backupDir = File(context.externalFilesDirs?.firstOrNull() ?: context.filesDir, "backups")
+        // `Context.externalFilesDirs` no existe: es `getExternalFilesDirs(type)`,
+        // que devuelve un Array<File>? (null si no hay almacenamiento externo).
+        // Se prefiere el externo propio de la app y se cae al interno si no hay.
+        val externo = context.getExternalFilesDirs(null)?.firstOrNull()
+        backupDir = File(externo ?: context.filesDir, "backups")
         backupDir.mkdirs()
     }
 

@@ -41,9 +41,12 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
         nnapiEnabled = config["nnapi_enabled"] as? Boolean ?: true
         cpuFallback = config["cpu_fallback"] as? Boolean ?: true
         dynamicRangeCompensation = config["dynamic_range_compensation"] as? Float ?: 2.2f
-        modelPath = config["colorizer_model_path"] as? String
-        if (modelPath != null) {
-            loadColorizerModel(modelPath)
+        // Copia local: `modelPath` es var y el compilador no puede garantizar
+        // que no cambie entre la comprobación de null y el uso.
+        val ruta = config["colorizer_model_path"] as? String
+        modelPath = ruta
+        if (ruta != null) {
+            loadColorizerModel(ruta)
         }
         _initialized = true
         return true
@@ -67,7 +70,7 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
             name, version,
             if (_started) "healthy" else "stopped",
             mapOf<String, Any?>(
-                "model_loaded" to session != null,
+                "model_loaded" to (session != null),
                 "nnapi_enabled" to nnapiEnabled,
                 "cpu_fallback" to cpuFallback,
                 "dynamic_range_compensation" to dynamicRangeCompensation,

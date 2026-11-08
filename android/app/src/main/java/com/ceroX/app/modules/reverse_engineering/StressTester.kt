@@ -43,7 +43,7 @@ class StressTester {
 
         val results = futures.map { it.get() }
         val totalTime = System.currentTimeMillis() - startTime
-        val successCount = results.count { it }
+        val successCount = results.count { it == true }
 
         return DownloadStressResult(
             concurrentDownloads = concurrentDownloads,

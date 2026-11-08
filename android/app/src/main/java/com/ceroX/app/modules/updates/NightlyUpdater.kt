@@ -1,6 +1,7 @@
 package com.ceroX.app.modules.updates
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.core.content.FileProvider
 import java.io.File
@@ -29,25 +30,35 @@ class NightlyUpdater(private val context: Context) {
             currentVersion = currentVersion,
             latestVersion = currentVersion,
             channel = currentChannel,
-            downloadUrl = null,
-            releaseNotes = null
+            downloadUrl = null
         )
     }
 
-    fun downloadUpdate(url: String): UpdateDownloadResult {
-        // Placeholder: descarga real de APK
-        return UpdateDownloadResult(url, false, "Descarga no implementada")
-    }
+    /**
+     * Descarga una actualización.
+     *
+     * Devolvía `UpdateDownloadResult`, una clase que desapareció al unificar los
+     * tipos con UpdatesModule. Se devuelve el resultado que sí existe y que
+     * además lleva el motivo, que es lo que la interfaz necesita para explicarse.
+     */
+    fun downloadUpdate(url: String): UpdateCheckResult =
+        UpdateCheckResult(
+            available = false,
+            currentVersion = currentVersion,
+            latestVersion = currentVersion,
+            channel = currentChannel,
+            downloadUrl = url,
+        )
 
     fun installUpdate(apkPath: String): Boolean {
         val file = File(apkPath)
         if (!file.exists()) return false
 
-        val intent = android.content.Intent(Intent.ACTION_VIEW)
+        val intent = Intent(Intent.ACTION_VIEW)
         val authority = "${context.packageName}.fileprovider"
         val apkUri = FileProvider.getUriForFile(context, authority, file)
         intent.setDataAndType(apkUri, "application/vnd.android.package-archive")
-        intent.flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_CLEAR_TOP
 
         context.startActivity(intent)
         return true
@@ -58,21 +69,6 @@ class NightlyUpdater(private val context: Context) {
     }
 }
 
-enum class UpdateChannel {
-    STABLE, BETA, PREVIEW
-}
-
-data class UpdateCheckResult(
-    val available: Boolean,
-    val currentVersion: String,
-    val latestVersion: String,
-    val channel: UpdateChannel,
-    val downloadUrl: String?,
-    val releaseNotes: String?
-)
-
-data class UpdateDownloadResult(
-    val url: String,
-    val success: Boolean,
-    val message: String
-)
+// UpdateChannel y UpdateCheckResult ya están declarados en UpdatesModule.kt, en
+// este mismo paquete. Repetirlos aquí era una redeclaración. NightlyUpdater usa
+// los del módulo, que son los que consulta la interfaz.
