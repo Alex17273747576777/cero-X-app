@@ -27,7 +27,7 @@ class KaiModule : ModuleInterface() {
 
     override val name = "kai-assistant"
     override val version = "1.0.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val llmProviders = mutableListOf<KaiLLMProvider>()
     private val conversations = mutableListOf<KaiConversation>()

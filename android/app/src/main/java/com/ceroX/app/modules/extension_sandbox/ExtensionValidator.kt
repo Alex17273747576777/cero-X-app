@@ -50,10 +50,10 @@ class ExtensionValidator {
 
     private fun calculateSha256(file: File): String {
         val digest = MessageDigest.getInstance("SHA-256")
-        file.inputStream().use { is ->
+        file.inputStream().use { entrada ->
             val buffer = ByteArray(8192)
             var read: Int
-            while (is.read(buffer).also { read = it } != -1) {
+            while (entrada.read(buffer).also { read = it } != -1) {
                 digest.update(buffer, 0, read)
             }
         }

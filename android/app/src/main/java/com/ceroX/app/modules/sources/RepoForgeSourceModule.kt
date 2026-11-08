@@ -19,7 +19,7 @@ class RepoForgeSourceModule : ModuleInterface() {
 
     override val name = "repoforge-sources"
     override val version = "0.1.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val generatedSources = mutableListOf<GeneratedSource>()
     private val cloudflareBypassEnabled = true

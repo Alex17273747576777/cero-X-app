@@ -21,7 +21,7 @@ class KisaraMigrationModule : ModuleInterface() {
 
     override val name = "kisara-migration"
     override val version = "2.3.9-kisara-stable"
-    override val dependencies = listOf("kisara-library", "kisara-sync")
+    override val dependencies: List<String> = listOf("kisara-library", "kisara-sync")
 
     private val migrationJobs = mutableListOf<KisaraMigrationJob>()
     private val repos = mutableListOf<KisaraRepoConfig>()

@@ -1,5 +1,7 @@
 package com.ceroX.app.modules.mode
 
+import com.ceroX.app.R
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View

@@ -1,9 +1,9 @@
 package com.ceroX.app.modules.neural_colorizer
 
 import android.graphics.Bitmap
-import com.microsoft.onnxruntime.OnnxRuntime
-import com.microsoft.onnxruntime.OnnxRuntime.Session
-import com.microsoft.onnxruntime.OnnxRuntime.Session.SessionOptions
+import ai.onnxruntime.OrtSession
+import ai.onnxruntime.OrtSession.SessionOptions
+import ai.onnxruntime.OrtEnvironment
 import java.io.File
 
 /**
@@ -12,7 +12,9 @@ import java.io.File
  */
 class NeuralColorizer {
 
-    private var session: Session? = null
+    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+
+    private var session: OrtSession? = null
     private var isInitialized = false
 
     fun loadColorizerModel(modelPath: String): Boolean {
@@ -29,7 +31,7 @@ class NeuralColorizer {
                 // Fallback a CPU
             }
 
-            session = OnnxRuntime.createSession(file, options)
+            session = env.createSession(file.absolutePath, options)
             isInitialized = true
             return true
         } catch (e: Exception) {

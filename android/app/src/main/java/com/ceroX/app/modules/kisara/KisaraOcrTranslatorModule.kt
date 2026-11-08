@@ -3,9 +3,9 @@ package com.ceroX.app.modules.kisara
 import android.graphics.Bitmap
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
-import com.microsoft.onnxruntime.OnnxRuntime
-import com.microsoft.onnxruntime.OnnxRuntime.Session
-import com.microsoft.onnxruntime.OnnxRuntime.Session.SessionOptions
+import ai.onnxruntime.OrtSession
+import ai.onnxruntime.OrtSession.SessionOptions
+import ai.onnxruntime.OrtEnvironment
 import java.io.File
 
 /**
@@ -25,7 +25,7 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
 
     override val name = "kisara-ocr-translator"
     override val version = "1.0.0-kisara"
-    override val dependencies = listOf("kisara-reader")
+    override val dependencies: List<String> = listOf("kisara-reader")
 
     private var ocrSession: Session? = null
     private var translationEnabled = true
@@ -91,7 +91,7 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
                 // Fallback a CPU
             }
 
-            ocrSession = OnnxRuntime.createSession(file, options)
+            ocrSession = env.createSession(file.absolutePath, options)
             this.modelPath = modelPath
             isInitialized = true
             return true

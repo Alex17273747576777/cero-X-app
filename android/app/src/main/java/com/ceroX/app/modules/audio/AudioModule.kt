@@ -10,7 +10,7 @@ class AudioModule : ModuleInterface() {
 
     override val name = "audio"
     override val version = "0.1.0"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private var mediaPlayer: MediaPlayer? = null
     private val playlist = mutableListOf<AudioTrack>()
@@ -44,7 +44,7 @@ class AudioModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf(
+            mapOf<String, Any>(
                 "playlist_size" to playlist.size,
                 "current_track" to currentTrack?.title ?: "none",
                 "sample_rate" to sampleRate

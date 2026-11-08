@@ -18,7 +18,7 @@ class MediaModule : ModuleInterface() {
 
     override val name = "media-player"
     override val version = "0.1.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private var mediaPlayer: MediaPlayer? = null
     private val playlist = mutableListOf<MediaTrack>()

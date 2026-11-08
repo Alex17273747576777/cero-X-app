@@ -9,7 +9,7 @@ class ReverseEngineeringModule : ModuleInterface() {
 
     override val name = "reverse-engineering"
     override val version = "0.1.0"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val antigravityEnabled = true
     private val deepseekHarnessEnabled = true

@@ -18,7 +18,7 @@ class EventBus {
         val callbacks = subscribers[eventType] ?: return
         for (cb in callbacks) {
             try {
-                cb(data)
+                cb(data as Any)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

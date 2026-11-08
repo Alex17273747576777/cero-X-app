@@ -1,6 +1,8 @@
 package com.ceroX.app.modules.reader
 
 import android.content.Context
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
 import java.io.File
@@ -22,7 +24,7 @@ class UnifiedReaderModule : ModuleInterface() {
 
     override val name = "unified-reader"
     override val version = "0.1.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private var context: Context? = null
     private val library = mutableListOf<UnifiedLibraryItem>()
@@ -146,9 +148,17 @@ class UnifiedReaderModule : ModuleInterface() {
     }
 }
 
-/** Elemento de biblioteca unificado */
+/** Elemento de biblioteca unificado
+ *
+ *  Es la entidad que declara ReaderRoomDatabase. Sin @Entity y sin @PrimaryKey,
+ *  Room no puede generar la tabla ni el DAO, y el modulo entero deja de compilar.
+ *  Las columnas por defecto toman el nombre de la propiedad; el resto de
+ *  propiedades con valor por defecto llevan @ColumnInfo para que el esquema
+ *  no dependa del orden de declaracion.
+ */
+@Entity(tableName = "unified_library_item")
 data class UnifiedLibraryItem(
-    val id: String,
+    @PrimaryKey val id: String,
     val title: String,
     val author: String = "",
     val source: String = "",

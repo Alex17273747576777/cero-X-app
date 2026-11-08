@@ -23,7 +23,7 @@ class PrismaModule : ModuleInterface() {
 
     override val name = "prisma-client"
     override val version = "4.2.1-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val providers = mutableListOf<PrismaProvider>()
     private val downloadQueue = mutableListOf<PrismaDownload>()

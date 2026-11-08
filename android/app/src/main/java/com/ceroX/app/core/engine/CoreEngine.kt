@@ -1,5 +1,7 @@
 package com.ceroX.app.core.engine
 
+import com.ceroX.app.core.ConfigManager
+
 import android.content.Context
 import android.util.Log
 
@@ -120,7 +122,7 @@ class CoreEngine(private val context: Context) {
                 result[name] = instance.healthCheck()
             } catch (e: Exception) {
                 result[name] = ModuleHealth(name, "unknown", "error",
-                    mapOf("exception" to e.message ?: "Unknown error"))
+                    mapOf<String, Any>("exception" to e.message ?: "Unknown error"))
             }
         }
         return result

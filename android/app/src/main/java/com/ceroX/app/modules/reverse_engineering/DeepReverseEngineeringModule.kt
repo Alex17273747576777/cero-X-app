@@ -18,7 +18,7 @@ class DeepReverseEngineeringModule : ModuleInterface() {
 
     override val name = "deep-reverse-engineering"
     override val version = "0.1.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val antigravityEnabled = true
     private val deepseekHarnessEnabled = true
@@ -63,7 +63,7 @@ class DeepReverseEngineeringModule : ModuleInterface() {
         val result = ReverseAnalysisResult(
             target = apkPath,
             analysisType = "binary",
-            status = if (file.exists()) "completed" : "error",
+            status = if (file.exists()) "completed" else "error",
             details = "Análisis de binario APK con Antigravity",
             timestamp = System.currentTimeMillis()
         )

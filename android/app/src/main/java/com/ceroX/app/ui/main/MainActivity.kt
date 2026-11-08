@@ -1,5 +1,7 @@
 package com.ceroX.app.ui.main
 
+import androidx.compose.material.icons.Icons
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -101,9 +103,9 @@ fun CeroXBottomNav(onRouteSelected: (String) -> Unit) {
         BottomNavItem("mode", "Modos", Icons.Default.Switch_Camera),
     )
 
-    BottomNavigation {
+    NavigationBar {
         items.forEach { item ->
-            BottomNavigationDestination(
+            NavigationBarItem(
                 icon = { Icon(imageVector = item.icon, contentDescription = item.label) },
                 label = { Text(text = item.label) },
                 selected = false,

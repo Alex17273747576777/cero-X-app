@@ -19,7 +19,7 @@ class ThemeEngineModule : ModuleInterface() {
 
     override val name = "theme-engine"
     override val version = "1.0.0-beta"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val availableThemes = mutableListOf<AppTheme>()
     private var currentThemeId = "kiroku_liquid_glass"

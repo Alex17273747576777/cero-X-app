@@ -15,7 +15,7 @@ class UpdatesModule : ModuleInterface() {
 
     override val name = "updates-channel"
     override val version = "0.1.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private var currentChannel = UpdateChannel.PREVIEW
     private var currentVersion = "0.1.0-beta"

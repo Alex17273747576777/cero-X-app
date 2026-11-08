@@ -20,7 +20,7 @@ class KisaraSyncModule : ModuleInterface() {
 
     override val name = "kisara-sync"
     override val version = "2.3.9-kisara-stable"
-    override val dependencies = listOf("kisara-library")
+    override val dependencies: List<String> = listOf("kisara-library")
 
     private val trackerServices = mutableListOf<KisaraTrackerService>()
     private var autoSyncEnabled = true

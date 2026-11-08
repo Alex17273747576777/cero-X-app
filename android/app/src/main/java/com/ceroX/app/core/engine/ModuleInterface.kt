@@ -36,12 +36,24 @@ abstract class ModuleInterface : ComponentCallbacks2 {
     }
 
     /** Callback de baja memoria del sistema */
-    open fun onLowMemory() {
+    override open fun onLowMemory() {
         // Los módulos pueden sobrescribir para liberar recursos
     }
 
+    /**
+     * Callback obligatorio de ComponentCallbacks.
+     *
+     * ModuleInterface implementa ComponentCallbacks2, y esa interfaz exige
+     * onConfigurationChanged. Sin esta implementación por defecto, los 39 módulos
+     * heredaban un abstracto sin resolver y ninguno de ellos compilaba.
+     * La base lo absorbe aquí para que cada módulo no tenga que repetirlo.
+     */
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        // Los módulos que dependan del idioma o del tema pueden sobrescribirlo.
+    }
+
     /** Callback de recorte de memoria */
-    open fun onTrimMemory(level: Int) {
+    override open fun onTrimMemory(level: Int) {
         when (level) {
             ComponentCallbacks2.TRIM_MEMORY_COMPLETE,
             ComponentCallbacks2.TRIM_MEMORY_MODERATE,

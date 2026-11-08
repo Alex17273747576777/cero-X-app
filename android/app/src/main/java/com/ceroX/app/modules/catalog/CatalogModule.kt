@@ -14,9 +14,23 @@ class CatalogModule : ModuleInterface() {
 
     override val name = "app-catalog"
     override val version = "1.0.0-beta"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val apps = mutableListOf<CatalogApp>()
+
+    /**
+     * Añade una app al catálogo.
+     *
+     * Esta función faltaba: se llamaba 52 veces en registerAllApps() y no estaba
+     * definida en ninguna parte, así que el módulo entero de catálogo no compilaba.
+     * Deduplica por id para que registrar dos veces la misma app no la duplique,
+     * que es el fallo silencioso clásico de un catálogo que se rellena a mano.
+     */
+    private fun addApp(app: CatalogApp) {
+        if (apps.none { it.id == app.id }) {
+            apps.add(app)
+        }
+    }
 
     override fun initialize(config: Map<String, Any>): Boolean {
         registerAllApps()

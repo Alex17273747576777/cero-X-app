@@ -3,9 +3,9 @@ package com.ceroX.app.modules.kisara
 import android.graphics.Bitmap
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
-import com.microsoft.onnxruntime.OnnxRuntime
-import com.microsoft.onnxruntime.OnnxRuntime.Session
-import com.microsoft.onnxruntime.OnnxRuntime.Session.SessionOptions
+import ai.onnxruntime.OrtSession
+import ai.onnxruntime.OrtSession.SessionOptions
+import ai.onnxruntime.OrtEnvironment
 import java.io.File
 
 /**
@@ -26,9 +26,11 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
 
     override val name = "kisara-neural-colorizer"
     override val version = "1.0.0-kisara"
-    override val dependencies = listOf("kisara-reader")
+    override val dependencies: List<String> = listOf("kisara-reader")
 
-    private var session: Session? = null
+    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+
+    private var session: OrtSession? = null
     private var isInitialized = false
     private var nnapiEnabled = true
     private var cpuFallback = true
@@ -96,7 +98,7 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
                 }
             }
 
-            session = OnnxRuntime.createSession(file, options)
+            session = env.createSession(file.absolutePath, options)
             this.modelPath = modelPath
             isInitialized = true
 
@@ -119,7 +121,7 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
             val file = File(modelPath)
             val options = SessionOptions()
             options.setOptimizationLevel(SessionOptions.OptLevel.ALL_OPT)
-            session = OnnxRuntime.createSession(file, options)
+            session = env.createSession(file.absolutePath, options)
             this.modelPath = modelPath
             isInitialized = true
             verifyTensorProbe()

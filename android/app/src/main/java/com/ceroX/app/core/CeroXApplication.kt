@@ -1,5 +1,8 @@
 package com.ceroX.app.core
 
+import com.ceroX.app.core.engine.CoreEngine
+import com.ceroX.app.BuildConfig
+
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.os.Build
@@ -118,7 +121,8 @@ class CeroXApplication : Application() {
         override fun onActivityResumed(activity: android.app.Activity) {}
         override fun onActivityPaused(activity: android.app.Activity) {}
         override fun onActivityStopped(activity: android.app.Activity) {}
-        override fun onActivitySaveInstanceState(activity: android.app.Activity, outState: android.os.Bundle?) {}
+        // En API 35+ el parámetro outState no es nulo: la firma cambió.
+        override fun onActivitySaveInstanceState(activity: android.app.Activity, outState: android.os.Bundle) {}
         override fun onActivityDestroyed(activity: android.app.Activity) {}
     }
 

@@ -23,7 +23,7 @@ class BooruModule : ModuleInterface() {
 
     override val name = "booru-viewer"
     override val version = "1.0.0-beta"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val supportedSites = mutableListOf<String>()
     private val favoritePosts = mutableListOf<BooruFavorite>()

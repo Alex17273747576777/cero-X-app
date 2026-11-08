@@ -21,7 +21,7 @@ class ExtensionSandboxModule : ModuleInterface() {
 
     override val name = "extension-sandbox"
     override val version = "1.0.0-beta"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val sandboxManager = ExtensionSandboxManager()
     private val isolator = ExtensionIsolator()

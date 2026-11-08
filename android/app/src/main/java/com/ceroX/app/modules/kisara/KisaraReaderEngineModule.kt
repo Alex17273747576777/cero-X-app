@@ -25,7 +25,7 @@ class KisaraReaderEngineModule : ModuleInterface() {
 
     override val name = "kisara-reader-engine"
     override val version = "2.3.9-kisara-stable"
-    override val dependencies = listOf("kisara-reader")
+    override val dependencies: List<String> = listOf("kisara-reader")
 
     private var readingDirection = "ltr"
     private var webtoonAutoDetect = true

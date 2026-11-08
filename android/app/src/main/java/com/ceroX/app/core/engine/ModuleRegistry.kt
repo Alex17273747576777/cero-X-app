@@ -4,7 +4,9 @@ import java.util.concurrent.ConcurrentHashMap
 
 class ModuleRegistry {
 
-    private val metadata = ConcurrentHashMap<String, ModuleMetadata>()
+    // internal y no private: ModuleLifecycleManager recorre el mapa completo
+    // para inicializar en orden de dependencias.
+    internal val metadata = ConcurrentHashMap<String, ModuleMetadata>()
     private val instances = ConcurrentHashMap<String, ModuleInterface>()
 
     fun register(name: String, meta: ModuleMetadata, instance: ModuleInterface) {

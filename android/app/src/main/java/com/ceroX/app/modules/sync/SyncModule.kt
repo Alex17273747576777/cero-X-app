@@ -16,7 +16,7 @@ class SyncModule : ModuleInterface() {
 
     override val name = "sync-trackers"
     override val version = "0.1.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val anilistEnabled = true
     private val malEnabled = true

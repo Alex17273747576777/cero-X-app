@@ -18,7 +18,7 @@ class BackupModule : ModuleInterface() {
 
     override val name = "backup-restore"
     override val version = "0.1.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private var backupDir: File? = null
     private val backupHistory = mutableListOf<BackupRecord>()
@@ -44,7 +44,7 @@ class BackupModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf(
+            mapOf<String, Any>(
                 "backup_dir" to backupDir?.absolutePath ?: "none",
                 "backups_created" to backupHistory.size,
                 "cloud_required" to false
@@ -59,7 +59,7 @@ class BackupModule : ModuleInterface() {
             fileName = fileName,
             success = true, // Placeholder: implementar compresión ZIP real
             backupPath = backupDir?.let { File(it, fileName).absolutePath } ?: null,
-            sizeBytes = libraryData.byteSize(),
+            sizeBytes = libraryData.toByteArray().size.toLong(),
             createdAt = timestamp
         )
         backupHistory.add(BackupRecord(fileName, timestamp, result.success))
@@ -90,20 +90,6 @@ class BackupModule : ModuleInterface() {
         return libraryData
     }
 }
-
-data class BackupResult(
-    val fileName: String,
-    val success: Boolean,
-    val backupPath: String?,
-    val sizeBytes: Long,
-    val createdAt: Long
-)
-
-data class RestoreResult(
-    val success: Boolean,
-    val restoredItems: Int,
-    val message: String
-)
 
 data class BackupRecord(
     val fileName: String,

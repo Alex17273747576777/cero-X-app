@@ -23,7 +23,7 @@ class HoubiModule : ModuleInterface() {
 
     override val name = "houbi-reader"
     override val version = "1.22.17-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private var webgpuEnabled = false
     private var darkModeFilterEnabled = false
@@ -145,12 +145,6 @@ data class TrackerSyncResult(
     val platform: TrackerPlatform,
     val mangaId: String,
     val success: Boolean,
-    val message: String
-)
-
-data class AchievementResult(
-    val achievementId: String,
-    val unlocked: Boolean,
     val message: String
 )
 

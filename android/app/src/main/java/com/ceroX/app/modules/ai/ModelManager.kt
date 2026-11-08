@@ -1,9 +1,9 @@
 package com.ceroX.app.modules.ai
 
 import android.content.Context
-import com.microsoft.onnxruntime.OnnxRuntime
-import com.microsoft.onnxruntime.OnnxRuntime.Session
-import com.microsoft.onnxruntime.OnnxRuntime.Session.SessionOptions
+import ai.onnxruntime.OrtSession
+import ai.onnxruntime.OrtSession.SessionOptions
+import ai.onnxruntime.OrtEnvironment
 import java.io.File
 
 /**
@@ -12,7 +12,9 @@ import java.io.File
  */
 class ModelManager(private val context: Context) {
 
-    private var session: Session? = null
+    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+
+    private var session: OrtSession? = null
     private val loadedModels = mutableMapOf<String, LoadedModel>()
 
     fun loadModel(modelPath: String, modelId: String, useNnapi: Boolean = true): Boolean {
@@ -31,7 +33,7 @@ class ModelManager(private val context: Context) {
                 }
             }
 
-            session = OnnxRuntime.createSession(file, options)
+            session = env.createSession(file.absolutePath, options)
             loadedModels[modelId] = LoadedModel(modelId, modelPath, System.currentTimeMillis(), useNnapi)
             return true
         } catch (e: Exception) {

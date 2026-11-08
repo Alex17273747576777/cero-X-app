@@ -13,11 +13,11 @@
         <item name="colorSurfaceContainerHighest">#1E293B</item>
         <item name="colorOnSurface">#FFFFFF</item>
         <item name="colorOnSurfaceVariant">#CBD5E1</item>
-        <item name="colorBackground">#0F172A</item>
-        <item name="colorOnBackground">#FFFFFF</item>
+        <item name="android:colorBackground">#0F172A</item>
+        <item name="android:colorForeground">#FFFFFF</item>
         <item name="colorError">#EF4444</item>
         <item name="colorOnError">#FFFFFF</item>
-        <item name="android:windowBackground">@color/ceroX_background</item>
+        <item name="android:windowBackground">@color/cerox_fondo</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enableOnBackInvokedCallback">true</item>
@@ -28,23 +28,23 @@
     <style name="Theme.ceroX.Amoled" parent="Theme.ceroX">
         <item name="colorSurface">#000000</item>
         <item name="colorSurfaceContainerHighest">#111111</item>
-        <item name="colorBackground">#000000</item>
+        <item name="android:colorBackground">#000000</item>
     </style>
 
     <!-- Tema claro -->
     <style name="Theme.ceroX.Light" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">#6366F1</item>
         <item name="colorSurface">#FFFFFF</item>
-        <item name="colorBackground">#FFFFFF</item>
+        <item name="android:colorBackground">#FFFFFF</item>
         <item name="colorOnSurface">#000000</item>
-        <item name="colorOnBackground">#000000</item>
+        <item name="android:colorForeground">#000000</item>
     </style>
 
     <!-- Splash screen theme -->
     <style name="Theme.ceroX.Splash" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/ceroX_splash_background</item>
-        <item name="android:windowSplashScreenBackground">@color/ceroX_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ceroX_splash_icon</item>
+        <item name="android:windowBackground">@drawable/cerox_splash_background</item>
+        <item name="android:windowSplashScreenBackground">@color/cerox_fondo</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/cerox_splash_icon</item>
     </style>
 
 </resources>

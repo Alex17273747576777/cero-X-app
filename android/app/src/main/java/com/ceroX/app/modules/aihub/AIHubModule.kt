@@ -24,7 +24,7 @@ class AIHubModule : ModuleInterface() {
 
     override val name = "ai-hub"
     override val version = "3.0.1-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val aiServices = mutableListOf<AIService>()
     private val activeSessions = mutableListOf<AISession>()

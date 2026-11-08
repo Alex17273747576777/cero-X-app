@@ -20,7 +20,7 @@ class KisaraThemeModule : ModuleInterface() {
 
     override val name = "kisara-theme"
     override val version = "2.3.9-kisara-stable"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private var autoThemeFromCover = true
     private var isDarkMode = true

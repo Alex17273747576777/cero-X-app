@@ -11,7 +11,7 @@ class ToolsModule : ModuleInterface() {
 
     override val name = "download-tools"
     override val version = "1.0.0-beta"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val availableTools = mutableListOf<ToolInfo>()
 

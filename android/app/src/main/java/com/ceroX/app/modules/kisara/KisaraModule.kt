@@ -53,7 +53,7 @@ class KisaraModule : ModuleInterface() {
 
     override val name = "kisara-reader"
     override val version = "2.3.9-kisara-stable"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val sources = mutableListOf<KisaraSource>()
     private val libraryEntries = mutableListOf<KisaraLibraryEntry>()

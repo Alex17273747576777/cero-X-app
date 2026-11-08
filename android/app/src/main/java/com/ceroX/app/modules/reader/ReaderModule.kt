@@ -9,7 +9,7 @@ class ReaderModule : ModuleInterface() {
 
     override val name = "reader"
     override val version = "0.1.0"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private var context: Context? = null
     private val library = mutableListOf<LibraryItem>()

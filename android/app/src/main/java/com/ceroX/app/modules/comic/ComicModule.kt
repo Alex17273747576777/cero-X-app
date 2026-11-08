@@ -11,7 +11,7 @@ class ComicModule : ModuleInterface() {
 
     override val name = "comic-reader"
     override val version = "1.0.0-beta"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val library = mutableListOf<ComicItem>()
     private val supportedFormats = listOf("CBR", "CBZ", "CB7", "CBT", "ZIP", "RAR", "7z", "TAR", "PDF", "EPUB")

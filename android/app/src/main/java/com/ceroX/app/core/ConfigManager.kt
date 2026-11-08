@@ -51,7 +51,7 @@ class ConfigManager(private val context: Context) {
         val json = prefs.getString("module_$moduleName", null)
         if (json != null) {
             val type = object : TypeToken<Map<String, Any>>() {}.type
-            val saved = gson.fromJson(json, type)
+            val saved: Map<String, Any>? = gson.fromJson(json, type)
             if (saved != null) return saved
         }
         return defaults[moduleName] ?: emptyMap()
@@ -63,7 +63,7 @@ class ConfigManager(private val context: Context) {
     }
 
     fun getString(key: String, default: String = ""): String =
-        prefs.getString(key, default)
+        prefs.getString(key, default) ?: default
 
     fun putString(key: String, value: String) {
         prefs.edit().putString(key, value).apply()

@@ -3,18 +3,20 @@ package com.ceroX.app.modules.ai_training
 import android.content.Context
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
-import com.microsoft.onnxruntime.OnnxRuntime
-import com.microsoft.onnxruntime.OnnxRuntime.Session
-import com.microsoft.onnxruntime.OnnxRuntime.Session.SessionOptions
+import ai.onnxruntime.OrtSession
+import ai.onnxruntime.OrtSession.SessionOptions
+import ai.onnxruntime.OrtEnvironment
 import java.io.File
 
 class AiTrainingModule : ModuleInterface() {
 
     override val name = "ai-training"
     override val version = "0.1.0"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
-    private var session: Session? = null
+    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+
+    private var session: OrtSession? = null
     private var context: Context? = null
     private val models = mutableMapOf<String, ModelInfo>()
 
@@ -65,7 +67,7 @@ class AiTrainingModule : ModuleInterface() {
         try {
             val file = File(modelPath)
             if (!file.exists()) return false
-            session = OnnxRuntime.createSession(file, SessionOptions())
+            session = env.createSession(file.absolutePath, SessionOptions())
             models[modelId] = ModelInfo(modelId, modelPath, System.currentTimeMillis())
             return true
         } catch (e: Exception) {

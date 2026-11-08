@@ -27,7 +27,7 @@ class KisaraLibraryModule : ModuleInterface() {
 
     override val name = "kisara-library"
     override val version = "2.3.9-kisara-stable"
-    override val dependencies = listOf("kisara-reader")
+    override val dependencies: List<String> = listOf("kisara-reader")
 
     private val entries = mutableListOf<KisaraLibraryEntry>()
     private val categories = mutableListOf<KisaraCategory>()

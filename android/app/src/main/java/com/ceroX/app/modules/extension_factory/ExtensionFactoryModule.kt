@@ -18,7 +18,7 @@ class ExtensionFactoryModule : ModuleInterface() {
 
     override val name = "extension-factory"
     override val version = "1.0.0-beta"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val factory = ExtensionFactory()
     private val builder = ExtensionBuilder()

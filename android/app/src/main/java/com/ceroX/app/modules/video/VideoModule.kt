@@ -8,7 +8,7 @@ class VideoModule : ModuleInterface() {
 
     override val name = "video"
     override val version = "0.1.0"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     private val library = mutableListOf<VideoItem>()
     private var hwAccel = false

@@ -6,7 +6,7 @@ import com.ceroX.app.core.engine.ModuleInterface
 class RepoForgeSourceModule : ModuleInterface() {
     override val name = "repoforge-sources"
     override val version = "0.1.0-fusion"
-    override val dependencies = emptyList()
+    override val dependencies: List<String> = emptyList()
 
     override fun initialize(config: Map<String, Any>): Boolean { _initialized = true; return true }
     override fun start(): Boolean { if (!_initialized) return false; _started = true; return true }
