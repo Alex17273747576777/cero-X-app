@@ -311,7 +311,7 @@ class ModuleLifecycleManager(private val context: Context) {
                 result[name] = instance.healthCheck()
             } catch (e: Exception) {
                 result[name] = ModuleHealth(name, "unknown", "error",
-                    mapOf<String, Any>("exception" to e.message))
+                    mapOf<String, Any?>("exception" to e.message))
             }
         }
         return result.toMap()

@@ -104,7 +104,10 @@ class KisaraLibraryModule : ModuleInterface() {
     }
 
     fun selectAllEntries() {
-        selectedEntryIds = entries.map { it.id }.toSet()
+        // `selectedEntryIds` es un MutableSet: asignarle el Set inmutable que
+        // devuelve toSet() rompe el tipo. Se vacía y se rellena.
+        selectedEntryIds.clear()
+        selectedEntryIds.addAll(entries.map { it.id })
         bulkSelectionMode = true
     }
 

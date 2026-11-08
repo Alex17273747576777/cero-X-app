@@ -56,7 +56,7 @@ class MediaModule : ModuleInterface() {
                 "playlist_size" to playlist.size,
                 "youtube_support" to youtubeEnabled,
                 "compose_ui" to composeUiEnabled,
-                "current_track" to currentTrack?.title ?: "none"
+                "current_track" to (currentTrack?.title ?: "none")
             )
         )
     }

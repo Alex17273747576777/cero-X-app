@@ -21,10 +21,13 @@ class UIThemeManager(private val context: Context) {
     }
 
     fun colorSchemeFor(theme: AppTheme, isDark: Boolean = true): ColorScheme {
-        val primary = Color(theme.primaryColor)
-        val secondary = Color(theme.accentColor)
-        val background = Color(theme.backgroundColor)
-        val surface = Color(theme.surfaceColor)
+        // AppTheme guarda los colores como texto ("#6200EE"), no como Int.
+        // `Color(theme.primaryColor)` esperaba un Int y por eso no compilaba:
+        // hay que interpretar el hexadecimal primero.
+        val primary = hexToColor(theme.primaryColor)
+        val secondary = hexToColor(theme.accentColor)
+        val background = hexToColor(theme.backgroundColor)
+        val surface = hexToColor(theme.surfaceColor)
 
         return if (isDark) {
             darkColorScheme(
@@ -32,7 +35,7 @@ class UIThemeManager(private val context: Context) {
                 secondary = secondary,
                 background = background,
                 surface = surface,
-                surfaceContainerHighest = Color(theme.surfaceColor),
+                surfaceContainerHighest = hexToColor(theme.surfaceColor),
                 onPrimary = Color.White,
                 onSecondary = Color.White,
                 onBackground = Color.White,
@@ -59,4 +62,26 @@ class UIThemeManager(private val context: Context) {
     fun isLiquidGlassEnabled(): Boolean = themeEngine?.getLiquidGlassEnabled() ?: false
 
     fun getBlurRadius(): Float = themeEngine?.getBlurRadius() ?: 24f
+
+    /**
+     * Convierte un color en texto a Color de Compose.
+     *
+     * Acepta las tres formas que aparecen en los temas del ecosistema:
+     *   "#RRGGBB"    (6 digitos, opaco)
+     *   "#AARRGGBB"  (8 digitos, con alfa)
+     *   "RRGGBB"     (sin almohadilla)
+     *
+     * Si el texto no es un color valido devuelve gris en vez de lanzar una
+     * excepcion: un tema con un color mal escrito debe verse feo, no cerrar la app.
+     */
+    private fun hexToColor(value: String): Color {
+        val limpio = value.trim().removePrefix("#")
+        val conAlfa = when (limpio.length) {
+            6 -> "FF$limpio"   // sin alfa explicito: opaco
+            8 -> limpio
+            else -> return Color.Gray
+        }
+        val numero = conAlfa.toLongOrNull(16) ?: return Color.Gray
+        return Color(numero)
+    }
 }

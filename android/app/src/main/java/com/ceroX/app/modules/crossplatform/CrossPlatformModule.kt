@@ -22,25 +22,23 @@ import com.ceroX.app.core.engine.ModuleInterface
  *   • Servicios disponibles (GMS vs HMS)
  *   • Formato de empaquetado (APK, MSI, deb, rpm, AppImage)
  */
-class CrossPlatformModule : ModuleInterface() {
+class CrossPlatformModule(private val context: Context? = null) : ModuleInterface() {
 
     override val name = "cross-platform"
     override val version = "1.0.0-beta"
     override val dependencies: List<String> = emptyList()
 
-    private val context: Context? = null
     private var detectedPlatform = Platform.ANDROID
     private var isAndroidTV = false
     private var isHuawei = false
     private var isTablet = false
     private var apiLevel = 0
 
-    constructor(context: Context) : this() {
-        this.context = context
-        detectPlatform(context)
+    init {
+        // Si hay contexto, se detecta la plataforma al construir. Si no, queda
+        // ANDROID por defecto hasta que alguien llame a detectPlatform().
+        context?.let { detectPlatform(it) }
     }
-
-    private constructor() {}
 
     private fun detectPlatform(context: Context) {
         apiLevel = Build.VERSION.SDK_INT

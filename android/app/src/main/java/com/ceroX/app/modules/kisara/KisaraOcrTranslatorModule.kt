@@ -27,7 +27,13 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
     override val version = "1.0.0-kisara"
     override val dependencies: List<String> = listOf("kisara-reader")
 
-    private var ocrSession: Session? = null
+    // `Session` no existe. En onnxruntime-android el tipo se llama OrtSession,
+    // que es lo que importa la cabecera del archivo.
+    private var ocrSession: OrtSession? = null
+
+    // `env` se usaba en loadOcrModel sin estar declarado: es el entorno de
+    // ONNX Runtime, que hay que crear una vez y reutilizar.
+    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
     private var translationEnabled = true
     private var ocrEnabled = true
     private var useMlKitFallback = true
@@ -38,9 +44,12 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
         translationEnabled = config["translation_enabled"] as? Boolean ?: true
         ocrEnabled = config["ocr_enabled"] as? Boolean ?: true
         useMlKitFallback = config["ml_kit_fallback"] as? Boolean ?: true
-        modelPath = config["ocr_model_path"] as? String
-        if (modelPath != null) {
-            loadOcrModel(modelPath)
+        // `modelPath` es var: leerlo dos veces no permite al compilador garantizar
+        // que no cambie entre la comprobación y el uso. Se copia a un local.
+        val ruta = config["ocr_model_path"] as? String
+        modelPath = ruta
+        if (ruta != null) {
+            loadOcrModel(ruta)
         }
         _initialized = true
         return true
@@ -67,7 +76,7 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
                 "ocr_enabled" to ocrEnabled,
                 "translation_enabled" to translationEnabled,
                 "ml_kit_fallback" to useMlKitFallback,
-                "model_loaded" to ocrSession != null,
+                "model_loaded" to (ocrSession != null),
                 "model_path" to modelPath,
                 "supported_languages" to listOf("JP", "KO", "ZH", "ES", "EN"),
                 "engine" to "PP-OCRv6_manga + llama.cpp + Index-Translate 2B + LaMa",

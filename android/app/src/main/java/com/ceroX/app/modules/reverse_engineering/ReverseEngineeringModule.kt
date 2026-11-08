@@ -68,7 +68,7 @@ class ReverseEngineeringModule : ModuleInterface() {
 
     fun evaluateWithDeepSeek(modelPath: String, benchmark: String): EvaluationResult {
         if (!_started || !deepseekHarnessEnabled) {
-            return EvaluationResult(modelPath, benchmark, "error", "DeepSeek Harness not enabled")
+            return EvaluationResult(modelPath, benchmark, "error", 0.0)
         }
         return EvaluationResult(modelPath, benchmark, "evaluated", 0.0)
     }

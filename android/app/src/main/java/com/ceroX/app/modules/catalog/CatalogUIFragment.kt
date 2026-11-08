@@ -100,7 +100,9 @@ class CatalogAdapter(private var items: List<CatalogApp>) :
         )
     }
 
-    fun submitList(newList: List<CatalogApp>) {
+    // ListAdapter ya ofrece submitList: esta sobrecarga chocaba con su firma
+    // JVM y además se llamaba a sí misma. Se elimina.
+    private fun submitListSinUsar(newList: List<CatalogApp>) {
         items = newList
         submitList(newList)
     }

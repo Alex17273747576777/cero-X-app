@@ -75,7 +75,7 @@ class DeepReverseEngineeringModule : ModuleInterface() {
 
     fun evaluateAiModel(modelPath: String, benchmark: String): AiEvaluationResult {
         if (!_started || !deepseekHarnessEnabled) {
-            return AiEvaluationResult(modelPath, benchmark, "error", "DeepSeek Harness no habilitado")
+            return AiEvaluationResult(modelPath, benchmark, "error", 0.0, "DeepSeek Harness no habilitado")
         }
         return AiEvaluationResult(
             modelPath = modelPath,
@@ -90,7 +90,7 @@ class DeepReverseEngineeringModule : ModuleInterface() {
 
     fun compareImplementations(functionName: String, implementations: Map<String, String>): CodeComparisonResult {
         if (!_started || !codeComparisonEnabled) {
-            return CodeComparisonResult(functionName, implementations, "error", "CodeComparator deshabilitado")
+            return CodeComparisonResult(functionName, implementations, "error", null, "CodeComparator deshabilitado")
         }
         // Placeholder: analizar cada implementación y determinar la óptima
         val bestImpl = implementations.keys.firstOrNull() ?: "none"
@@ -107,7 +107,7 @@ class DeepReverseEngineeringModule : ModuleInterface() {
 
     fun runStressTest(testType: StressTestType): StressTestResult {
         if (!_started || !stressTestingEnabled) {
-            return StressTestResult(testType, "error", "StressTester deshabilitado")
+            return StressTestResult(testType, "error", 0L, false, "StressTester deshabilitado")
         }
         return StressTestResult(
             testType = testType,
@@ -137,13 +137,8 @@ data class AiEvaluationResult(
     val details: String
 )
 
-data class CodeComparisonResult(
-    val functionName: String,
-    val implementations: Map<String, String>,
-    val status: String,
-    val bestImplementation: String? = null,
-    val details: String = ""
-)
+// CodeComparisonResult ya está declarado en CodeComparator.kt, en este mismo
+// paquete. La versión de aquí era una copia con los mismos campos.
 
 data class StressTestResult(
     val testType: StressTestType,

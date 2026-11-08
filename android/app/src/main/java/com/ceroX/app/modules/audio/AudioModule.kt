@@ -44,9 +44,9 @@ class AudioModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf<String, Any>(
+            mapOf<String, Any?>(
                 "playlist_size" to playlist.size,
-                "current_track" to currentTrack?.title ?: "none",
+                "current_track" to (currentTrack?.title ?: "none"),
                 "sample_rate" to sampleRate
             )
         )

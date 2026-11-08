@@ -21,7 +21,8 @@ class WebGPUViewer(context: android.content.Context) : GLSurfaceView(context), G
 
     init {
         setEGLContextClientVersion(3)
-        renderer = this
+        // GLSurfaceView no tiene propiedad `renderer`: el camino es setRenderer().
+        setRenderer(this)
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
 
         // Detectar soporte WebGPU (placeholder para futura implementación nativa)

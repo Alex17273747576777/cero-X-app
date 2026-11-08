@@ -55,7 +55,7 @@ class ThemeEngineModule : ModuleInterface() {
                 "current_theme" to currentThemeId,
                 "liquid_glass" to liquidGlassEnabled,
                 "glass_blur_radius" to glassBlurRadius,
-                "custom_palette" to (customPalette != null),
+                "custom_palette" to ((customPalette != null)),
                 "supported_designs" to listOf("kiroku", "kototoro", "anizen", "namida", "custom")
             )
         )
