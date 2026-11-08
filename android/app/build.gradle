@@ -29,8 +29,31 @@ android {
         }
     }
 
+    signingConfigs {
+        // Release: la llave viene del entorno (CI o máquina local), nunca del repo.
+        // Sin estas variables el APK sale sin firmar, que es lo correcto.
+        release {
+            def storePath = System.getenv('CEROX_KEYSTORE')
+            if (storePath != null) {
+                storeFile file(storePath)
+                storePassword System.getenv('CEROX_KEYSTORE_PASS')
+                keyAlias System.getenv('CEROX_KEY_ALIAS')
+                keyPassword System.getenv('CEROX_KEY_PASS')
+            }
+        }
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('../debug.keystore')
+            storePassword 'android'
+        }
+    }
+
     buildTypes {
         release {
+            if (System.getenv('CEROX_KEYSTORE') != null) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -42,15 +65,6 @@ android {
             // debug sin minificar: minificar en debug solo retrasa cada compilación
             // y hace las trazas ilegibles, que es justo lo que no se quiere al depurar.
             minifyEnabled false
-        }
-    }
-
-    signingConfigs {
-        debug {
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-            storeFile file('../debug.keystore')
-            storePassword 'android'
         }
     }
 
