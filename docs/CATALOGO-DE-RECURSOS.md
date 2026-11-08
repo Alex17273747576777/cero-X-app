@@ -117,3 +117,49 @@ su `seccion` y su `columna` para no confundir un tracker con un lector.
 Nada de esto se escribe en el almacenamiento interno de la app. Los JSON van al
 repositorio (`data/`), y si alguna vez se empaquetan, van como asset del APK —
 que es solo lectura. Ver `docs/REGLA-DE-ALMACENAMIENTO.md`.
+
+---
+
+# Deduplicación · medida, no estimada
+
+`scripts/deduplicar-catalogo.py` toma los tres JSON y produce
+`data/catalogo-unico.json`.
+
+## El criterio
+
+La clave es la **URL normalizada** (sin esquema, sin `www.`, sin barra final, sin
+`utm_*`, host en minúsculas, ruta conservada). Mismo recurso = misma clave. Eso no
+necesita heurística.
+
+Cuando dos filas comparten nombre pero no URL, **no se fusionan por parecido**. Se
+comparan los hosts y hay tres desenlaces, todos registrados:
+
+| caso | qué se hace | por qué |
+|---|---|---|
+| `misma_url` | se fusiona en una fila y se acumulan las secciones | es el mismo recurso, demostrable |
+| `mismo_host`, URL distinta | se queda aparte y se marca | pueden ser dos páginas del mismo sitio (portada y subpágina) |
+| `hosts_distintos` | **no se fusiona**, se marca `ambiguo: true` con las dos URLs | puede ser la misma app en su web y en su repo, o dos apps homónimas |
+
+Fusionar el tercer caso a ciegas sería exactamente el falso positivo que no se
+permite.
+
+## El resultado
+
+| fuente | filas | únicas | fusionadas por URL | marcadas para revisión |
+|---|---:|---:|---:|---:|
+| EverythingMoe | 798 | **789** | 9 | 12 grupos |
+| Wotaku | 156 | **149** | 7 | 1 grupo |
+| Miyomi | 149 | **149** | 0 | 0 |
+| **total** | **1103** | **1087** | **16** | — |
+| catálogo unificado entre fuentes | 1103 filas | **963 recursos** | — | 89 ambiguos |
+
+Las 9 fusiones de EverythingMoe son todas del mismo tipo: la sección `bookmark`
+repite foros que ya están en `Forums / Community` (Reddit Sub, MyAnimeList Forum,
+Anilist Forum, AniDB Forum, Anime-Sharing, Fuwanovel, Animeforums, Chuunime, ANN
+Forum). Las 7 de Wotaku son apps que aparecen a la vez como *App* de Android y
+como *Program* de PC en la misma página: Hayase, Mangayomi, AnymeX, Dartotsu,
+Seanime y los servidores Kavita y Komga.
+
+Del catálogo unificado: **94 recursos están confirmados por dos o tres fuentes**
+y 869 aparecen en una sola. Los 89 ambiguos quedan a la vista para que los decida
+una persona; no se han metido en el mismo saco.
