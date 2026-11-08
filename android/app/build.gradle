@@ -54,9 +54,14 @@ android {
             if (System.getenv('CEROX_KEYSTORE') != null) {
                 signingConfig signingConfigs.release
             }
-            // v1 (JAR) sigue haciendo falta para Android 8.0-8.1, que es el
-            // minimo declarado (API 26). Sin el esquema v1, un movil con
-            // Android 8 no instala el APK. v2 y v3 los pone el firmador solo.
+            // Esquemas de firma. Medido el 2026-11-08 con apksigner verify:
+            //
+            //   v2: true    v3: true    v1: false
+            //
+            // El comentario anterior decia que v1 hacia falta para Android 8
+            // (API 26). **Era falso**: el esquema v2 existe desde Android 7.0
+            // (API 24). Con minSdk 26, v2 basta y v1 es redundante. Verificado:
+            // v2 y v3 validan el APK; v1 no se aplico aunque se pidiera aqui.
             signingConfigs.release.v1SigningEnabled = true
             signingConfigs.release.v2SigningEnabled = true
             minifyEnabled true
