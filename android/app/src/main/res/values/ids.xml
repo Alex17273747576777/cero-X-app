@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      El contenedor de Fragments lo crea Compose en tiempo de ejecución
+      (FragmentContainerView), no el XML de la actividad. Por eso su id no puede
+      venir de un layout: se declara aquí para que exista en R.id.
+    -->
+    <item name="fragment_container" type="id" />
+</resources>

@@ -43,13 +43,24 @@ class HardwareMonitor(private val context: Context) {
     }
 
     fun getScreenDimensions(): ScreenDimensions {
-        val display = context.getSystemService(Context.WINDOW_SERVICE)?.defaultDisplay
-        if (display != null) {
-            val size = android.graphics.Point()
-            display.getSize(size)
-            return ScreenDimensions(size.x, size.y)
+        // Display.getSize() y WindowManager.getDefaultDisplay() estan obsoletos
+        // desde API 30 y ya no existen en el SDK 36: compilar contra ellos da
+        // "unresolved reference". La via vigente es WindowMetrics, disponible
+        // desde API 30, con un camino de respaldo para API 26-29.
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as? android.view.WindowManager
+            ?: return ScreenDimensions(0, 0)
+
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            val bounds = wm.currentWindowMetrics.bounds
+            ScreenDimensions(bounds.width(), bounds.height())
+        } else {
+            @Suppress("DEPRECATION")
+            val display = wm.defaultDisplay
+            val punto = android.graphics.Point()
+            @Suppress("DEPRECATION")
+            display.getSize(punto)
+            ScreenDimensions(punto.x, punto.y)
         }
-        return ScreenDimensions(0, 0)
     }
 
     fun getFullStats(): HardwareStats {

@@ -110,6 +110,8 @@ interface JsEngine {
     fun close()
 }
 
-class JsException(message: String, cause: Throwable? = null) : Exception(message, cause)
+// `open` es obligatorio: en Kotlin las clases son finales por defecto y las dos
+// subclases de abajo heredan de esta.
+open class JsException(message: String, cause: Throwable? = null) : Exception(message, cause)
 class JsTimeoutException(message: String) : JsException(message)
 class JsEvaluationException(message: String, cause: Throwable? = null) : JsException(message, cause)
