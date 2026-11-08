@@ -137,3 +137,46 @@ Los 19 bloqueantes de configuración y los 15 clusters mecánicos eran objetivos
 5. Recompilar y repetir, en tandas de 20 sobre un solo paquete.
 
 **Mientras esos 209 existan, no hay APK, y por tanto no hay nada que pesar en la banda de 200 a 750 MB.** Cualquier cifra de tamaño que se diga antes de eso sería una estimación, y esta auditoría no hace estimaciones.
+
+---
+
+# Actualización · 8 de noviembre de 2026 (segunda pasada)
+
+*La auditoría de arriba es histórica: describe el estado cuando había 209
+errores. Esto es lo que hay hoy, medido igual: compilando y contando.*
+
+## El veredicto corto, hoy
+
+**Compila. Pasa 362 pruebas. Genera APK.** Ningún error de Kotlin.
+
+| | entonces | ahora |
+|---|---:|---:|
+| errores de compilación | 519 → 209 | **0** |
+| pruebas unitarias | 40 | **362, 0 fallos** |
+| APK | no había | **59 633 910 B** (x86_64, sin modelos) |
+| clases en dex | — | 19 dex (`classes.dex` … `classes19.dex`) |
+
+## Los cuatro frentes que se cerraron en esta ronda
+
+1. **Lector de punta a punta.** `ReaderActivity` ya existía; lo que no existía era
+   una prueba de la cadena. Ahora `LectorExtremoAExtremoTest` (14 pruebas) va de
+   una carpeta en disco a bytes descargados por HTTP contra un `ServerSocket`
+   real, pasando por las mismas piezas que usa la pantalla. La red se sacó de
+   `PageLoader` a `DescargadorDeBytes` sólo para poder probarla.
+2. **Motor JS.** QuickJS elegido con números medidos. `libquickjs.so` (928 224 B)
+   **está dentro del APK**. 11 pruebas de sintaxis con el `qjs` oficial, 11 del
+   anfitrión en Android y 8 que lanzan el binario y comparan su salida.
+3. **Núcleo compartido.** Módulo `comun/` (KMP): 41 pruebas en JVM, 33 en JS,
+   `.jar` de 3,29 MB que se ejecuta, `.js` de 39 KB con 15 comprobaciones en
+   verde desde Node. iOS declarado; necesita macOS para enlazar.
+4. **Trackers.** Medidos contra AniList y MAL reales. `TrackerAutoSync` conecta
+   el lector con el cliente: al llegar a la última página se lee el remoto, se
+   decide con `PlanificadorSync` y sólo entonces se escribe.
+
+## Lo que sigue sin poder demostrarse aquí
+
+- **Nada de esto se ha visto en una pantalla.** No hay `/dev/kvm`; el emulador
+  murió con `exit 139` dos veces (ver `entorno/LECTOR-Y-ENTORNO.md` §5).
+- **No hay cuenta de AniList ni de MAL.** Se prueba la conversación con el
+  servidor, no una lista sincronizada.
+- **No hay binario de iOS.**

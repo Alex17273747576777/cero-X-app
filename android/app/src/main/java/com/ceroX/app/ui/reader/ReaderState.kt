@@ -127,6 +127,17 @@ class ReaderState(
          * última página sin decirlo. Aquí se corrige una vez y se prueba de
          * punta a punta en `LectorExtremoAExtremoTest`.
          */
+        /**
+         * El número de capítulo a partir de la etiqueta que muestra el lector
+         * («Capítulo 12»). Devuelve -1 si no hay número: una obra con capítulos
+         * sin numerar no se puede sincronizar, y es mejor saberlo que enviar un
+         * 1 inventado.
+         */
+        fun numeroDeCapitulo(etiqueta: String): Int {
+            val m = Regex("""(\d+(?:[.,]\d+)?)""").find(etiqueta) ?: return -1
+            return m.groupValues[1].replace(',', '.').toFloatOrNull()?.toInt() ?: -1
+        }
+
         fun desdePaginas(paginas: List<String>, inicial: Int = 0, modo: Modo = Modo.LTR): ReaderState {
             if (paginas.isEmpty()) return ReaderState(0, 0, modo)
             return ReaderState(paginas.size, inicial.coerceIn(0, paginas.size - 1), modo)

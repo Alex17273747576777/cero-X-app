@@ -41,8 +41,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.ceroX.app.modules.houri.tracker.TrackerAutoSync
 import com.ceroX.app.modules.reader.PageCache
 import com.ceroX.app.ui.theme.CeroXTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /**
@@ -102,12 +107,23 @@ class ReaderActivity : AppCompatActivity() {
     private lateinit var cargador: PageLoader
     private lateinit var progreso: ReadingProgress
 
+    /**
+     * El cable al tracker. Es opcional: sin token guardado no hace nada y no
+     * molesta. Antes de esto, `TrackerClient` y el lector no se hablaban y la
+     * sincronización era un formulario en otra pantalla.
+     */
+    private lateinit var autoSync: TrackerAutoSync
+    private val alcanceSync = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    /** Último capítulo que se intentó enviar, para no repetirlo en cada página. */
+    private var ultimoCapituloEnviado = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         cache = PageCache(96L * 1024 * 1024)
         cargador = PageLoader(cache)
         progreso = ReadingProgress(this)
+        autoSync = TrackerAutoSync(this)
 
         val fuenteId = intent.getLongExtra(EXTRA_FUENTE_ID, -1L)
         val fuenteNombre = intent.getStringExtra(EXTRA_FUENTE_NOMBRE) ?: "?"
@@ -141,12 +157,38 @@ class ReaderActivity : AppCompatActivity() {
                                     System.currentTimeMillis()
                                 )
                             )
+                            // Solo cuando se llega a la última página, y solo
+                            // una vez por capítulo: sincronizar en cada página
+                            // sería una petición por deslizamiento de dedo.
+                            val numero = ReaderState.numeroDeCapitulo(capitulo)
+                            if (total > 0 && pagina == total - 1 && numero > 0 &&
+                                numero != ultimoCapituloEnviado
+                            ) {
+                                ultimoCapituloEnviado = numero
+                                autoSync.enSegundoPlano(
+                                    alcance = alcanceSync,
+                                    obra = obra,
+                                    capitulo = numero,
+                                ) { r ->
+                                    if (r.intentado) {
+                                        android.util.Log.i(
+                                            "ceroX.tracker",
+                                            "capítulo $numero de «$obra»: ${r.motivo}",
+                                        )
+                                    }
+                                }
+                            }
                         },
                         alSalir = { finish() },
                     )
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        alcanceSync.cancel()
+        super.onDestroy()
     }
 
     override fun onTrimMemory(level: Int) {
