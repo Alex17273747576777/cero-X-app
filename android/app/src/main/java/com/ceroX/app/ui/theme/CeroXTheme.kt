@@ -1,40 +1,41 @@
 package com.ceroX.app.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF6200EE),
-    secondary = Color(0xFF03DAC6),
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E)
+    primary = CeroXPrimary,
+    secondary = CeroXSecondary,
+    background = CeroXDarkBackground,
+    surface = CeroXDarkSurface,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6200EE),
-    secondary = Color(0xFF03DAC6),
-    background = Color(0xFFFFFFFF),
-    surface = Color(0xFFF5F5F5)
+    primary = CeroXPrimary,
+    secondary = CeroXSecondary,
+    background = CeroXLightBackground,
+    surface = CeroXLightSurface,
 )
 
+/**
+ * Tema único de cero-X.
+ *
+ * Antes redefinía la tipografía con `h1`, `h2`, `body1` y `body2`, nombres que
+ * material3 eliminó. Se usa la tipografía compartida de Type.kt, que ya está en
+ * la escala correcta, en vez de repetir la escala aquí.
+ */
 @Composable
 fun CeroXTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography(
-            h1 = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
-            h2 = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
-            body1 = TextStyle(fontSize = 16.sp),
-            body2 = TextStyle(fontSize = 14.sp),
-        ),
-        content = content
+        colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
+        typography = CeroXTypography,
+        shapes = CeroXShapes,
+        content = content,
     )
 }

@@ -12,6 +12,11 @@ import com.ceroX.app.databinding.FragmentThemeSwitcherBinding
 
 class ThemeSwitcherFragment : Fragment() {
 
+    companion object {
+        /** Cada paso del SeekBar equivale a 4 dp de radio de desenfoque. */
+        private const val PASO_DP = 4
+    }
+
     private lateinit var binding: FragmentThemeSwitcherBinding
     private lateinit var adapter: ThemeAdapter
     private lateinit var themeEngine: ThemeEngineModule
@@ -40,20 +45,26 @@ class ThemeSwitcherFragment : Fragment() {
         binding.themesRecycler.adapter = adapter
 
         binding.liquidGlassSwitch.isChecked = themeEngine.getLiquidGlassEnabled()
-        binding.blurSlider.progress = themeEngine.getBlurRadius().toInt()
-        binding.blurValue.text = "${themeEngine.getBlurRadius().toInt()}dp"
+        // SeekBar va de 0 a 16 en pasos de 1, y cada paso son 4 dp de desenfoque.
+        val radioActual = themeEngine.getBlurRadius().toInt()
+        binding.blurSeekbar.progress = (radioActual / PASO_DP).coerceIn(0, 16)
+        binding.blurValue.text = "${radioActual}dp"
 
         binding.liquidGlassSwitch.setOnCheckedChangeListener { _, isChecked ->
             themeEngine.setLiquidGlass(isChecked)
         }
 
-        binding.blurSlider.setOnSliderListener(object : androidx.slider.Slider.OnSliderListener {
-            override fun onSliderFocusChange(slider: androidx.slider.Slider, b: Boolean) {}
-            override fun onSliderStartTrackingTouch(slider: androidx.slider.Slider) {}
-            override fun onSliderStopTrackingTouch(slider: androidx.slider.Slider) {
-                themeEngine.setBlurRadius(slider.progress.toFloat())
-                binding.blurValue.text = "${slider.progress}dp"
+        binding.blurSeekbar.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(barra: android.widget.SeekBar, progreso: Int, delUsuario: Boolean) {
+                if (!delUsuario) return
+                val dp = progreso * PASO_DP
+                themeEngine.setBlurRadius(dp.toFloat())
+                binding.blurValue.text = "${dp}dp"
             }
+
+            override fun onStartTrackingTouch(barra: android.widget.SeekBar) {}
+
+            override fun onStopTrackingTouch(barra: android.widget.SeekBar) {}
         })
     }
 }
