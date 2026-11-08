@@ -13,7 +13,7 @@ import java.io.File
  *
  * Características (basado en KisaraColorizer):
  *   • On-Device Neural Inference con ONNX Runtime Mobile (FP16/FP32)
- *   • Ejecuta manga_colorization_v2_int8.onnx (61.6MB generador de color anime)
+ *   • Ejecuta colorize.onnx (117,26 MiB, generador de color de manga)
  *   • Soporta ARM CPU (Multi-core NEON) y NNAPI Hardware Acceleration (NPU/GPU)
  *   • Sanity tensor probe verification (576x576) antes de activar aceleración de hardware
  *   • Dynamic Range Compensation (2.2x Chroma Expansion) para restaurar colores vibrantes

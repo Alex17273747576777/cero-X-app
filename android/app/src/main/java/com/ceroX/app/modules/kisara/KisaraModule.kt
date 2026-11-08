@@ -38,8 +38,8 @@ import com.ceroX.app.core.engine.ModuleInterface
  *   • Intervalo configurable para refrescar entradas desde almacenamiento
  *
  * Mejoras específicas de Kisara (más allá de Komikku):
- *   • Motor OCR ONNX (PP-OCRv6_manga) para traducción de páginas on-device
- *   • Colorización neural ONNX (manga_colorization_v2_int8.onnx)
+ *   • Motor OCR ONNX (manga-ocr) para leer texto de páginas on-device
+ *   • Colorización neural ONNX (colorize.onnx)
  *   • Traductor de manga con IA (llama.cpp, Index-Translate 2B, LaMa inpainting)
  *   • Soporte para extensiones Keiyoushi/Tachiyomi
  *   • Filtro por idioma, ocultar fuentes 18+

@@ -12,7 +12,7 @@ import java.io.File
  * KisaraOcrTranslatorModule — Motor OCR y traductor de Kisara.
  *
  * Características (basado en KisaraTranslator y Manga_Reader OCR):
- *   • OCR ONNX con PP-OCRv6_manga: descarga de modelos bajo demanda
+ *   • OCR ONNX con manga-ocr (encoder_fp16 + decoder_model_quantized), empaquetado
  *   • Detección en tiles para páginas densas
  *   • Agrupamiento de líneas en balones
  *   • Reconocimiento CTC
@@ -79,10 +79,15 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
                 "model_loaded" to (ocrSession != null),
                 "model_path" to modelPath,
                 "supported_languages" to listOf("JP", "KO", "ZH", "ES", "EN"),
-                "engine" to "PP-OCRv6_manga + llama.cpp + Index-Translate 2B + LaMa",
+                // Antes decia PP-OCRv6_manga + llama.cpp + Index-Translate 2B + LaMa.
+                // De esos cuatro no habia ninguno en el APK: el OCR real que se
+                // empaqueto es manga-ocr (encoder_fp16 + decoder_model_quantized),
+                // y la traduccion no tiene runtime nativo, con lo que no funciona.
+                "engine" to "manga-ocr: encoder_fp16.onnx + decoder_model_quantized.onnx",
+                "traduccion" to "NO DISPONIBLE: no hay runtime de traduccion en el APK",
                 "on_device" to true,
                 "zero_cloud" to true,
-                "stability" to "stabilized"
+                "stability" to if (ocrSession != null) "modelo cargado" else "modelo NO cargado"
             )
         )
     }

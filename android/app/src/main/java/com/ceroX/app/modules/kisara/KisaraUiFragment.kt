@@ -52,9 +52,20 @@ class KisaraUiFragment : Fragment() {
             } else false
         }
 
+        // Antes esto era un `if` con un comentario dentro y nada mas: el boton
+        // existia, se podia pulsar y no pasaba absolutamente nada. La operacion
+        // por lotes llevaba tiempo implementada en KisaraLibraryModule y no habia
+        // forma de invocarla desde la pantalla.
         binding.bulkFavoriteButton.setOnClickListener {
-            if (kisaraModule is KisaraLibraryModule) {
-                // Use library module for bulk operations
+            val biblioteca = kisaraModule as? KisaraLibraryModule ?: return@setOnClickListener
+            if (biblioteca.selectedCount() == 0) {
+                // Sin seleccion: el boton entra en modo seleccion en vez de no
+                // hacer nada, que es lo que confundia.
+                biblioteca.selectAllEntries()
+                adapter.notifyDataSetChanged()
+            } else {
+                biblioteca.bulkFavorite(biblioteca.selectedIds(), true)
+                adapter.notifyDataSetChanged()
             }
         }
     }

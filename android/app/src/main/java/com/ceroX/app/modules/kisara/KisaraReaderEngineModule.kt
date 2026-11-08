@@ -18,8 +18,8 @@ import com.ceroX.app.core.engine.ModuleInterface
  *   • Webtoon mode: zoom lock, two-finger zoom, grayscale
  *   • Ayuda de lectura continua (reanudar donde se quedó)
  *   • Opciones de lector: brillo, filtro oscuro, upscaler, etc.
- *   • Traducción OCR on-device (PP-OCRv6_manga)
- *   • Colorización neural ONNX (manga_colorization_v2_int8.onnx)
+ *   • OCR on-device con manga-ocr (encoder_fp16 + decoder_model_quantized)
+ *   • Colorización neural ONNX (colorize.onnx)
  */
 class KisaraReaderEngineModule : ModuleInterface() {
 
@@ -91,8 +91,23 @@ class KisaraReaderEngineModule : ModuleInterface() {
                 "ocr_translation" to ocrTranslationEnabled,
                 "neural_colorization" to neuralColorizationEnabled,
                 "supported_formats" to listOf("CBZ", "CBR", "CB7", "CBT", "ZIP", "RAR", "7z", "TAR", "PDF", "EPUB"),
-                "onnx_models" to listOf("manga_colorization_v2_int8.onnx", "PP-OCRv6_manga", "deoldify_artistic_quant.onnx"),
-                "stability" to "stabilized",
+                // Antes decia: manga_colorization_v2_int8.onnx, PP-OCRv6_manga y
+                // deoldify_artistic_quant.onnx. Ninguno de los tres estaba en el APK.
+                // Ahora se listan los cinco que SI estan, y se marca aparte lo que
+                // falta por cablear, que es distinto de estar roto.
+                "onnx_models" to listOf(
+                    "encoder_fp16.onnx",
+                    "decoder_model_quantized.onnx",
+                    "colorize.onnx",
+                    "esrgan_x4.onnx",
+                    "anime4x.onnx"
+                ),
+                "onnx_models_empaquetados" to 5,
+                // Ver abajo: esta clave es un informe de lo que FALTA, va marcada y la
+                // prueba de honestidad la permite porque la clave empieza por "no_".
+                "no_empaquetados" to listOf("PP-OCRv6 (el OCR usa encoder_fp16+decoder)", "LaMa (inpaint)", "llama.cpp (traduccion)"),
+                "iu_cableada" to false,   // los modelos cargan; falta conectarlos a la pantalla
+                "stability" to "motores verificados; falta cableado a la IU",
                 "min_android" to "8.0 (API 26)"
             )
         )

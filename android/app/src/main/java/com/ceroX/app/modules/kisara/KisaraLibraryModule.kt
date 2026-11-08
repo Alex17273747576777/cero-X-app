@@ -103,6 +103,14 @@ class KisaraLibraryModule : ModuleInterface() {
         bulkSelectionMode = selectedEntryIds.isNotEmpty()
     }
 
+    /** Cuántos elementos hay marcados. La pantalla lo necesita para decidir qué
+     *  hace el botón: sin selección entra en modo selección, con selección aplica. */
+    fun selectedCount(): Int = selectedEntryIds.size
+
+    /** Copia inmutable de lo marcado. Copia a propósito: quien la reciba no debe
+     *  poder modificar la selección sin pasar por `toggleBulkSelection`. */
+    fun selectedIds(): List<String> = selectedEntryIds.toList()
+
     fun selectAllEntries() {
         // `selectedEntryIds` es un MutableSet: asignarle el Set inmutable que
         // devuelve toSet() rompe el tipo. Se vacía y se rellena.
