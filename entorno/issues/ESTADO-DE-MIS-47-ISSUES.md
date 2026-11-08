@@ -3,6 +3,25 @@
 Medido el 2026-11-08 con la API de GitHub. 47 issues abiertos creados por la
 cuenta: 5 en cero-X (propios) y 42 en repositorios de terceros.
 
+**Correccion de la propia medicion.** `search/issues` devuelve
+`total_count: 42` pero entrega **40** items, y `incomplete_results` es
+`false`. Verificado dos veces con el mismo resultado. Los 2 que no se pueden
+enumerar quedan aqui como **hueco de medicion declarado**: no se inventan ni se
+suponen resueltos. De los 47, son 45 los contables uno a uno.
+
+Reparto real de los 40 enumerables:
+
+| estado | cuantos |
+|---|---|
+| Implementado en cero-X, con commit | 9 |
+| En curso (una mitad hecha) | 3 |
+| Retenido por el hueco #1 (falta Activity de lector) | 11 |
+| En backlog (la funcion no existe) | 5 |
+| Fuera de alcance, con motivo escrito | 11 |
+| Duplicado | 1 |
+
+Mas los 5 propios, los 5 cerrados: **16 hechos de 45 contables**.
+
 ## cero-X-app: 5 de 5 cerrados
 
 | # | qué pedía | qué se hizo |
@@ -56,3 +75,19 @@ automático, respaldo de fuentes muertas, huellas de verificación e instalació
 por Shizuku capability-aware. Eso no es casualidad: son los problemas reales del
 ecosistema, y son los que aparecen una y otra vez en los issues de todos los
 proyectos.
+
+## Donde vive esto ahora
+
+El seguimiento ya no vive en este archivo como fuente de verdad. Existe un
+proyecto de Linear con **un issue por cada issue de GitHub**, con su estado
+real: hecho, en curso, retenido, backlog o fuera de alcance.
+
+Proyecto: `cero-X: mis 47 issues de GitHub` (equipo ALE).
+
+- Un issue de Linear solo esta en **Done** si hay commit compilado y prueba verde.
+- Si no es traducible, esta en **Canceled** con el motivo escrito.
+- Los retenidos por el hueco #1 (no hay Activity de lector) estan en **Todo**,
+  no cerrados: cerrarlos seria el mismo tipo de mentira que las 14 corregidas.
+
+Este archivo sigue siendo la version de lectura rapida y viaja en el repo, para
+quien no tenga cuenta en Linear.
