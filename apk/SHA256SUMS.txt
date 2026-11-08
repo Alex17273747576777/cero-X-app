@@ -1,3 +1,1 @@
-6c1e6a9fb866848109ac4b62e8773aa2232641c83218e13576cfc7f29630eedd  cero-X-1.0.0-beta-453MiB-universal.apk
-80621e692f487cae5d7a47d951cfe6236f8f7f067e4d260e46f0f7aa1df87948  cero-X-1.0.0-beta-universal-debug.apk
-82b61926996d511ff7b15857d6a8412a01194b9ee25ba1a7ff02ae97f59d3e51  cero-X-1.0.0-beta-universal-release.apk
+aa9df7b77402ae16d184ffe6970f6f635ec3040aa10979923c9d5e5aa46c98c5  cero-X-1.0.0-beta-453MiB-feed-ia.apk
