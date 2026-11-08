@@ -2,6 +2,7 @@ package com.ceroX.app.modules.extension_sandbox
 
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
+import com.ceroX.app.modules.extension_factory.ExtensionFactory
 
 /**
  * ExtensionSandboxModule — SanTBox de extensiones para cero-X.
