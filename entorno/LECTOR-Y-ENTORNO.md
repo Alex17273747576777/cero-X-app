@@ -137,31 +137,56 @@ hay root y no se ejecuta nada.
 
 ---
 
-## 5. La VM (esto es lo que pediste y lo que se pudo)
+## 5. La VM: arranca, no termina de arrancar
 
-Instalado y arrancado **de verdad**, sin `/dev/kvm`:
+Instalado y lanzado **de verdad**, sin `/dev/kvm`:
 
 - `sdkmanager` → emulator 37.2.13 + `system-images;android-30;aosp_atd;x86_64`
-- AVD `cerox` en `/opt/vm/avd`, 1 024 MB de RAM, 2 núcleos
-- arrancado con `-accel off -gpu swiftshader_indirect`: **QEMU con TCG**, o sea
-  emulación de CPU por software puro
-- puerto 5554 abierto, `adb` conectado
+- AVD `cerox` en `/opt/vm/avd`, `-accel off` (QEMU con TCG, CPU emulada por software)
+- el emulador abre el puerto 5554 y **`adb devices` lo ve como `device`**
 
-Lo que la VM **no** puede hacer aquí, y por qué:
+Y ahí se queda. Dos intentos, los dos con el mismo final:
 
-| límite | número |
-|---|---|
-| RAM del host | 1 982 MiB totales (la VM pide 1 024 + el emulador) |
-| arranque por software | TCG avisa: «x86_64 emulation may not work without hardware acceleration» |
-| disco | 9,5 GB libres; el sistema ya ocupa 15 GB |
+| intento | configuración | resultado |
+|---|---|---|
+| 1 | `-cores 2 -gpu swiftshader_indirect -memory 1024` | ~6 min, `detected a hanging thread 'QEMU2 CPU1 thread'` → **Segmentation fault** |
+| 2 | `-cores 1 -gpu off -memory 900 -wipe-data` | mismo aviso en `QEMU2 main loop` → **Segmentation fault** |
 
-No se va a decir «probado en dispositivo» hasta que `sys.boot_completed` sea 1 y
-`pm install` del APK termine. **APK universal: 475 MB, cuatro arquitecturas** —
-instalarlo aquí necesitaría más RAM y más disco de los que hay. Un APK por
-arquitectura (solo `x86_64`, ~120 MB) sí cabría, y es lo siguiente que hay que
-hacer para usar esta VM de verdad.
+En los dos, `getprop sys.boot_completed` estuvo **vacío más de 8 minutos**. No se
+completó el arranque.
 
----
+El límite real, con números: **1 982 MiB de RAM** en total, TCG emulando x86_64
+en 2 vCPU, y el propio emulador avisando desde el primer segundo:
+`x86_64 emulation may not work without hardware acceleration`.
+
+### La ruta que sí cabe, y queda preparada
+
+El APK universal pesa 475 MB y no se puede instalar aquí. Así que se añadieron
+dos propiedades al build:
+
+```bash
+gradle :app:assembleDebug -PsinModelos -PsoloAbi=x86_64
+```
+
+- `-PsoloAbi=x86_64` → una sola arquitectura
+- `-PsinModelos` → deja fuera los 378 MiB de `.onnx` (no hacen falta para abrir
+  un capítulo de una carpeta local)
+
+Resultado: **41 829 694 B** en vez de 475 MB. Ese sí cabría.
+
+### Lo que se verificó del APK sin dispositivo
+
+No es lo mismo que ejecutarlo, pero tampoco es nada:
+
+- `aapt2 dump badging`: `com.ceroX.app`, minSdk 26, targetSdk 36
+- las cinco actividades están declaradas en el manifiesto, incluidas
+  `CatalogoActivity` y `ReaderActivity`
+- las 12 clases clave están **dentro del .dex**: lector, catálogo, fuente local,
+  motor OCR, tracker, `ShizukuShell` y los stubs `moe.shizuku.server.IShizukuService$Stub`
+  y `rikka.shizuku.Shizuku`
+- firmado con el certificado de depuración, 19 dex, 64,8 MiB de bytecode
+
+`scripts/arrancar-vm.sh` deja todo listo para una máquina con KVM.
 
 ## 6. Lo que sigue sin poder afirmarse
 
@@ -181,8 +206,9 @@ hacer para usar esta VM de verdad.
 ## 7. Números
 
 - **311 pruebas unitarias, 0 fallos** (leídas del XML de JUnit, no del log).
-- De ellas, **106 nuevas** en esta tanda: 14 lector/carpeta, 14 orquestador,
-  17 estado del lector, 15 traducción local, 17 trackers, 10 motor OCR,
-  19 gestores y privilegios.
+  Ese número está verificado con la última ejecución de esta máquina.
+- De ellas, **106 nuevas** en esta tanda: 16 estado del lector, 17 traducción
+  local, 16 planificador de trackers, 19 gestores y privilegios, 10 motor OCR,
+  14 carpeta local, 14 orquestador de fuentes.
 - Un falso positivo de root corregido, una encuadernación invertida corregida,
   una ruta de API inexistente descubierta y sustituida por la real.

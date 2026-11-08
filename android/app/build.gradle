@@ -24,8 +24,14 @@ android {
         multiDexEnabled true
 
         // APK Universal: todas las arquitecturas en un solo APK
+        //
+        // Para la VM de pruebas se puede construir un APK de UNA sola
+        // arquitectura con `-PsoloAbi=x86_64`: el universal pesa 475 MB y no
+        // cabe en un emulador con 1 GB de RAM.
         ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            abiFilters = project.hasProperty('soloAbi')
+                ? [project.property('soloAbi').toString()]
+                : ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64']
         }
     }
 
@@ -112,6 +118,13 @@ android {
     // de MB en memoria al abrirlos, que es exactamente lo que tumba a un móvil.
     androidResources {
         noCompress 'onnx'
+        // `-PsinModelos` deja los ONNX fuera del APK. Sirve para probar la
+        // interfaz y el lector en la VM: los modelos pesan 378 MiB y no hacen
+        // falta para abrir un capítulo de una carpeta local. En un build normal
+        // esta propiedad no se pasa y los modelos van dentro.
+        if (project.hasProperty('sinModelos')) {
+            ignoreAssetsPattern = '!*.onnx'
+        }
     }
 
     packagingOptions {
