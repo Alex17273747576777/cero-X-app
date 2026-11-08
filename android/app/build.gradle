@@ -211,3 +211,14 @@ dependencies {
     // Core library desugaring
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }
+// Robolectric descarga android-all-instrumented (143,67 MiB por versión de
+// Android probada) a ~/.m2 por defecto. En este entorno ~ = /home/user, el
+// único sitio que se guarda, y una sesión creó 143,7 MB ahí y agotó el espacio.
+//
+// `systemProp.maven.repo.local` NO funciona: Robolectric 4.13 usa su propio
+// resolutor y solo entiende `robolectric.dependency.dir`. Se pasa como propiedad
+// de sistema a la JVM de las pruebas, que es donde la lee.
+tasks.withType(Test).configureEach {
+    systemProperty "robolectric.dependency.dir", "/opt/robolectric"
+    systemProperty "maven.repo.local", "/opt/m2"
+}

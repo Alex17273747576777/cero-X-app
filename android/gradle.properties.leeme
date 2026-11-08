@@ -1,0 +1,26 @@
+POR QUE ESTE FICHERO EXISTE
+===========================
+
+Robolectric descarga `android-all-instrumented-<version>.jar`: 143,67 MiB por
+version de Android que se pruebe. Por defecto va a ~/.m2, y en este entorno
+~ = /home/user, que es el unico sitio que se guarda entre mensajes.
+
+Resultado de no haberlo tenido en cuenta: una sesion creo 143,7 MB en /home/user
+y el espacio se paso del limite (128 MB / 10.000 archivos). El trabajo no se
+perdio porque estaba en git, pero es un fallo de configuracion que se repite si
+no se arregla la causa.
+
+ARRANQUE CORRECTO (las dos variables son obligatorias)
+------------------------------------------------------
+  export GRADLE_USER_HOME=/opt/gh        # cache de Gradle fuera de /home
+  export MAVEN_OPTS="-Dmaven.repo.local=/opt/m2"   # y la de Maven/Robolectric
+
+Y en cada comando de Gradle que ejecute pruebas hay que pasar la propiedad,
+porque Robolectric la lee del sistema y no de una variable de entorno:
+
+  /opt/gradle-8.11.1/bin/gradle testDebugUnitTest \
+      -Dmaven.repo.local=/opt/m2 ...
+
+Alternativa sin tocar la linea de comandos: poner en android/gradle.properties
+    systemProp.maven.repo.local=/opt/m2
+que es lo que hace falta para que `gradle test` a secas no vuelva a llenar /home.

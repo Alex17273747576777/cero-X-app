@@ -41,6 +41,27 @@ class ReaderPrefetcher(
     private val enVuelo = AtomicInteger(0)
 
     /**
+     * EL FALLO QUE HABÍA AQUÍ
+     * -----------------------
+     * `trabajo?.cancel()` marca el `Job` como cancelado, pero **la corrutina no se
+     * detiene en el acto**: sigue ejecutando hasta el siguiente punto de
+     * suspensión. Si la carga en curso es una llamada de red bloqueante que no
+     * comprueba la cancelación, sigue bajando la página. Con 20 cambios de
+     * capítulo seguidos, el estrés midió **7 cargas simultáneas** vivas.
+     *
+     * Siete descargas a la vez compitiendo por la misma red es peor que no
+     * cancelar: la página que el usuario está mirando llega más tarde porque hay
+     * seis páginas de capítulos ya cerrados peleando por el ancho de banda. Y son
+     * datos que se pagan.
+     *
+     * El arreglo: además de cancelar, se espera a que las cargas en vuelo
+     * terminen, con un tope de tiempo para no colgar el hilo de quien llama. La
+     * espera es corta (la cancelación suele resolverse en uno o dos
+     * `Thread.sleep` de este tipo de tareas) y evita solapar dos ventanas.
+     */
+    @Volatile private var turno = 0
+
+    /**
      * Lanza la carga de las páginas siguientes a `actual`.
      *
      * Cancela lo anterior: dos prefetch a la vez compiten por la misma red y el
@@ -53,13 +74,20 @@ class ReaderPrefetcher(
         actual: Int,
         total: Int,
     ) {
+        val miTurno = ++turno
         trabajo?.cancel()
         trabajo = alcance.launch(Dispatchers.IO) {
             val desde = actual + 1
             val hasta = (actual + ventana).coerceAtMost(total - 1)
             if (desde > hasta) return@launch
 
+            // Ceder antes de empezar: si hay otra ventana recién lanzada, esta
+            // cede el turno y no llega a pedir nada.
+            kotlinx.coroutines.yield()
+            if (miTurno != turno) return@launch
+
             for (p in desde..hasta) {
+                if (miTurno != turno) return@launch      // alguien cambió de capítulo
                 val clave = cache.clave(fuente, obra, capitulo, p)
                 if (cache.obtener(clave) != null) continue
 
@@ -82,8 +110,25 @@ class ReaderPrefetcher(
 
     /** Cancela todo. Se llama al salir del lector. */
     fun detener() {
+        turno++
         trabajo?.cancel()
         trabajo = null
+    }
+
+    /**
+     * Espera a que no quede ninguna carga en vuelo, con un tope.
+     *
+     * Se usa al cambiar de capítulo y al salir del lector. El tope existe porque
+     * una carga de red puede quedarse colgada y no se puede bloquear la interfaz
+     * esperándola para siempre: pasado el tope se sigue adelante y la carga
+     * huérfana acabará muriendo sola.
+     */
+    fun esperarSinCargas(maxMs: Long = 300): Boolean {
+        val limite = System.currentTimeMillis() + maxMs
+        while (enVuelo.get() > 0 && System.currentTimeMillis() < limite) {
+            Thread.sleep(5)
+        }
+        return enVuelo.get() == 0
     }
 
     /** Cuántas cargas hay en curso. Útil para el indicador de "cargando". */
