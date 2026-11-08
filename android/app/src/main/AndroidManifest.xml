@@ -54,6 +54,13 @@
         tools:ignore="QueryAllPackagesPermission" />
 
     <!--
+      Shizuku: el permiso que el gestor comprueba antes de autorizar a cero-X.
+      Va declarado y no es opcional: sin él, `requestPermission` no llega a
+      ninguna parte y el estado queda en «no autorizado» para siempre.
+    -->
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+
+    <!--
       Permiso para el servicio de instalación en segundo plano. En Android 14+
       el tipo tiene que existir y ser explícito, o el servicio no arranca.
     -->
@@ -107,6 +114,10 @@
         <package android:name="moe.shizuku.manager" />
         <package android:name="rikka.shizuku" />
         <package android:name="com.mixplorer" />
+        <!-- Gestores con protocolo Dhizuku (el Device Owner de AxManagerD y
+             Dhizuku van por aquí). -->
+        <package android:name="com.rosan.dhizuku" />
+        <package android:name="com.rosan.dhizuku.permission.BIND_DHIZUKU" />
         <package android:name="eu.kanade.tachiyomi.extension" />
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -146,6 +157,33 @@
             </intent-filter>
         </activity>
 
+        <!-- Catálogo: buscar, elegir obra, elegir capítulo. -->
+        <activity
+            android:name=".ui.catalogo.CatalogoActivity"
+            android:exported="false"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density"
+            android:label="Catálogo" />
+
+        <!-- Lector de páginas. Es la pantalla que faltaba: sin ella, la app
+             sabía descargar, colorear y cachear, pero no podía abrir un
+             capítulo. Se declara con parentActivityName para que el gesto de
+             volver del sistema regrese al catálogo y no cierre la app. -->
+        <activity
+            android:name=".ui.reader.ReaderActivity"
+            android:exported="false"
+            android:label="Leyendo"
+            android:parentActivityName=".ui.catalogo.CatalogoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+
+        <!-- Sincronización con AniList / MyAnimeList. El token vive cifrado con
+             el Keystore, no en preferencias en claro. -->
+        <activity
+            android:name=".modules.houri.tracker.TrackerActivity"
+            android:exported="false"
+            android:label="Sincronización"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Actividad de pruebas de estrés -->
         <activity
             android:name=".ui.StressTestActivity"
@@ -159,6 +197,17 @@
             android:exported="false"
             android:foregroundServiceType="dataSync"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <!-- Shizuku: el proveedor que el gestor consulta para saber que cero-X
+             está autorizada. Sin esta línea, requestPermission no llega nunca y
+             el permiso queda en «no autorizado» para siempre. -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
         <!-- Proveedor de archivos para actualizaciones y compartir -->
         <provider

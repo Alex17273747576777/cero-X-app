@@ -26,22 +26,35 @@ class UniversalTracker {
 
     fun isEnabled(platform: String): Boolean = enabledPlatforms[platform] ?: false
 
+    /**
+     * Sube el progreso a una plataforma.
+     *
+     * ANTES ESTO MENTÍA Y AHORA NO
+     * ----------------------------
+     * La versión anterior hacía `success = true` y devolvía «Sincronizado con
+     * anilist» **sin hacer ninguna petición de red**. Era el mismo patrón que
+     * las 14 afirmaciones que se corrigieron: un `true` que no significa nada.
+     *
+     * Ahora, sin un cliente HTTP y un token, devuelve `success = false` y dice
+     * por qué. Los trackers que sí funcionan de verdad (AniList y MyAnimeList,
+     * con token del usuario) están en [com.ceroX.app.modules.houri.tracker],
+     * con lectura del progreso remoto y la regla de no retroceder.
+     *
+     * La firma se mantiene porque `TrackerSyncManager` la usa; cambiar la firma
+     * aquí habría roto el módulo de sincronización entero para arreglar un
+     * mensaje.
+     */
     fun syncProgress(mangaId: String, chapter: Int, status: String, platform: String): TrackerSyncResult {
         if (!isEnabled(platform)) {
             return TrackerSyncResult(platform.toTrackerPlatform(), mangaId, false, "Plataforma no habilitada")
         }
-
-        val record = TrackerSyncRecord(
-            mangaId = mangaId,
-            chapter = chapter,
-            status = status,
-            platform = platform,
-            syncedAt = System.currentTimeMillis(),
-            success = true
+        return TrackerSyncResult(
+            platform.toTrackerPlatform(),
+            mangaId,
+            false,
+            "sin cliente para $platform: usa el tracker de la pestaña Sincronización " +
+                "(AniList o MyAnimeList con tu token); no se envió nada",
         )
-        syncHistory["$mangaId:$platform"] = record
-
-        return TrackerSyncResult(platform.toTrackerPlatform(), mangaId, true, "Sincronizado con $platform")
     }
 
     fun getLastSync(mangaId: String, platform: String): TrackerSyncRecord? {

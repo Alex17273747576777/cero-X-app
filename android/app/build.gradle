@@ -97,6 +97,13 @@ android {
         compose true
         viewBinding true
         buildConfig true
+        // El AIDL de Shizuku (moe.shizuku.server) se genera aquí. Estas cuatro
+        // interfaces son el contrato REAL del servicio de Shizuku: sin ellas no
+        // hay forma de pedirle un proceso, porque `Shizuku.newProcess` es
+        // privado desde la 13. Los nombres de método y sus números de
+        // transacción están copiados del AIDL de OmniShizuku, que a su vez es el
+        // de Shizuku; no se inventa ninguno.
+        aidl true
     }
 
 
@@ -189,6 +196,17 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.7.0'
     ksp 'androidx.room:room-compiler:2.7.0'
     implementation 'androidx.room:room-ktx:2.7.0'
+
+    // Shizuku: ejecutar `pm install` sin root, con el permiso de ADB.
+    // `api` trae el binder; `provider` trae el ContentProvider que Shizuku usa
+    // para descubrir la app autorizada. Sin el segundo, el permiso nunca llega.
+    implementation 'dev.rikka.shizuku:api:13.1.5'
+    implementation 'dev.rikka.shizuku:provider:13.1.5'
+
+    // Cifrado del token de los trackers. EncryptedSharedPreferences deriva la
+    // clave del Keystore; sin esto habría que guardar el token en claro, y un
+    // token de AniList da acceso a la cuenta entera.
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
 
     // WorkManager
     implementation 'androidx.work:work-runtime-ktx:2.10.0'

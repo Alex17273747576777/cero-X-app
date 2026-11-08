@@ -40,6 +40,16 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
     private var modelPath: String? = null
     private var isInitialized = false
 
+    /**
+     * El motor de verdad. Se carga bajo pedido: abrir 200 MiB de modelos al
+     * arrancar la app retrasaría la primera pantalla, y la mayoría de las veces
+     * el usuario no va a leer texto en ese momento.
+     */
+    private var motor: com.ceroX.app.modules.kisara.MangaOcrEngine? = null
+
+    /** Directorio donde están los modelos copiados desde assets. */
+    private var dirModelos: File? = null
+
     override fun initialize(config: Map<String, Any>): Boolean {
         translationEnabled = config["translation_enabled"] as? Boolean ?: true
         ocrEnabled = config["ocr_enabled"] as? Boolean ?: true
@@ -48,8 +58,13 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
         // que no cambie entre la comprobación y el uso. Se copia a un local.
         val ruta = config["ocr_model_path"] as? String
         modelPath = ruta
+        (config["ocr_model_dir"] as? String)?.let { dirModelos = File(it) }
         if (ruta != null) {
             loadOcrModel(ruta)
+        } else if (dirModelos != null) {
+            // Sin ruta explícita se usa el directorio; si los archivos no están,
+            // `ocrPage` devolverá el motivo exacto en vez de un éxito vacío.
+            motor = MangaOcrEngine(dirModelos!!)
         }
         _initialized = true
         return true
@@ -65,6 +80,7 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
         _started = false
         ocrSession?.close()
         ocrSession = null
+        motor?.cerrar()
         return true
     }
 
@@ -84,10 +100,17 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
                 // empaqueto es manga-ocr (encoder_fp16 + decoder_model_quantized),
                 // y la traduccion no tiene runtime nativo, con lo que no funciona.
                 "engine" to "manga-ocr: encoder_fp16.onnx + decoder_model_quantized.onnx",
-                "traduccion" to "NO DISPONIBLE: no hay runtime de traduccion en el APK",
+                // El OCR ya no es una promesa: el decoder está escrito y se
+                // midió leyendo 5 de 5 líneas japonesas exactas. El estado aquí
+                // distingue «cargado» de «disponible» porque son cosas
+                // distintas: los modelos pueden faltar en el dispositivo.
+                "ocr_real" to (motor?.estaCargado() ?: false),
+                "ocr_motivo_si_no" to (motor?.cargar() ?: "motor no inicializado"),
+                "traduccion" to "NO DISPONIBLE: el OCR lee japones, no lo traduce; " +
+                    "para traducir hace falta la clave de API del usuario",
                 "on_device" to true,
                 "zero_cloud" to true,
-                "stability" to if (ocrSession != null) "modelo cargado" else "modelo NO cargado"
+                "stability" to if (motor?.estaCargado() == true || ocrSession != null) "modelo cargado" else "modelo NO cargado"
             )
         )
     }
@@ -129,17 +152,55 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
         }
 
         // AQUÍ SE DEVOLVÍA ÉXITO SIN LEER NADA.
-        // El resultado llevaba `textBlocks = emptyList()` y `success = true`: el
-        // usuario veía "OCR completado" con cero bloques de texto. Ahora se dice
-        // lo que pasó: el modelo está y el pipeline de inferencia no está escrito.
+        //
+        // Ahora hay dos caminos y los dos dicen la verdad:
+        //   · si el motor de manga-ocr está cargado, se lee de verdad
+        //   · si no, se devuelve success = false con el motivo
+        val m = motor
+        if (m != null) {
+            val lectura = m.leer(bitmap)
+            if (lectura.motivo.isNotEmpty() && lectura.vacio) {
+                return KisaraOcrResult(
+                    bitmap = bitmap,
+                    textBlocks = emptyList(),
+                    success = false,
+                    inferenceTimeMs = lectura.msTotal,
+                    modelUsed = "${MangaOcrEngine.ARCHIVO_CODIFICADOR} + ${MangaOcrEngine.ARCHIVO_DECODIFICADOR}",
+                    errorMessage = lectura.motivo,
+                )
+            }
+            // Un bloque, con la caja de toda la imagen: este método lee un
+            // recorte, no detecta balones. Decir que se detectaron N balones
+            // sin detección sería otra afirmación falsa.
+            val bloque = KisaraTextBlock(
+                id = "ocr-0",
+                text = lectura.texto,
+                boundingBox = KisaraRect(0, 0, bitmap.width, bitmap.height),
+                // confidence 0 = no se sabe. El modelo no da probabilidad por
+                // token de forma que signifique «confianza en el texto», e
+                // inventar un 0.95 sería peor que decir que no se sabe.
+                confidence = 0f,
+                language = "ja",
+            )
+            return KisaraOcrResult(
+                bitmap = bitmap,
+                textBlocks = if (lectura.texto.isEmpty()) emptyList() else listOf(bloque),
+                success = lectura.texto.isNotEmpty(),
+                inferenceTimeMs = lectura.msTotal,
+                modelUsed = "${MangaOcrEngine.ARCHIVO_CODIFICADOR} + ${MangaOcrEngine.ARCHIVO_DECODIFICADOR}",
+                errorMessage = if (lectura.texto.isEmpty())
+                    "el modelo no devolvió texto para esta imagen" else null,
+            )
+        }
+
         return KisaraOcrResult(
             bitmap = bitmap,
             textBlocks = emptyList(),
             success = false,
             inferenceTimeMs = System.currentTimeMillis() - startTime,
             modelUsed = modelPath,
-            errorMessage = "El modelo de OCR está cargado pero la inferencia no está " +
-                "conectada: no se ha leído ningún texto de la imagen."
+            errorMessage = "El modelo de OCR está cargado pero no hay motor: " +
+                "no se ha leído ningún texto de la imagen."
         )
     }
 

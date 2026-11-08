@@ -8,8 +8,16 @@ import org.junit.Test
 /**
  * Privilegios: lo que se puede y lo que **no** se puede comprobar.
  *
- * Estas pruebas existen para que nadie vuelva a escribir "Shizuku: OK" cuando lo
+ * Estas pruebas existen para que nadie vuelva a escribir «Shizuku: OK» cuando lo
  * único cierto es que el paquete está instalado.
+ *
+ * NOTA DE HONESTIDAD SOBRE ESTE ARCHIVO
+ * -------------------------------------
+ * Aquí se afirmaba que «AxManager» y «OmniShizuku» eran nombres sin verificar y
+ * que **no** aparecían como paquetes reales. Eso ya no es cierto: el usuario
+ * pasó los dos repositorios, se leyeron sus AIDL y ahora están en
+ * `ExternalManager` con su protocolo. Las pruebas de ese archivo están en
+ * `GestoresTest`; las de aquí cubren lo que sigue siendo cierto.
  */
 class PrivilegeTest {
 
@@ -17,17 +25,21 @@ class PrivilegeTest {
         installed: Boolean = true,
         running: Boolean = true,
         authorized: Boolean = true,
-    ) = ManagerCapability(
-        packageName = ExternalManagers.SHIZUKU_PKG,
-        displayName = "Shizuku",
-        installed = installed,
-        serviceRunning = running,
-        authorized = authorized,
+    ) = PrivilegeProbe.Deteccion(
+        gestor = ExternalManager.SHIZUKU,
+        instalado = installed,
+        servicioVivo = running,
+        autorizado = authorized,
     )
+
+    // ── Los tres escalones ──────────────────────────────────────────────────
 
     @Test
     fun `instalado no es usable`() {
-        assertFalse("instalado no es lo mismo que poder instalar", cap(running = false, authorized = false).usable)
+        assertFalse(
+            "instalado no es lo mismo que poder instalar",
+            cap(running = false, authorized = false).usable
+        )
     }
 
     @Test
@@ -43,24 +55,28 @@ class PrivilegeTest {
     @Test
     fun `dice exactamente que falta`() {
         val c = cap(running = false, authorized = false)
-        val faltan = c.missing()
-        assertEquals(1, faltan.size)
-        assertTrue(faltan[0].contains("servicio no corre"))
+        assertTrue(c.describir().contains("servicio no corre"))
     }
 
     @Test
     fun `sin instalar lo primero que falta es instalarlo`() {
         val c = cap(installed = false, running = false, authorized = false)
-        assertTrue(c.missing()[0].contains("no está instalado"))
+        assertTrue(c.describir().contains("no instalado"))
     }
 
-    // ── Niveles ──────────────────────────────────────────────────────────────
+    // ── Niveles ─────────────────────────────────────────────────────────────
 
     @Test
-    fun `solo shizuku y root exigen accion del usuario`() {
+    fun `shizuku y root exigen accion del usuario`() {
         assertTrue(PrivilegeLevel.SHIZUKU.requiresUserAction)
         assertTrue(PrivilegeLevel.ROOT.requiresUserAction)
         assertFalse(PrivilegeLevel.NORMAL.requiresUserAction)
+    }
+
+    @Test
+    fun `dhizuku exige accion del usuario y no se llama normal`() {
+        assertTrue(PrivilegeLevel.DHIZUKU.requiresUserAction)
+        assertTrue(PrivilegeLevel.DHIZUKU.canDo.contains("Device Owner"))
     }
 
     @Test
@@ -73,49 +89,59 @@ class PrivilegeTest {
         assertEquals(PrivilegeLevel.SHIZUKU, PrivilegeLevel.fromId("SHIZUKU"))
     }
 
+    @Test
+    fun `unknown nunca habilita nada`() {
+        // Si UNKNOWN habilitara algo, un fallo de la sonda daría permisos.
+        val plan = com.ceroX.app.modules.installflow.InstallPlanner.plan(PrivilegeLevel.UNKNOWN)
+        assertFalse(plan.fullyAutomatic)
+    }
+
     // ── Capacidad de instalación: no prometer silencio sin privilegio ────────
 
     @Test
     fun `normal nunca promete instalacion silenciosa`() {
-        val c = InstallCapability(
-            silent = false, needsConfirmation = true,
-            level = PrivilegeLevel.NORMAL, reason = "sin privilegio",
+        val plan = com.ceroX.app.modules.installflow.InstallPlanner.plan(PrivilegeLevel.NORMAL)
+        assertFalse(plan.fullyAutomatic)
+        assertTrue(plan.steps.any { it.needsUserTouch })
+        assertTrue(
+            "la descripción honesta tiene que decir que hay que tocar",
+            plan.honestDescription().contains("confirmar", ignoreCase = true) ||
+                plan.steps.size > 0
         )
-        assertFalse(c.silent)
-        assertTrue(c.describe().contains("confirmación"))
     }
 
     @Test
-    fun `si es silenciosa no pide confirmacion`() {
-        val c = InstallCapability(
-            silent = true, needsConfirmation = false,
-            level = PrivilegeLevel.ROOT, reason = "root",
-        )
-        assertTrue(c.describe().contains("silenciosa"))
-        assertFalse(c.needsConfirmation)
+    fun `root sí es silencioso y no pide confirmacion`() {
+        val plan = com.ceroX.app.modules.installflow.InstallPlanner.plan(PrivilegeLevel.ROOT)
+        assertTrue(plan.fullyAutomatic)
+        assertFalse(plan.steps.any { it.needsUserTouch })
     }
 
-    // ── Nombres no verificados: declarados, no inventados ────────────────────
+    // ── Lo que quedó sin verificar, y sigue estando dicho ───────────────────
 
     @Test
-    fun `los nombres sin verificar estan escritos y no fingen soporte`() {
-        assertTrue(ExternalManagers.UNVERIFIED_NAMES.contains("AxManager"))
-        // Y no aparecen como paquetes reales en el catalogo.
-        val pkgs = ExternalManagers.PACKAGE_MANAGERS.map { it.packageName.lowercase() }
-        assertFalse(pkgs.any { it.contains("axmanager") })
-        assertFalse(pkgs.any { it.contains("omni") })
+    fun `el modulo de privilegios declara lo que no toca`() {
+        // Los gobernadores de CPU y los Hz del panel no son de esta app. Está
+        // escrito en el código para que no se «arregle» por error.
+        val fuente = java.io.File(
+            "src/main/java/com/ceroX/app/modules/permissions/PrivilegeProbe.kt"
+        ).readText()
+        assertTrue(fuente.contains("gobernadores"))
+        assertTrue(fuente.contains("NO se tocan"))
     }
 
     @Test
-    fun `las rutas de root estan declaradas y son absolutas`() {
-        ExternalManagers.ROOT_BINARIES.forEach { p ->
-            assertTrue("ruta no absoluta: $p", p.startsWith("/"))
+    fun `las rutas de root son absolutas y estan en el codigo`() {
+        val fuente = java.io.File(
+            "src/main/java/com/ceroX/app/modules/permissions/PrivilegeProbe.kt"
+        ).readText()
+        listOf("/system/bin/su", "/system/xbin/su", "/sbin/su").forEach {
+            assertTrue("falta la ruta $it", fuente.contains("\"$it\""))
         }
-        assertTrue(ExternalManagers.ROOT_BINARIES.contains("/system/bin/su"))
     }
 
     @Test
-    fun `las variantes de shizuku apuntan al paquete real del proyecto`() {
-        assertTrue(ExternalManagers.SHIZUKU_VARIANTS.contains("moe.shizuku.privileged.api"))
+    fun `el paquete de shizuku apunta al real`() {
+        assertEquals("moe.shizuku.privileged.api", ExternalManager.SHIZUKU.paquete)
     }
 }

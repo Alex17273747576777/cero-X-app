@@ -89,6 +89,22 @@ class CeroXApplication : Application() {
 
         registerActivityLifecycleCallbacks(lifecycleCallbacks)
 
+        // Contexto para la sonda de Shizuku. Se pone aquí y no se arrastra por
+        // toda la cadena de privilegios.
+        com.ceroX.app.shell.ShizukuShell.EstadoShizuku.contextoGlobal = this
+        com.ceroX.app.shell.ShizukuShell.comprobarLibreria()?.let { Log.w(TAG, it) }
+
+        // Fuentes de contenido: registra la carpeta local si existe. Sin esto,
+        // el lector solo tendría lo que le dieran las extensiones, y en modo
+        // avión no tendría nada.
+        try {
+            com.ceroX.app.sources.RepositorioGlobal.arrancar(this)
+            Log.i(TAG, "Fuentes de contenido: ${com.ceroX.app.sources.RepositorioGlobal.resumen()}")
+        } catch (e: Throwable) {
+            // El arranque de la app no puede depender de que haya una carpeta.
+            Log.w(TAG, "No se pudieron registrar las fuentes de contenido: ${e.message}")
+        }
+
         Log.i(TAG, "cero-X App v1.0.0-beta-kisara-universal initialized — 30 modules fused")
         Log.i(TAG, "Houbi (PineappleTwilight/houri) = Lector Base Principal")
         Log.i(TAG, "Kisara (ifritraen/kisara) = Lector Manga con ONNX OCR + Neural Colorizer")

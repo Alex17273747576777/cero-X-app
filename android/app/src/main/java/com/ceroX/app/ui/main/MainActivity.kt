@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +32,8 @@ import com.ceroX.app.core.CeroXApplication
 import com.ceroX.app.modules.mode.ModeSwitcherFragment
 import com.ceroX.app.modules.theme.ThemeSwitcherFragment
 import com.ceroX.app.ui.theme.CeroXTheme
+import android.content.Intent
+import com.ceroX.app.ui.catalogo.CatalogoActivity
 
 /**
  * MainActivity — la pantalla que ve el usuario al abrir cero-X.
@@ -66,6 +69,13 @@ class MainActivity : AppCompatActivity() {
                 CeroXApp(
                     onThemeClick = { showFragment(ThemeSwitcherFragment()) },
                     onModeClick = { showFragment(ModeSwitcherFragment()) },
+                    // Abrir el catálogo es lo que convierte «hay módulos» en
+                    // «hay algo que leer». Antes no había ningún camino desde
+                    // esta pantalla hasta el lector: existía la clase y no se
+                    // podía llegar a ella.
+                    onReadClick = {
+                        startActivity(Intent(this, CatalogoActivity::class.java))
+                    },
                 )
             }
         }
@@ -104,6 +114,7 @@ private val DESTINOS = listOf(
 fun CeroXApp(
     onThemeClick: () -> Unit,
     onModeClick: () -> Unit,
+    onReadClick: () -> Unit = {},
 ) {
     var seleccionado by remember { mutableStateOf(DESTINOS.first().id) }
 
@@ -112,6 +123,12 @@ fun CeroXApp(
             TopAppBar(
                 title = { Text("cero-X") },
                 actions = {
+                    IconButton(onClick = onReadClick) {
+                        // Icono de libro real: `MenuBook` existe en
+                        // material-icons-extended. Un `Refresh` para «leer»
+                        // sería un botón que no dice lo que hace.
+                        Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Leer")
+                    }
                     IconButton(onClick = onThemeClick) {
                         Icon(Icons.Default.Refresh, contentDescription = "Diseño")
                     }

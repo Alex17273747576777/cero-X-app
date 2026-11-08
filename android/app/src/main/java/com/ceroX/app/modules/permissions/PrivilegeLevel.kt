@@ -27,6 +27,16 @@ enum class PrivilegeLevel(
         requiresUserAction = true,
         canDo = "Instalar y leer paquetes sin tocar pantalla, si Shizuku corre y autorizó a cero-X",
     ),
+    /**
+     * Device Owner / Profile Owner vía Dhizuku. Es un nivel propio y no un
+     * sinónimo de SHIZUKU: no necesita ADB ni cable, y no da acceso a un shell
+     * arbitrario, así que lo que se puede prometer es distinto.
+     */
+    DHIZUKU(
+        id = "dhizuku",
+        requiresUserAction = true,
+        canDo = "Instalar sin tocar pantalla vía Device Owner, sin ADB ni root",
+    ),
     ROOT(
         id = "root",
         requiresUserAction = true,
@@ -41,5 +51,19 @@ enum class PrivilegeLevel(
     companion object {
         fun fromId(id: String): PrivilegeLevel =
             values().firstOrNull { it.id.equals(id, ignoreCase = true) } ?: UNKNOWN
+
+        /**
+         * Elige el mejor nivel disponible de los que **respondieron que sí**.
+         *
+         * Orden: root > Shizuku > Dhizuku > normal. Root primero porque es el
+         * único que da shell completo; Shizuku antes que Dhizuku porque es el
+         * que más apps tienen montado y el que la gente ya autorizó.
+         */
+        fun elegir(root: Boolean, shizuku: Boolean, dhizuku: Boolean): PrivilegeLevel = when {
+            root -> ROOT
+            shizuku -> SHIZUKU
+            dhizuku -> DHIZUKU
+            else -> NORMAL
+        }
     }
 }

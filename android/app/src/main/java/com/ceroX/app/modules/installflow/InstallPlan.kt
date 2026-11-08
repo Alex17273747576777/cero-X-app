@@ -122,6 +122,23 @@ object InstallPlanner {
                 warnings = listOf("si Shizuku se detiene, la instalación falla con un mensaje, no en silencio"),
             )
 
+            // Dhizuku usa el Device Owner: instala sin tocar la pantalla, pero
+            // NO da un shell. Por eso su plan no dice «por el binder de
+            // Shizuku»: dice lo que de verdad hace.
+            PrivilegeLevel.DHIZUKU -> InstallPlan(
+                method = InstallMethod.PACKAGE_INSTALLER,
+                mode = InstallMode.SILENT,
+                steps = listOf(
+                    InstallStep(1, "verificar el APK (firma y sha256)", InstallMode.SILENT, false),
+                    InstallStep(2, "instalar como Device Owner, sin confirmación", InstallMode.SILENT, false),
+                    InstallStep(3, "confirmar que el paquete quedó instalado", InstallMode.SILENT, false),
+                ),
+                warnings = listOf(
+                    "Dhizuku necesita que cero-X sea Device Owner o Profile Owner: " +
+                        "eso se configura una vez, con el teléfono recién configurado o por ADB",
+                ),
+            )
+
             PrivilegeLevel.NORMAL, PrivilegeLevel.UNKNOWN -> InstallPlan(
                 method = InstallMethod.PACKAGE_INSTALLER,
                 mode = if (wantBackground) InstallMode.BACKGROUND else InstallMode.FOREGROUND,
@@ -154,6 +171,7 @@ object InstallPlanner {
         // Con root se puede hacer todo lo que hace Shizuku: el root es un shell
         // con más permisos, no menos.
         PrivilegeLevel.SHIZUKU -> level == PrivilegeLevel.SHIZUKU || level == PrivilegeLevel.ROOT
+        PrivilegeLevel.DHIZUKU -> level == PrivilegeLevel.DHIZUKU || level == PrivilegeLevel.ROOT
         PrivilegeLevel.ROOT -> level == PrivilegeLevel.ROOT
         // `when` sobre un enum es exhaustivo, pero Android Studio avisa si algún
         // día se añade un nivel. UNKNOWN nunca habilita nada: no se instala en
