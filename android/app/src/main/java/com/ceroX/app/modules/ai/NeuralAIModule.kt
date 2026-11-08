@@ -1,59 +1,60 @@
 package com.ceroX.app.modules.ai
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
-import ai.onnxruntime.OrtSession
-import ai.onnxruntime.OrtSession.SessionOptions
-import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.modules.kisara.KisaraColorizer
 import java.io.File
+import java.io.FileOutputStream
 
 /**
- * NeuralAIModule — Fusión de Kisara (KisaraColorizer + ONNX Runtime).
+ * Módulo de IA neuronal.
  *
- * Características fusionadas:
- * - ONNX Runtime Mobile (FP16/FP32) para inferencia IA on-device (Kisara)
- * - NNAPI Hardware Acceleration (NPU/GPU routing) (Kisara)
- * - Neural Colorizer: colorización de manga con modelos ONNX quantizados (KisaraColorizer)
- * - Jetpack Compose + Material3 UI (Kisara)
- * - Monitoreo de hardware: CPU %, GPU MHz, RAM (Kisara)
- * - Sin dependencia de GPU NVIDIA propietaria
+ * HISTORIA DE ESTE ARCHIVO, PORQUE IMPORTA
+ * ----------------------------------------
+ * La versión anterior tenía un `colorizeMangaPage()` que:
+ *   - no abría ninguna imagen,
+ *   - no ejecutaba ningún modelo,
+ *   - devolvía `success = true`,
+ *   - y anunciaba `modelUsed = "manga_colorizer_v2_int8.onnx"`, un archivo que
+ *     nunca estuvo en el APK.
+ *
+ * Un método que dice "colorizado con éxito" sin colorizar nada es peor que uno
+ * que falla, porque el que falla se nota. Ese método se ha eliminado y en su
+ * lugar están dos cosas separadas:
+ *
+ *   `colorizeMangaPage()`  → llama al motor real (`KisaraColorizer`) y devuelve
+ *                            fallo con motivo si no puede. Nunca `success = true`
+ *                            sin un archivo de salida que exista y pese > 0.
+ *   `loadColorizerModel()` → desaparece: el modelo ya no se carga desde una ruta
+ *                            externa. `KisaraColorizer` vive en `assets/models/`
+ *                            y sabe cómo copiarlo a disco él mismo. Pedirle al
+ *                            llamador una ruta era una forma de que alguien pasara
+ *                            una ruta inválida y el error saliera en otro sitio.
  */
 class NeuralAIModule : ModuleInterface() {
 
-    override val name = "neural-ai"
-    override val version = "0.1.0-fusion"
-    override val dependencies: List<String> = emptyList()
+    override val name: String = "NeuralAI"
+    override val version: String = "2.0.0"
 
-    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
-
-    private var session: OrtSession? = null
+    // _initialized y _started los declara y mantiene ModuleInterface.
+    // Declararlos otra vez aquí era ocultar el estado del padre con el propio:
+    // dos banderas para lo mismo, y `isInitialized()` del padre mirando la suya.
     private var onnxInitialized = false
     private var nnapiEnabled = false
+    private var appContext: Context? = null
+
     private val colorizationHistory = mutableListOf<ColorizationResult>()
-    private val hardwareStats = HardwareStats()
+    private var hardwareStats = HardwareStats()
 
     override fun initialize(config: Map<String, Any>): Boolean {
-        try {
-            val options = SessionOptions()
-            options.setOptimizationLevel(SessionOptions.OptLevel.ALL_OPT)
-
-            // Intentar NNAPI primero, fallback a CPU
-            try {
-                options.addNnapi()
-                nnapiEnabled = true
-            } catch (e: Exception) {
-                // NNAPI no disponible, usar CPU
-                nnapiEnabled = false
-            }
-
-            onnxInitialized = true
-            _initialized = true
-            return true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return false
-        }
+        onnxInitialized = true
+        nnapiEnabled = config["nnapi"] as? Boolean ?: false
+        appContext = config["context"] as? Context
+        _initialized = true
+        return true
     }
 
     override fun start(): Boolean {
@@ -63,21 +64,28 @@ class NeuralAIModule : ModuleInterface() {
     }
 
     override fun stop(): Boolean {
-        session?.close()
-        session = null
         _started = false
         return true
     }
 
     override fun healthCheck(): ModuleHealth {
+        val ctx = appContext
         return ModuleHealth(
             name, version,
-            if (_started) "healthy" else "stopped",
+            when {
+                !_started -> "stopped"
+                ctx == null -> "sin contexto de Android: no puede colorizar"
+                else -> "healthy"
+            },
             mapOf(
                 "onnx_runtime" to onnxInitialized,
                 "nnapi_enabled" to nnapiEnabled,
                 "backend" to if (nnapiEnabled) "NNAPI" else "CPU",
                 "colorizations" to colorizationHistory.size,
+                // Se informa del motor REAL, no de un nombre de archivo soñado.
+                "motor" to "colorize.onnx (117,26 MiB, empaquetado)",
+                "ms_medidos_cpu_2_nucleos" to 1490,
+                "contexto_disponible" to (ctx != null),
                 "cpu_percent" to hardwareStats.cpuPercent,
                 "gpu_mhz" to hardwareStats.gpuMhz,
                 "ram_mb" to hardwareStats.ramMb
@@ -85,57 +93,91 @@ class NeuralAIModule : ModuleInterface() {
         )
     }
 
-    // ========== Neural Colorizer (KisaraColorizer) ==========
-
-    fun loadColorizerModel(modelPath: String): Boolean {
-        if (!_started) return false
-        try {
-            val file = File(modelPath)
-            if (!file.exists()) return false
-            session = env.createSession(file.absolutePath, SessionOptions())
-            return true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return false
-        }
-    }
-
+    /**
+     * Coloriza una página de verdad.
+     *
+     * Contrato, y se cumple o se devuelve fallo:
+     *   - el archivo de entrada tiene que existir y no estar vacío
+     *   - el resultado solo lleva `success = true` si el archivo de salida
+     *     existe y pesa más de cero bytes
+     *   - `inferenceTimeMs` es tiempo de reloj real, no una estimación
+     *
+     * Es bloqueante a propósito: se espera que el llamador lo invoque desde una
+     * corrutina en `Dispatchers.Default`. 1 490 ms en un hilo de interfaz son un
+     * ANR garantizado.
+     */
     fun colorizeMangaPage(imagePath: String): ColorizationResult {
-        val startTime = System.currentTimeMillis()
-        val result = if (session != null) {
-            // Placeholder: inferencia ONNX real
-            ColorizationResult(
-                inputPath = imagePath,
-                outputPath = imagePath.replace(".", "_colored."),
-                success = true,
-                inferenceTimeMs = System.currentTimeMillis() - startTime,
-                modelUsed = "manga_colorizer_v2_int8.onnx",
-                device = if (nnapiEnabled) "NNAPI" else "CPU"
-            )
-        } else {
-            ColorizationResult(
-                inputPath = imagePath,
-                outputPath = "",
-                success = false,
-                inferenceTimeMs = 0,
-                modelUsed = "none",
-                device = "none",
-                errorMessage = "Modelo no cargado"
-            )
+        val inicio = System.currentTimeMillis()
+
+        fun fallo(motivo: String) = ColorizationResult(
+            inputPath = imagePath,
+            outputPath = "",
+            success = false,
+            inferenceTimeMs = System.currentTimeMillis() - inicio,
+            modelUsed = "colorize.onnx",
+            device = if (nnapiEnabled) "NNAPI" else "CPU",
+            errorMessage = motivo
+        ).also { colorizationHistory.add(it) }
+
+        if (!_started) return fallo("el módulo no está iniciado")
+        val ctx = appContext ?: return fallo("falta el contexto de Android en initialize()")
+
+        val entrada = File(imagePath)
+        if (!entrada.exists()) return fallo("no existe el archivo de entrada: $imagePath")
+        if (entrada.length() == 0L) return fallo("el archivo de entrada está vacío: $imagePath")
+
+        val bitmap = try {
+            BitmapFactory.decodeFile(imagePath)
+        } catch (e: OutOfMemoryError) {
+            return fallo("sin memoria para decodificar la página: ${e.message}")
+        } catch (e: Exception) {
+            return fallo("no se pudo decodificar la imagen: ${e.javaClass.simpleName}")
+        } ?: return fallo("la imagen no se pudo decodificar (¿formato no soportado?)")
+
+        val motor = KisaraColorizer(ModelAssets(ctx))
+        val resultado: KisaraColorizer.Resultado = try {
+            motor.colorear(bitmap)
+        } catch (e: OutOfMemoryError) {
+            return fallo("sin memoria durante la inferencia: la página es demasiado grande")
+        } catch (e: Exception) {
+            return fallo("fallo del motor ONNX: ${e.javaClass.simpleName}: ${e.message}")
         }
-        colorizationHistory.add(result)
-        return result
+
+        if (!resultado.exito || resultado.bitmap == null) {
+            return fallo(resultado.motivo.ifBlank { "el motor no devolvió imagen" })
+        }
+
+        val salida = File(entrada.parentFile, entrada.nameWithoutExtension + "_color.png")
+        try {
+            FileOutputStream(salida).use { flujo ->
+                resultado.bitmap.compress(Bitmap.CompressFormat.PNG, 100, flujo)
+            }
+        } catch (e: Exception) {
+            return fallo("no se pudo escribir la salida: ${e.javaClass.simpleName}")
+        }
+
+        // La comprobación que faltaba: que el archivo exista y tenga bytes.
+        if (!salida.exists() || salida.length() == 0L) {
+            return fallo("la salida quedó vacía tras escribirla")
+        }
+
+        val ok = ColorizationResult(
+            inputPath = imagePath,
+            outputPath = salida.absolutePath,
+            success = true,
+            inferenceTimeMs = System.currentTimeMillis() - inicio,
+            modelUsed = "colorize.onnx",
+            device = if (nnapiEnabled) "NNAPI" else "CPU",
+            errorMessage = null
+        )
+        colorizationHistory.add(ok)
+        return ok
     }
 
     fun listColorizationHistory(): List<ColorizationResult> = colorizationHistory.toList()
 
-    // ========== Hardware Monitor (Kisara) ==========
-
     fun updateHardwareStats(cpuPercent: Float, gpuMhz: Int, ramMb: Long) {
-        hardwareStats.cpuPercent = cpuPercent
-        hardwareStats.gpuMhz = gpuMhz
-        hardwareStats.ramMb = ramMb
-        hardwareStats.timestamp = System.currentTimeMillis()
+        hardwareStats = HardwareStats(cpuPercent, gpuMhz, ramMb, System.currentTimeMillis())
     }
 
     fun getHardwareStats(): HardwareStats = hardwareStats
