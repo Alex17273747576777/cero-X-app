@@ -31,7 +31,11 @@ class ModelHonestyGuard(private val context: Context) {
 
     /** Ficheros .onnx que de verdad están en assets/models. */
     fun modelosEmpaquetados(): Set<String> {
-        val dir = java.io.File(context.filesDir, "assets_probe").apply { mkdirs() }
+        // No se crea ningún directorio. Antes había aquí un `mkdirs()` sobre un
+        // directorio de prueba que no se usaba para nada: escribía en el
+        // almacenamiento interno para comprobar una **lectura**. Un `mkdirs()`
+        // de más es basura que se queda en el teléfono del usuario.
+        //
         // Se listan desde el propio APK, no desde el manifiesto: si el manifiesto
         // y el APK discrepan, gana el APK, que es lo que recibe el usuario.
         val salida = mutableSetOf<String>()

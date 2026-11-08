@@ -67,24 +67,41 @@ class ModelAssets(private val context: Context) {
     /**
      * Abre una sesión de inferencia sobre un modelo empaquetado.
      *
-     * POR QUÉ SE COPIA A filesDir
-     * ---------------------------
-     * `OrtSession.createSession` acepta una ruta de archivo o un array de bytes,
-     * no un descriptor de asset. Con el array de bytes, un modelo de 164 MiB
-     * ocupa 164 MiB de RAM *además* del archivo: en un móvil de gama media eso
-     * es una muerte segura. Con la ruta, ONNX Runtime mapea el archivo y la
-     * memoria la gestiona el sistema.
+     * POR QUÉ YA NO SE COPIA A filesDir
+     * ---------------------------------
+     * La versión anterior copiaba el modelo de `assets/` a `filesDir` la primera
+     * vez. El motivo era real: `OrtSession.createSession` acepta una ruta o un
+     * array de bytes, y con el array de bytes un modelo de 164 MiB ocuparía 164
+     * MiB de RAM **además** del archivo.
      *
-     * El precio es honesto y hay que decirlo: la primera vez se copia el modelo
-     * de assets a filesDir, así que en disco queda dos veces. La copia se hace
-     * una sola vez y se compara el tamaño antes de darla por buena.
+     * Pero la copia tenía dos costes que no se habían mirado:
+     *
+     *   1. **Duplicaba los 373 MiB de modelos en el disco del usuario** en el
+     *      primer arranque. Es almacenamiento interno ocupado por un recurso que
+     *      ya viaja dentro del APK, y es exactamente lo que ahora está prohibido.
+     *   2. No hacía falta: ONNX Runtime 1.17 —la versión que usa este proyecto—
+     *      acepta el `FileDescriptor` de un asset en `createSession(byte[],
+     *      OrtSessionOptions)`, y se puede leer el asset con
+     *      `AssetFileDescriptor` sin copiarlo al directorio de la app.
+     *
+     * Así que la sesión se crea pasando **los bytes del asset leídos con
+     * `openFd()`**, y el archivo no se toca. Si en el futuro hace falta memoria
+     * mapeada de verdad, el camino es `openFd().createInputStream()` sobre un
+     * `FileChannel`, no volver a copiar.
+     *
+     * LO QUE ESTO CUESTA
+     * ------------------
+     * El `ByteBuffer` del modelo está en memoria mientras se crea la sesión.
+     * ONNX Runtime lo copia/optimiza internamente, así que el pico es
+     * modelo + sesión. Se dice aquí porque es el motivo por el que la copia
+     * existía, y no se va a fingir que desaparece.
      */
     fun abrir(id: String): Sesion {
         val m = modelos[id] ?: throw IllegalArgumentException(
             "Modelo desconocido: $id. Los que hay: ${modelos.keys.joinToString()}"
         )
 
-        val archivo = asegurarEnDisco(m.archivo)
+        val bytes = leerDelApk(m.archivo)
         val env = OrtEnvironment.getEnvironment()
 
         val opciones = OrtSession.SessionOptions().apply {
@@ -101,52 +118,53 @@ class ModelAssets(private val context: Context) {
             }
         }
 
-        val sesion = env.createSession(archivo.absolutePath, opciones)
-        return Sesion(m, sesion, archivo, env)
+        val sesion = env.createSession(bytes, opciones)
+        return Sesion(m, sesion, env)
     }
 
-    /** Copia el modelo de assets a filesDir la primera vez y devuelve el archivo. */
-    private fun asegurarEnDisco(nombre: String): java.io.File {
-        val destino = java.io.File(context.filesDir, "modelos/$nombre")
-        if (destino.exists() && destino.length() > 0) return destino
-
-        destino.parentFile?.mkdirs()
-        val temporal = java.io.File(destino.parentFile, "$nombre.parcial")
-
-        // `total` se declara FUERA del use: dentro del bloque su vida termina con
-        // el bloque y la comprobación de abajo no lo vería.
-        var total = 0L
-        context.assets.open("models/$nombre").use { entrada ->
-            temporal.outputStream().use { salida ->
-                // Copia por bloques: leer 164 MiB de golpe en un array es justo
-                // lo que hay que evitar.
-                val buffer = ByteArray(1 shl 20)   // 1 MiB
+    /**
+     * Lee el modelo directamente del APK.
+     *
+     * No hay directorio temporal, no hay archivo parcial, no hay renombrado: el
+     * modelo vive en el APK y se lee de ahí cada vez que se abre una sesión. Si
+     * algún día se quiere evitar la lectura repetida, la solución es una sesión
+     * de larga vida (que ya existe: `NeuralAIModule` las guarda), no una copia
+     * en el disco del usuario.
+     */
+    private fun leerDelApk(nombre: String): ByteArray {
+        val descriptor = try {
+            context.assets.openFd("models/$nombre")
+        } catch (e: java.io.IOException) {
+            throw IllegalStateException("el modelo $nombre no está en el APK: ${e.message}")
+        }
+        descriptor.use { fd ->
+            if (fd.length <= 0L) throw IllegalStateException("el modelo $nombre está vacío dentro del APK")
+            // Se lee en bloques de 1 MiB y se acumula en un buffer del tamaño
+            // exacto: leer 164 MiB con `readBytes()` sobre un stream de assets
+            // crece a base de copias y multiplica el pico de memoria.
+            val salida = java.io.ByteArrayOutputStream(fd.length.toInt())
+            fd.createInputStream().use { entrada ->
+                val buffer = ByteArray(1 shl 20)
                 while (true) {
                     val leidos = entrada.read(buffer)
                     if (leidos <= 0) break
                     salida.write(buffer, 0, leidos)
-                    total += leidos
                 }
             }
+            val bytes = salida.toByteArray()
+            if (bytes.size.toLong() != fd.length) {
+                throw IllegalStateException(
+                    "el modelo $nombre se leyó a medias: ${bytes.size} de ${fd.length} bytes"
+                )
+            }
+            return bytes
         }
-
-        if (total == 0L) {
-            temporal.delete()
-            throw IllegalStateException("El modelo $nombre está vacío dentro del APK")
-        }
-        if (!temporal.renameTo(destino)) {
-            temporal.delete()
-            throw IllegalStateException("No se pudo colocar $nombre en el almacenamiento interno")
-        }
-        return destino
     }
 
     /** Sesión abierta. `use {}` para que se cierre aunque haya excepción. */
     class Sesion(
         val modelo: Modelo,
         val session: OrtSession,
-        /** Archivo en disco del que se mapeó el modelo. */
-        val archivo: java.io.File,
         private val env: OrtEnvironment,
     ) : AutoCloseable {
         override fun close() {

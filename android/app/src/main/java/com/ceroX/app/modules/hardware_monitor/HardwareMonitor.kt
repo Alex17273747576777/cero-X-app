@@ -65,7 +65,10 @@ class HardwareMonitor(private val context: Context) {
 
     fun getFullStats(): HardwareStats {
         val ram = getRamUsage()
-        val storage = getStorageInfo(context.filesDir.absolutePath)
+        // Se pregunta por el volumen de datos de la app, que es el que le importa
+        // al usuario, pero se pasa la **ruta** sin exponer un File escribible: esta
+        // función solo consulta StatFs y podría recibir cualquier ruta.
+        val storage = getStorageInfo(context.applicationInfo.dataDir)
         val screen = getScreenDimensions()
 
         return HardwareStats(

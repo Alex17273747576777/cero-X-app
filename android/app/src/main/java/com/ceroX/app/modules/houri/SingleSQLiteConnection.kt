@@ -1,7 +1,7 @@
 package com.ceroX.app.modules.houri
 
 import android.content.Context
-import androidx.room.Room
+import com.ceroX.app.modules.reader.BibliotecaDb
 import com.ceroX.app.modules.reader.ReaderRoomDatabase
 
 /**
@@ -21,31 +21,16 @@ import com.ceroX.app.modules.reader.ReaderRoomDatabase
  */
 object SingleSQLiteConnection {
 
-    private var database: ReaderRoomDatabase? = null
+    /**
+     * Devuelve la base de la biblioteca.
+     *
+     * Ya no construye nada: delega en `BibliotecaDb`. Antes había aquí un
+     * segundo `Room.databaseBuilder` con el nombre `ceroX_database`, es decir,
+     * dos archivos con el mismo esquema. Mantener el objeto es a propósito para
+     * no romper a quien lo llame, pero ahora hay una sola conexión de verdad.
+     */
+    fun init(context: Context): ReaderRoomDatabase = BibliotecaDb.de(context)
 
-    fun init(context: Context): ReaderRoomDatabase {
-        val actual = database
-        if (actual != null) return actual
-
-        val nueva = Room.databaseBuilder(
-            context.applicationContext,
-            ReaderRoomDatabase::class.java,
-            "ceroX_database",
-        )
-            // Destructiva a propósito: cero-X está en beta y no hay datos de
-            // usuario que preservar entre esquemas. Cuando los haya, esto pasa
-            // a migraciones reales.
-            .fallbackToDestructiveMigration()
-            .build()
-
-        database = nueva
-        return nueva
-    }
-
-    fun getDatabase(): ReaderRoomDatabase? = database
-
-    fun close() {
-        database?.close()
-        database = null
-    }
+    /** La base ya abierta, o `null` si nadie la pidió todavía. */
+    fun getDatabase(): ReaderRoomDatabase? = BibliotecaDb.actual()
 }

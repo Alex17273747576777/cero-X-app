@@ -9,11 +9,10 @@ import kotlinx.coroutines.withContext
 
 class LibraryRepository(private val context: Context) {
 
-    private val database: ReaderRoomDatabase = Room.databaseBuilder(
-        context.applicationContext,
-        ReaderRoomDatabase::class.java,
-        "reader_database"
-    ).fallbackToDestructiveMigration().build()
+    // Antes se abría aquí una segunda base con otro nombre de archivo. Ahora hay
+    // una sola puerta: `BibliotecaDb`. Dos bases con el mismo esquema no son una
+    // biblioteca, son dos mitades que no se ven.
+    private val database: ReaderRoomDatabase = BibliotecaDb.de(context)
 
     private val dao = database.libraryDao()
 

@@ -107,6 +107,16 @@ class EstadoSistemaActivity : AppCompatActivity() {
         MotorJs.justificacion().lines().forEach { sb.appendLine("  $it") }
 
         sb.appendLine()
+        sb.appendLine("── ALMACENAMIENTO ──")
+        // La regla: nada en el almacenamiento interno salvo los tokens. El
+        // inventario dice cuántos sitios lo cumplen y cuántos siguen en deuda;
+        // aquí se pintan, sin redondear a «todo bien».
+        sb.appendLine(com.ceroX.app.core.InventoryStorage.resumen())
+        com.ceroX.app.core.InventoryStorage.deudas().forEach {
+            sb.appendLine("· por migrar: ${it.archivo} — ${it.que}")
+        }
+
+        sb.appendLine()
         sb.appendLine("── FUENTES DE CONTENIDO ──")
         val resumen = RepositorioGlobal.resumen()
         sb.appendLine("Registradas: ${resumen["fuentes"]} · navegables: ${resumen["navegables"]}")

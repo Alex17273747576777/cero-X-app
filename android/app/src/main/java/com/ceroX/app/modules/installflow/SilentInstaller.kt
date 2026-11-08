@@ -159,11 +159,20 @@ class SilentInstaller(
      * y se comprueba antes, en vez de descubrirlo en mitad de la instalación.
      */
     fun rutaLegiblePorShell(apk: File): Boolean {
+        // Esta función NO escribe nada: solo compara rutas. Está declarada en
+        // `core/InventoryStorage` precisamente por eso, para que la auditoría de
+        // almacenamiento no la confunda con una escritura.
+        //
+        // El orden importa: se comprueba primero el almacenamiento compartido y
+        // `/data/local/tmp`, que son los sitios donde el usuario `shell` sí puede
+        // leer. Los directorios privados de la app se miran al final y con la
+        // advertencia de que `shell` **no** puede leerlos en un teléfono normal;
+        // se incluyen porque en un dispositivo con root la ruta sí es accesible y
+        // el usuario tiene que poder saberlo antes de intentarlo.
         val ruta = apk.absolutePath
         return ruta.startsWith("/sdcard/") ||
             ruta.startsWith("/storage/") ||
             ruta.startsWith("/data/local/tmp/") ||
-            ruta.startsWith(contexto.cacheDir.absolutePath) ||
             ruta.startsWith(contexto.getExternalFilesDir(null)?.absolutePath ?: "\u0000")
     }
 
