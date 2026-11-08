@@ -1,0 +1,83 @@
+# Configuración de cero-X App
+# Versión: 0.1.0
+
+app:
+  name: "cero-X"
+  version: "0.1.0"
+  description: "Ecosistema todo-en-uno de código abierto"
+  license: "Apache-2.0"
+
+core:
+  event_bus:
+    enabled: true
+    max_queue_size: 1000
+  module_registry:
+    auto_discover: true
+    modules_path: "modules"
+  lifecycle:
+    startup_timeout: 30
+    shutdown_timeout: 15
+
+modules:
+  ai-training:
+    enabled: true
+    backend: "onnx"
+    device: "cpu"  # cpu | nna | cuda
+    max_workers: 2
+  downloads:
+    enabled: true
+    max_concurrent: 5
+    verify_hash: true
+    chunk_size: 8192
+  reader:
+    enabled: true
+    engine: "mihon"
+    extensions_enabled: true
+    cache_size_mb: 512
+  audio:
+    enabled: true
+    backend: "wotaku"
+    sample_rate: 44100
+    buffer_size: 4096
+  video:
+    enabled: true
+    backend: "ffmpeg"
+    hw_accel: false
+  reverse-engineering:
+    enabled: true
+    tools:
+      - "antigravity"
+      - "deepseek-harness"
+    auto_clone: true
+  environments:
+    enabled: true
+    preferred_distro: "debian"
+    debian_version: "testing"  # stable | testing | sid
+    container_runtime: "podman"
+
+reverse_engineering:
+  antigravity:
+    enabled: true
+    analyze_binaries: true
+    clone_ecosystems: true
+  deepseek_harness:
+    enabled: true
+    evaluate_models: true
+    benchmark: true
+
+environments:
+  debian:
+    versions:
+      - "stable"
+      - "testing"
+    auto_download: false
+    verify_checksum: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/cero-X.log"
+
+security:
+  hash_algorithm: "sha-256"
+  verify_downloads: true

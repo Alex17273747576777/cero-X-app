@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_dashboard"
+        android:icon="@drawable/ic_dashboard"
+        android:title="Panel" />
+    <item
+        android:id="@+id/nav_reader"
+        android:icon="@drawable/ic_reader"
+        android:title="Lector" />
+    <item
+        android:id="@+id/nav_audio"
+        android:icon="@drawable/ic_audio"
+        android:title="Audio" />
+    <item
+        android:id="@+id/nav_video"
+        android:icon="@drawable/ic_video"
+        android:title="Video" />
+    <item
+        android:id="@+id/nav_ai"
+        android:icon="@drawable/ic_ai"
+        android:title="IA" />
+    <item
+        android:id="@+id/nav_env"
+        android:icon="@drawable/ic_env"
+        android:title="Entornos" />
+</menu>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ceroX_background">#0F172A</color>
+    <color name="ceroX_surface">#1E293B</color>
+    <color name="ceroX_primary">#6366F1</color>
+    <color name="ceroX_secondary">#22D3EE</color>
+    <color name="ceroX_error">#EF4444</color>
+    <color name="ceroX_on_surface">#FFFFFF</color>
+    <color name="ceroX_on_surface_variant">#CBD5E1</color>
+</resources>

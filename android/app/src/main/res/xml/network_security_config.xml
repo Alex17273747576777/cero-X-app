@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- cero-X usa solo HTTPS para comunicaciones seguras -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">github.com</domain>
+        <domain includeSubdomains="true">raw.githubusercontent.com</domain>
+        <domain includeSubdomains="true">miyomi.app</domain>
+        <domain includeSubdomains="true">wotaku.wiki</domain>
+        <domain includeSubdomains="true">everythingmoe.com</domain>
+        <domain includeSubdomains="true">api.github.com</domain>
+    </domain-config>
+
+    <!-- Permitir cleartext solo para localhost/127.0.0.1 en modo debug (servidores locales) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+
+    <!-- Configuración de depuración para desarrollo -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="user" />
+            <certificates src="system" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

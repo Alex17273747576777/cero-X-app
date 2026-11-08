@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  cero-X · primer plano del ícono adaptativo.
+  Reemplaza la gota morada #6200EE por defecto de Android Studio.
+  Lienzo de 108x108 con el dibujo dentro de la zona segura de 66x66
+  (radio 33 desde el centro 54,54), para que sobreviva a cualquier máscara.
+
+  Geometría: anillo (el cero) + dos barras diagonales (la X).
+  El anillo se dibuja como trazo circular; la X como dos barras de
+  esquinas rectas. Todo en un solo vector, sin capas ni imágenes.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Anillo del cero · radio 23, trazo 9, sobre el centro 54,54 -->
+    <path
+        android:pathData="M54,31 A23,23 0 1,1 53.99,31"
+        android:strokeColor="#22D3EE"
+        android:strokeWidth="9"
+        android:strokeLineCap="butt" />
+
+    <!-- Barra diagonal de la X · de arriba-izquierda a abajo-derecha -->
+    <path
+        android:pathData="M36,36 L72,72"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="9"
+        android:strokeLineCap="butt" />
+
+    <!-- Barra diagonal de la X · de arriba-derecha a abajo-izquierda -->
+    <path
+        android:pathData="M72,36 L36,72"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="9"
+        android:strokeLineCap="butt" />
+</vector>
