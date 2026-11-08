@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cero-X · presentación del ícono</title>
+<style>
+  :root{
+    --obsidiana:#0B0F14; --cian:#22D3EE; --ambar:#F59E0B;
+    --tinta:#E6EDF3; --gris:#8B98A5; --linea:#1E2731;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--obsidiana); color:var(--tinta);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6; padding:40px 20px 80px;
+  }
+  .env{max-width:1000px;margin:0 auto}
+  header{text-align:center;margin-bottom:56px}
+  h1{font-size:clamp(28px,5vw,44px);letter-spacing:-.02em;font-weight:800}
+  h1 span{background:linear-gradient(100deg,var(--cian),var(--ambar));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--gris);font-size:15px;margin-top:10px}
+  h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);
+     margin:56px 0 20px;padding-bottom:10px;border-bottom:1px solid var(--linea);font-weight:600}
+  .fila{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-end;justify-content:center}
+  .celda{text-align:center}
+  .celda .et{font-size:11px;color:var(--gris);margin-top:10px;letter-spacing:.06em}
+  .caja{border-radius:22%;overflow:hidden;display:inline-block;background:var(--obsidiana)}
+  /* el dibujo: anillo + X, igual que el vector de Android */
+  .marca{display:block}
+  .circulo{border-radius:50%;overflow:hidden;display:inline-block;background:var(--obsidiana)}
+  .squircle{border-radius:22%;overflow:hidden;display:inline-block;background:var(--obsidiana)}
+  .rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .tarjeta{background:#0F151C;border:1px solid var(--linea);border-radius:14px;padding:22px}
+  .tarjeta h3{font-size:15px;margin-bottom:8px;font-weight:700}
+  .tarjeta p{font-size:13.5px;color:var(--gris)}
+  .tarjeta code{background:#161E27;color:var(--cian);padding:2px 6px;border-radius:4px;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--linea)}
+  th{color:var(--gris);font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+  .malo{color:#F87171}.bien{color:#34D399}
+  .telefono{width:210px;border-radius:26px;border:3px solid #202B36;padding:14px 12px 22px;
+            background:linear-gradient(180deg,#0D131A,#0B0F14);display:inline-block}
+  .tel-fondo{height:150px;border-radius:16px;display:flex;align-items:center;justify-content:center;
+             background:radial-gradient(circle at 50% 42%,#132030 0%,#0B0F14 72%);position:relative}
+  .tel-nombre{text-align:center;font-size:12px;color:var(--tinta);margin-top:14px;font-weight:600}
+  .tel-sub{text-align:center;font-size:10px;color:var(--gris);margin-top:2px}
+  .riel{display:flex;gap:10px;justify-content:center;margin-top:16px}
+  .app-mini{width:34px;height:34px;border-radius:9px;background:#18212B}
+  footer{margin-top:70px;text-align:center;color:var(--gris);font-size:12px;
+         border-top:1px solid var(--linea);padding-top:24px}
+</style>
+</head>
+<body>
+<div class="env">
+
+<header>
+  <h1>cero<span>–X</span></h1>
+  <p class="sub">El ícono · la marca · cómo se ve en un teléfono de verdad</p>
+</header>
+
+<!-- ============ LA MARCA, EN TAMAÑOS DE USO REAL ============ -->
+<h2>La marca a tamaño real</h2>
+<div class="fila" id="escala"></div>
+
+<!-- ============ MÁSCARAS ============ -->
+<h2>Las tres máscaras de Android</h2>
+<p style="color:var(--gris);font-size:13.5px;margin-bottom:22px;max-width:640px">
+  Android recorta el ícono según el lanzador. El dibujo tiene que sobrevivir a las tres.
+  Por eso el trazo se mantiene dentro de la zona segura de 66 de 108.
+</p>
+<div class="fila" id="mascaras"></div>
+
+<!-- ============ EN EL TELÉFONO ============ -->
+<h2>En el lanzador</h2>
+<div class="fila">
+  <div class="telefono">
+    <div class="tel-fondo" id="pantalla"></div>
+    <div class="riel">
+      <div class="app-mini"></div><div class="app-mini"></div><div class="app-mini"></div><div class="app-mini"></div>
+    </div>
+    <div class="tel-nombre">cero-X</div>
+    <div class="tel-sub">Ecosistema todo-en-uno</div>
+  </div>
+</div>
+
+<!-- ============ QUÉ SE ARREGLÓ ============ -->
+<h2>Antes y después</h2>
+<div class="rejilla">
+  <div class="tarjeta">
+    <h3 class="malo">Antes</h3>
+    <p>Un solo vector de 350 bytes: una gota morada <code>#6200EE</code> —el morado primario de Material, el mismo de cualquier proyecto recién creado en Android Studio— sobre negro plano. Diez archivos <code>mipmap-*dpi</code> que repetían ese mismo vector.</p>
+  </div>
+  <div class="tarjeta">
+    <h3 class="bien">Después</h3>
+    <p>Un ícono adaptativo de verdad: anillo cian→ámbar que se lee como cero, X blanca que lo atraviesa, fondo obsidiana <code>#0B0F14</code>. Con capa <b>monocroma</b> para los íconos temáticos de Android 13+.</p>
+  </div>
+  <div class="tarjeta">
+    <h3>Residuo eliminado</h3>
+    <p>Como <code>minSdk</code> es 26 (Android 8.0), el sistema <b>solo</b> usa íconos adaptativos. Los diez <code>mipmap-*dpi</code> heredados no se cargan nunca: son residuo puro.</p>
+  </div>
+</div>
+
+<!-- ============ ARCHIVOS ============ -->
+<h2>Los archivos que reemplazan a los diez</h2>
+<table>
+  <tr><th>archivo</th><th>para qué</th><th>peso</th></tr>
+  <tr><td><code>drawable/ic_launcher_foreground.xml</code></td><td>primer plano: anillo + X</td><td>1,1 KB</td></tr>
+  <tr><td><code>drawable/ic_launcher_monochrome.xml</code></td><td>capa monocroma, Android 13+</td><td>0,7 KB</td></tr>
+  <tr><td><code>mipmap-anydpi-v26/ic_launcher.xml</code></td><td>ícono adaptativo</td><td>0,3 KB</td></tr>
+  <tr><td><code>mipmap-anydpi-v26/ic_launcher_round.xml</code></td><td>variante redonda</td><td>0,3 KB</td></tr>
+  <tr><td><code>values/ic_launcher_background.xml</code></td><td>color de fondo obsidiana</td><td>0,2 KB</td></tr>
+</table>
+<p style="color:var(--gris);font-size:13px;margin-top:14px">
+  Cinco archivos y 2,6 KB sustituyen a once archivos y 3,9 KB. Menos piezas, más identidad.
+</p>
+
+<footer>
+  cero-X · presentación del ícono · 8 de noviembre de 2026 · Santo Domingo<br>
+  Los vectores de esta página son los mismos que van al APK: si se ve bien aquí, se ve bien en el teléfono.
+</footer>
+
+</div>
+
+<script>
+// El dibujo, una sola vez, en SVG inline: cero dependencias, cero red.
+function marca(tam, id){
+  const s = tam;
+  return `<svg class="marca" width="${s}" height="${s}" viewBox="0 0 108 108" aria-label="cero-X">
+    <defs>
+      <linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#22D3EE"/>
+        <stop offset="55%" stop-color="#4FD1C5"/>
+        <stop offset="100%" stop-color="#F59E0B"/>
+      </linearGradient>
+    </defs>
+    <circle cx="54" cy="54" r="23" fill="none" stroke="url(#g${id})" stroke-width="9"/>
+    <line x1="36" y1="36" x2="72" y2="72" stroke="#FFFFFF" stroke-width="9" stroke-linecap="butt"/>
+    <line x1="72" y1="36" x2="36" y2="72" stroke="#FFFFFF" stroke-width="9" stroke-linecap="butt"/>
+  </svg>`;
+}
+
+// 1 · escala a tamaños de uso real
+const escala = [
+  [96,'96 px · lanzador'], [72,'72 px · ajustes'], [48,'48 px · barra'],
+  [32,'32 px · notificación'], [24,'24 px · lista']
+];
+document.getElementById('escala').innerHTML = escala.map(([t,et],i)=>
+  `<div class="celda"><div class="squircle">${marca(t,'e'+i)}</div><div class="et">${et}</div></div>`
+).join('');
+
+// 2 · las tres máscaras
+const mascaras = [
+  ['squircle','squircle · Samsung, Pixel'],
+  ['circulo','círculo · lanzadores AOSP'],
+  ['','cuadrado · sin máscara']
+];
+document.getElementById('mascaras').innerHTML = mascaras.map(([cls,et],i)=>
+  `<div class="celda"><div class="${cls}" style="background:#0B0F14">${marca(110,'m'+i)}</div><div class="et">${et}</div></div>`
+).join('');
+
+// 3 · en el lanzador, a tamaño de ícono de escritorio
+document.getElementById('pantalla').innerHTML = marca(84,'p');
+</script>
+</body>
+</html>
