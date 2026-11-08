@@ -23,11 +23,9 @@ class DarkModeFilter {
 
     fun applyTo(view: View) {
         if (!isEnabled) {
-            view.layerType = View.LAYER_TYPE_NONE
+            view.setLayerType(View.LAYER_TYPE_NONE, null)
             return
         }
-
-        view.layerType = View.LAYER_TYPE_HARDWARE
 
         val matrix = ColorMatrix()
         if (amoledSubtoggle) {
@@ -39,7 +37,8 @@ class DarkModeFilter {
         }
 
         paint.colorFilter = ColorMatrixColorFilter(matrix)
-        view.layerType = View.LAYER_TYPE_HARDWARE
+        // View no tiene ninguna propiedad `layerType`: el unico camino es el
+        // metodo setLayerType(tipo, paint). La paint va aqui, no en otra linea.
         view.setLayerType(View.LAYER_TYPE_HARDWARE, paint)
     }
 

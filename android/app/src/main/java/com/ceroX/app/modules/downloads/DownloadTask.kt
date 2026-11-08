@@ -63,7 +63,9 @@ class DownloadTask(private val context: Context) {
     fun getActiveDownloads(): List<DownloadInfo> = activeDownloads.values.toList()
 
     fun cancelDownload(id: Long): Boolean {
-        return downloadManager.remove(id)
+        // DownloadManager.remove() devuelve el numero de descargas borradas
+        // (0 o 1), no un Boolean. Devolverlo tal cual no compila.
+        return downloadManager.remove(id) > 0
     }
 
     fun cleanup() {
