@@ -36,6 +36,18 @@ class WorkspaceBudgetTest {
         val trabajo = File(System.getProperty("user.home"))
         if (!trabajo.exists()) return
 
+        // Solo aplica en la máquina de la casa, que es donde el espacio de trabajo se
+        // guarda entre sesiones. En un CI el $HOME es el del runner: tiene su propio
+        // caché de Gradle y de Robolectric, pasa de 32 MiB sin que nadie esté haciendo
+        // nada mal, y el rojo no señala ningún fallo del proyecto. Un rojo permanente
+        // en CI enseña a ignorar el CI.
+        val esLaMaquinaDeLaCasa = File("/opt/robolectric").isDirectory ||
+            File("/opt/gradle-home").isDirectory
+        org.junit.Assume.assumeTrue(
+            "presupuesto de espacio de la máquina de la casa: fuera de ella no aplica",
+            esLaMaquinaDeLaCasa,
+        )
+
         var total = 0L
         var archivos = 0
         val grandes = mutableListOf<Pair<Long, String>>()

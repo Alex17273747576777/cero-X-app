@@ -49,8 +49,26 @@ class ModelHonestyTest {
         return true
     }
 
+    /**
+     * ¿Están los modelos? En git no viven: pesan 373 MiB y GitHub rechaza más de 100.
+     *
+     * Se bajan con `scripts/bajar-modelos.py`, que comprueba el sha256. Si no están,
+     * las pruebas que comparan el manifiesto contra el disco no tienen nada que
+     * comparar: saltan y dicen cómo traerlos. Un rojo por un archivo ausente no
+     * enseña nada; un verde sin haber comparado nada, engaña.
+     */
+    private fun saltarSiNoHayModelos() {
+        val presentes = onnxEnDisco()
+        org.junit.Assume.assumeTrue(
+            "no hay .onnx en ${dirModelos.path}: ejecuta scripts/bajar-modelos.py " +
+                "(comprueba sha256 y deja los cinco en su sitio)",
+            presentes.isNotEmpty(),
+        )
+    }
+
     @Test
     fun `hay exactamente cinco modelos y son los verificados`() {
+        saltarSiNoHayModelos()
         val onnx = onnxEnDisco()
         assertTrue("se esperaban 5 modelos, hay ${onnx.size}: $onnx", onnx.size == 5)
         listOf("colorize.onnx", "esrgan_x4.onnx", "anime4x.onnx",
@@ -61,6 +79,7 @@ class ModelHonestyTest {
 
     @Test
     fun `el manifiesto y el disco dicen lo mismo sobre lo empaquetado`() {
+        saltarSiNoHayModelos()
         val enDisco = onnxEnDisco()
         val json = File(dirModelos, "MANIFEST.json").readText()
 
@@ -133,6 +152,7 @@ class ModelHonestyTest {
 
     @Test
     fun `ningun modulo cita un archivo onnx inexistente`() {
+        saltarSiNoHayModelos()
         val enDisco = onnxEnDisco()
         val culpables = mutableListOf<String>()
         raizModulos.walkTopDown()

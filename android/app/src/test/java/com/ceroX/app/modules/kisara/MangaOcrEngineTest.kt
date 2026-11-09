@@ -94,8 +94,8 @@ class MangaOcrEngineTest {
 
     @Test
     fun `el vocab empaquetado tiene 6144 lineas y los especiales en su sitio`() {
-        val ruta = File("/opt/work/cerox/android/app/src/main/assets/models/vocab.txt")
-        assertTrue("falta vocab.txt en assets/models", ruta.exists())
+        val ruta = File("src/main/assets/models/vocab.txt")
+        assertTrue("falta src/main/assets/models/vocab.txt: el archivo está en git, así que si falta es que la prueba corre desde otro directorio", ruta.exists())
         val lineas = ruta.readLines()
         assertEquals(6144, lineas.size)
         assertEquals("[PAD]", lineas[0])
@@ -108,7 +108,7 @@ class MangaOcrEngineTest {
     fun `el vocab contiene kana y kanji, no solo simbolos`() {
         // Si alguien empaquetara un vocabulario inglés por error, el tamaño
         // podría cuadrar y el OCR devolvería latín para japonés.
-        val lineas = File("/opt/work/cerox/android/app/src/main/assets/models/vocab.txt").readLines().toSet()
+        val lineas = File("src/main/assets/models/vocab.txt").readLines().toSet()
         assertTrue("falta あ", lineas.contains("あ"))
         assertTrue("falta ん", lineas.contains("ん"))
         assertTrue("falta 日", lineas.contains("日"))
