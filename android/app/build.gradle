@@ -99,6 +99,22 @@ android {
         ]
     }
 
+    sourceSets {
+        // El grano fino de la multicompatibilidad: la app de Android compila los
+        // MISMOS archivos que el jar de escritorio (JVM) y el .js de la web.
+        //
+        // Se declara en el source set `main` de Android. `main.java.srcDirs` es
+        // donde el plugin de Kotlin busca los `.kt` de un módulo Android, y las
+        // rutas van resueltas con `file()`, no como texto relativo: una ruta
+        // relativa depende del directorio desde el que se invoque a Gradle.
+        main {
+            java.srcDirs += file('../../comun/src/commonMain/kotlin').absolutePath
+            java.srcDirs += file('../../comun/src/androidAppMain/kotlin').absolutePath
+            // El archivo con `expect` no está en `commonMain`, sino en
+            // `commonExpect`, así que aquí no llega y no hace falta excluir nada.
+        }
+    }
+
     buildFeatures {
         compose true
         viewBinding true
@@ -183,6 +199,10 @@ dependencies {
     // AndroidX Core
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
+    // El núcleo compartido (comun/) se compila DENTRO de este módulo: su carpeta
+    // `src/commonMain` entra como fuente más abajo, en `sourceSets`. Es Kotlin
+    // puro sin ninguna dependencia externa, así que compila tal cual. Un solo
+    // fuente para Android, escritorio (JVM), web (JS) e iOS.
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'

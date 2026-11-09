@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El núcleo compartido como biblioteca de Android. No declara componentes:
+     solo pone las reglas a disposición de la app. -->
+<manifest />

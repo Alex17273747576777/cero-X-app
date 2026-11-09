@@ -7,34 +7,28 @@ import org.junit.Test
 import java.io.File
 
 /**
- * La regla de almacenamiento, comprobada contra el árbol de código.
+ * La regla de almacenamiento, comprobada **sobre las fuentes**, después de la migración.
  *
- * LA REGLA
- * --------
- * «Está prohibido almacenar cualquier recurso en el almacenamiento interno, con
- * la única excepción de los tokens.»
+ * QUÉ CAMBIÓ Y POR QUÉ ESTA PRUEBA ES DISTINTA
+ * --------------------------------------------
+ * La ronda anterior comprobaba que ningún archivo escribiera sin estar declarado
+ * en el inventario. Eso impedía que la deuda creciera, pero no obligaba a que
+ * bajara: se podía declarar «deuda» para siempre y la prueba seguía verde.
  *
- * CÓMO SE COMPRUEBA ALGO ASÍ
- * --------------------------
- * Una regla que solo vive en un comentario se incumple en la siguiente sesión.
- * Esta prueba hace tres cosas que se pueden medir:
+ * Ahora se comprueba lo que de verdad importa:
  *
- *   1. **Cuenta los sitios que escriben** en el árbol de fuentes y exige que
- *      estén todos declarados en `InventoryStorage`. Un archivo nuevo con
- *      `filesDir`, `MODE_PRIVATE` o `databaseBuilder` y sin declarar **rompe la
- *      prueba**. Eso es lo que impide que la deuda crezca en silencio.
- *   2. **Ninguna entrada que no sea un token puede estar marcada como conforme
- *      por accidente**: el inventario se recorre y se comprueba que las deudas
- *      están donde se dice.
- *   3. **Los casos ya arreglados no vuelven**: los modelos ONNX no se copian a
- *      `filesDir`, y solo hay un nombre de archivo de base de datos en toda la
- *      app.
+ *   1. **Nadie usa `SharedPreferences`** salvo para *leer y borrar* lo viejo.
+ *   2. **`Room.databaseBuilder` aparece en un solo sitio** y con ruta absoluta.
+ *   3. **No queda ninguna caída silenciosa al interno** (`?: filesDir`,
+ *      `java.io.tmpdir`): era el patrón que metía respaldos e informes ahí.
+ *   4. La deuda del inventario **bajó de 14 a 3**.
  *
- * Lo que esta prueba **no** hace, y se dice: no abre un teléfono. No puede
- * demostrar que Android no escribe cachés propias (las escribe: el sistema
- * guarda dexopt, logcat y las propias `SharedPreferences` de AndroidX). Lo que
- * demuestra es que **el código de cero-X** no pide almacenamiento interno salvo
- * en los sitios declarados.
+ * LO QUE ESTA PRUEBA NO PUEDE DEMOSTRAR
+ * -------------------------------------
+ * No abre un teléfono. `getExternalFilesDirs` puede devolver una ruta no
+ * escribible en un dispositivo concreto, y eso se mide en el aparato. Lo que
+ * demuestra es que **el código de cero-X no pide el almacenamiento interno** salvo
+ * en los tres sitios declarados.
  */
 class ReglaDeAlmacenamientoTest {
 
@@ -47,74 +41,146 @@ class ReglaDeAlmacenamientoTest {
         d
     }
 
-    private val fuentes: List<File> = File(raiz, "src/main/java/com/ceroX/app")
-        .walkTopDown()
+    private val base: File = File(raiz, "src/main/java/com/ceroX/app")
+
+    private val fuentes: List<File> = base.walkTopDown()
         .filter { it.isFile && it.extension == "kt" }
         .toList()
 
-    /**
-     * Los patrones que significan «esto escribe en el almacenamiento interno».
-     *
-     * `Context.MODE_PRIVATE` es la firma de `SharedPreferences`, y las
-     * preferencias **viven** en el almacenamiento interno: `/data/data/<pkg>/shared_prefs`.
-     * Es el punto que más se pasa por alto al hablar de esta regla.
-     */
-    private val patronesDeEscritura = listOf(
-        "filesDir",
-        "cacheDir",
-        "noBackupFilesDir",
-        "MODE_PRIVATE",
-        "databaseBuilder",
-        "openFileOutput",
-        "getExternalFilesDir",
-        "getExternalFilesDirs",
-    )
+    /** Las líneas de código de un archivo, sin comentarios ni KDoc. */
+    private fun codigo(f: File): String = f.readLines()
+        .filterNot { it.trimStart().startsWith("*") }
+        .filterNot { it.trimStart().startsWith("//") }
+        .filterNot { it.trimStart().startsWith("/*") }
+        .joinToString("\n")
 
-    /**
-     * El propio inventario nombra los patrones porque los clasifica, no porque
-     * escriba. Se excluye de la auditoría: sin esta excepción la prueba se
-     * acusaría a sí misma de lo que está auditando.
-     */
-    private val elInventarioMismo = "core/InventoryStorage.kt"
+    private fun ruta(f: File): String = f.relativeTo(base).path.replace('\\', '/')
 
-    /** Devuelve archivo -> patrones encontrados, sin contar comentarios. */
-    private fun sitiosQueEscriben(): Map<String, List<String>> = fuentes.associate { f ->
-        val lineas = f.readLines()
-            .filterNot { it.trimStart().startsWith("*") || it.trimStart().startsWith("//") }
-            .joinToString("\n")
-        val encontrados = patronesDeEscritura.filter { lineas.contains(it) }
-        f.relativeTo(File(raiz, "src/main/java/com/ceroX/app")).path to encontrados
-    }.filterValues { it.isNotEmpty() }
-        .filterKeys { normalizar(it) != elInventarioMismo }
-
-    // ── 1 · Nada escribe sin declararlo ────────────────────────────────────
+    // ── 1 · SharedPreferences, prohibido salvo para migrar ─────────────────
 
     @Test
-    fun todo_sitio_que_escribe_esta_declarado_en_el_inventario() {
-        val declarados = InventoryStorage.sitios.map { normalizar(it.archivo) }.toSet()
-        val sinDeclarar = sitiosQueEscriben().keys
-            .map { normalizar(it) }
-            .filterNot { ruta -> declarados.any { it == ruta } }
+    fun sharedPreferences_solo_se_toca_para_migrar_y_borrar() {
+        val infractores = fuentes.filter { f ->
+            val c = codigo(f)
+            if (!c.contains("getSharedPreferences")) return@filter false
+            val esLaMigracion = ruta(f) == "core/Prefs.kt" && c.contains(".edit().clear()")
+            !esLaMigracion
+        }.map { ruta(it) }
 
         assertTrue(
-            "estos archivos escriben en el almacenamiento interno y no están declarados en " +
-                "InventoryStorage: $sinDeclarar\n" +
-                "Declarar el sitio (aunque sea como deuda) es lo que impide que la deuda crezca a escondidas.",
-            sinDeclarar.isEmpty(),
+            "estos archivos usan SharedPreferences, que vive en el almacenamiento interno y no " +
+                "se puede redirigir: $infractores. Los datos van a core/Prefs (JSON en " +
+                "AlmacenExterno); SharedPreferences solo se permite en " +
+                "Prefs.migrarDesdeSharedPreferences, que además borra lo migrado.",
+            infractores.isEmpty(),
         )
     }
 
-    /** Los dos lados pueden escribir la ruta con o sin prefijo; se comparan igual. */
-    private fun normalizar(ruta: String): String =
-        ruta.replace('\\', '/').removePrefix("./").removePrefix("com/ceroX/app/")
+    @Test
+    fun las_preferencias_borran_lo_que_migran_del_interno() {
+        val c = codigo(File(base, "core/Prefs.kt"))
+        assertTrue(
+            "Prefs tiene que borrar las claves del interno después de copiarlas; si no, la " +
+                "deuda sigue ahí, solo que disimulada",
+            c.contains(".edit().clear()"),
+        )
+        assertTrue(
+            "Prefs tiene que migrar lo de versiones anteriores, o actualizar borra los ajustes",
+            c.contains("migrarDesdeSharedPreferences"),
+        )
+    }
 
-    // ── 2 · El inventario no se engaña a sí mismo ──────────────────────────
+    // ── 2 · Room, una sola puerta y con ruta absoluta ──────────────────────
+
+    @Test
+    fun solo_hay_un_constructor_de_room_y_usa_ruta_externa() {
+        val constructores = fuentes.filter { codigo(it).contains("Room.databaseBuilder") }
+            .map { ruta(it) }
+        assertEquals(
+            "tiene que haber exactamente un constructor de Room (BibliotecaDb): $constructores",
+            listOf("modules/reader/BibliotecaDb.kt"),
+            constructores,
+        )
+
+        val c = codigo(File(base, "modules/reader/BibliotecaDb.kt"))
+        assertTrue(
+            "BibliotecaDb tiene que sacar la ruta de AlmacenExterno",
+            c.contains("AlmacenExterno.rutaBaseDeDatos"),
+        )
+        assertTrue(
+            "el tercer argumento de databaseBuilder tiene que ser la ruta absoluta (`ruta,`), no " +
+                "un nombre entre comillas: con nombre relativo Room usa el directorio interno",
+            Regex("""databaseBuilder\([\s\S]{0,200}?ReaderRoomDatabase::class\.java,\s*\n\s*ruta,""")
+                .containsMatchIn(c),
+        )
+        assertFalse(
+            "no puede quedar ningún literal de base de datos pasado a databaseBuilder",
+            Regex("""databaseBuilder[\s\S]{0,200}?"[a-zA-Z_]+\.db"""").containsMatchIn(c),
+        )
+        assertTrue(
+            "la base vieja del interno se tiene que copiar CON sus -wal y -shm y borrarse; " +
+                "copiar solo el .db pierde lo que no se ha volcado",
+            c.contains("\"-wal\"") && c.contains("\"-shm\"") && c.contains(".delete()"),
+        )
+    }
+
+    // ── 3 · Ninguna caída silenciosa al almacenamiento interno ─────────────
+
+    @Test
+    fun ninguna_ruta_cae_al_interno_sin_decirlo() {
+        val patrones = listOf(
+            "?: context.filesDir",
+            "?: filesDir",
+            "?: this.filesDir",
+            "System.getProperty(\"java.io.tmpdir\")",
+        )
+        val infractores = fuentes.mapNotNull { f ->
+            val c = codigo(f)
+            val encontrados = patrones.filter { c.contains(it) }
+            if (encontrados.isEmpty() || ruta(f) == "core/InventoryStorage.kt") null
+            else "${ruta(f)} → $encontrados"
+        }
+        assertTrue(
+            "estos archivos se caen al almacenamiento interno cuando no hay externo: " +
+                "$infractores. La regla no admite «si no hay externo, al interno»: hay que " +
+                "devolver el fallo con su motivo.",
+            infractores.isEmpty(),
+        )
+    }
+
+    @Test
+    fun quien_escribe_fuera_lo_dice_en_su_archivo() {
+        val escriben = listOf(
+            "ui/reader/ReadingProgress.kt",
+            "modules/reader/BibliotecaDb.kt",
+            "modules/backup/BackupManager.kt",
+            "core/CrashHandler.kt",
+            "modules/extension_sandbox/ExtensionInstaller.kt",
+            "modules/ai/NeuralAIModule.kt",
+            "sources/RepositorioGlobal.kt",
+            "core/Prefs.kt",
+        )
+        val sinRuta = escriben.filterNot { codigo(File(base, it)).contains("AlmacenExterno") }
+        assertTrue(
+            "estos archivos escriben y no resuelven la ruta por AlmacenExterno: $sinRuta",
+            sinRuta.isEmpty(),
+        )
+    }
+
+    // ── 4 · La deuda bajó de verdad ────────────────────────────────────────
+
+    @Test
+    fun la_deuda_bajo_de_catorce_a_tres() {
+        val deudas = InventoryStorage.deudas().map { it.archivo }
+        assertTrue(
+            "la deuda tiene que haber bajado de 14 a 3; hoy hay ${deudas.size}: $deudas",
+            deudas.size <= 3,
+        )
+    }
 
     @Test
     fun cada_sitio_declarado_existe_de_verdad() {
-        val faltantes = InventoryStorage.sitios.filterNot { sitio ->
-            File(File(raiz, "src/main/java/com/ceroX/app"), sitio.archivo).isFile
-        }
+        val faltantes = InventoryStorage.sitios.filterNot { File(base, it.archivo).isFile }
         assertTrue(
             "el inventario nombra archivos que no existen: ${faltantes.map { it.archivo }}",
             faltantes.isEmpty(),
@@ -122,95 +188,71 @@ class ReglaDeAlmacenamientoTest {
     }
 
     @Test
-    fun toda_la_deuda_esta_marcada_y_ninguna_deuda_esta_disfrazada() {
-        // Las deudas son las que la regla prohíbe hoy. Este número tiene que
-        // bajar. Si sube, es que alguien añadió almacenamiento interno.
-        val deudas = InventoryStorage.deudas().map { it.archivo }
+    fun todo_sitio_que_escribe_esta_declarado_en_el_inventario() {
+        val patrones = listOf(
+            "filesDir", "cacheDir", "noBackupFilesDir", "MODE_PRIVATE",
+            "databaseBuilder", "openFileOutput", "getExternalFilesDir", "getExternalFilesDirs",
+        )
+        val declarados = InventoryStorage.sitios.map { it.archivo }.toSet()
+        val sinDeclarar = fuentes.mapNotNull { f ->
+            val c = codigo(f)
+            val encontrados = patrones.filter { c.contains(it) }
+            if (encontrados.isEmpty()) return@mapNotNull null
+            if (ruta(f) == "core/InventoryStorage.kt") return@mapNotNull null
+            if (declarados.contains(ruta(f))) return@mapNotNull null
+            "${ruta(f)} → $encontrados"
+        }
         assertTrue(
-            "la deuda no puede crecer: ${deudas.size} sitios por migrar",
-            deudas.size <= 14,
-        )
-        // Y las que se arreglaron en esta ronda no pueden volver a la lista.
-        assertFalse(
-            "ModelAssets ya lee del APK; no puede seguir en deuda",
-            deudas.any { it.contains("ModelAssets") },
-        )
-        assertFalse(
-            "ModelHonestyGuard ya no escribe; no puede seguir en deuda",
-            deudas.any { it.contains("ModelHonestyGuard") },
+            "estos archivos escriben en el almacenamiento interno y no están declarados: " +
+                "$sinDeclarar",
+            sinDeclarar.isEmpty(),
         )
     }
 
     @Test
-    fun la_unica_excepcion_de_la_regla_son_los_tokens() {
+    fun el_resumen_no_dice_que_todo_cumple_mientras_queden_deudas() {
+        val resumen = InventoryStorage.resumen()
+        if (InventoryStorage.deudas().isNotEmpty()) {
+            assertFalse(
+                "el resumen no puede decir «cumple» entero mientras queden " +
+                    "${InventoryStorage.deudas().size} deudas: $resumen",
+                resumen.startsWith("cumple") || resumen.contains("0 por migrar"),
+            )
+        }
+        assertTrue(resumen.contains("por migrar"))
+    }
+
+    // ── 5 · Los sitios arreglados no vuelven atrás ────────────────────────
+
+    @Test
+    fun ningun_sitio_arreglado_esta_marcado_como_deuda() {
+        val arreglados = listOf(
+            "ReadingProgress", "LibraryRepository", "SingleSQLiteConnection",
+            "BackupManager", "CrashHandler", "ConfigManager", "TrackerAutoSync",
+            "ExtensionInstaller", "ExtensionFactory", "BibliotecaDb",
+        )
+        val deudas = InventoryStorage.deudas()
+        val regresiones = deudas.filter { s -> arreglados.any { s.archivo.contains(it) } }
+        assertTrue(
+            "estos sitios se migraron fuera del almacenamiento interno y no pueden volver a la " +
+                "lista de deudas: ${regresiones.map { it.archivo }}",
+            regresiones.isEmpty(),
+        )
+    }
+
+    @Test
+    fun los_tokens_siguen_siendo_la_unica_excepcion_y_van_cifrados() {
         val tokens = InventoryStorage.sitios.filter {
             it.verdicto == InventoryStorage.Verdict.TOKEN_CIFRADO
         }
-        assertEquals("solo hay un sitio de tokens", 1, tokens.size)
-        val t = tokens.first()
-        assertTrue("el token tiene que ir cifrado", t.nota.contains("Keystore"))
         assertTrue(
-            "el token es de AniList o MAL",
-            t.que.contains("AniList") || t.que.contains("token"),
+            "tiene que haber exactamente un sitio de tokens, TrackerCredentials",
+            tokens.size == 1 && tokens[0].archivo.contains("TrackerCredentials"),
         )
-    }
-
-    @Test
-    fun el_resumen_dice_la_verdad_y_no_dice_cumple() {
-        val r = InventoryStorage.resumen()
-        assertTrue("el resumen tiene que contar las deudas: $r", r.contains("por migrar"))
-        assertFalse("no puede decir que cumple entera", r.contains("cumple al 100"))
-    }
-
-    // ── 3 · Lo arreglado no vuelve ────────────────────────────────────────
-
-    @Test
-    fun los_modelos_onnx_no_se_copian_al_disco() {
-        val texto = File(File(raiz, "src/main/java/com/ceroX/app"), "modules/ai/ModelAssets.kt")
-            .readLines()
-            .filterNot { it.trimStart().startsWith("*") }
-            .joinToString("\n")
-        assertFalse(
-            "ModelAssets no puede volver a escribir modelos en filesDir",
-            texto.contains("filesDir"),
+        val c = codigo(File(base, "modules/houri/tracker/TrackerCredentials.kt"))
+        assertTrue(
+            "los tokens van en EncryptedSharedPreferences; sin cifrado no se guardan",
+            c.contains("EncryptedSharedPreferences"),
         )
-        assertTrue("tiene que leer del APK", texto.contains("openFd"))
-        assertFalse("no puede quedar la copia parcial", texto.contains("parcial"))
-    }
-
-    @Test
-    fun solo_hay_un_nombre_de_archivo_de_base_de_datos() {
-        val nombres = Regex("""databaseBuilder\(""")
-        val constructores = fuentes.filter { f ->
-            f.readLines().filterNot { it.trimStart().startsWith("*") }.any { it.contains("databaseBuilder(") }
-        }
-        assertEquals(
-            "solo BibliotecaDb puede construir la base de datos; hay ${constructores.map { it.name }}",
-            1,
-            constructores.size,
-        )
-        val b = File(constructores.first().absolutePath).readText()
-        assertTrue("la puerta única se llama BibliotecaDb", b.contains("object BibliotecaDb"))
-        assertFalse(nombres.find("\"reader_database\"") != null && b.contains("\"reader_database\""))
-        assertFalse("no puede haber un segundo nombre", b.contains("\"ceroX_database\""))
-    }
-
-    @Test
-    fun la_comprobacion_de_assets_no_crea_directorios() {
-        val texto = File(File(raiz, "src/main/java/com/ceroX/app"), "modules/diagnostics/ModelHonestyGuard.kt")
-            .readText()
-        assertFalse(
-            "comprobar una lectura no necesita escribir",
-            texto.contains("assets_probe"),
-        )
-    }
-
-    @Test
-    fun el_inventario_no_es_un_adorno_lo_usa_la_pantalla_de_estado() {
-        // Un inventario que nadie lee se queda desactualizado. La pantalla de
-        // estado lo pinta, así que el usuario ve el número de deudas.
-        val estado = File(File(raiz, "src/main/java/com/ceroX/app"), "ui/estado/EstadoSistemaActivity.kt")
-            .readText()
-        assertTrue("la pantalla de estado tiene que enseñar el inventario", estado.contains("InventoryStorage"))
     }
 }

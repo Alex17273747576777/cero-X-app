@@ -83,12 +83,12 @@ class IdiomasActivity : AppCompatActivity() {
 
         setContent {
             CeroXTheme {
-                var idioma by remember { mutableStateOf(prefs.getString(CLAVE_IDIOMA, "")) }
+                var idioma by remember { mutableStateOf(prefs.getString(CLAVE_IDIOMA, "") ?: "") }
                 var registro by remember {
-                    mutableStateOf(prefs.getString(CLAVE_REGISTRO, Idiomas.Registro.NEUTRO.id))
+                    mutableStateOf(prefs.getString(CLAVE_REGISTRO, Idiomas.Registro.NEUTRO.id) ?: Idiomas.Registro.NEUTRO.id)
                 }
                 var variante by remember {
-                    mutableStateOf(prefs.getString(CLAVE_VARIANTE, "es-DO"))
+                    mutableStateOf(prefs.getString(CLAVE_VARIANTE, "es-DO") ?: "es-DO")
                 }
                 var deDerechaAIzquierda by remember {
                     mutableStateOf(Idiomas.esDeDerechaAIzquierda(idioma))
@@ -98,10 +98,10 @@ class IdiomasActivity : AppCompatActivity() {
                         Traduccion.Proveedor.porId(prefs.getString(CLAVE_PROVEEDOR, null)),
                     )
                 }
-                var urlLibre by remember { mutableStateOf(prefs.getString(CLAVE_URL_LIBRE, "")) }
+                var urlLibre by remember { mutableStateOf(prefs.getString(CLAVE_URL_LIBRE, "") ?: "") }
                 var filtros by remember {
                     mutableStateOf(
-                        prefs.getString(CLAVE_FILTROS, "es,en,all").split(',')
+                        (prefs.getString(CLAVE_FILTROS, "es,en,all") ?: "es,en,all").split(',')
                             .filter { it.isNotBlank() }.toSet(),
                     )
                 }

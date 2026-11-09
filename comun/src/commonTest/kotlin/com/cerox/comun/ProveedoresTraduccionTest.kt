@@ -133,7 +133,7 @@ class ProveedoresTraduccionTest {
     fun lee_la_respuesta_de_libretranslate() {
         val cuerpo = """{"translatedText":"Hello, how are you?"}"""
         val r = ProveedoresTraduccion.leerRespuesta(Traduccion.Proveedor.LIBRE, cuerpo, 200)
-        assertEquals("Hello, how are you?", r.texto())
+        assertEquals("Hello, how are you?", r.comoTexto())
     }
 
     @Test
@@ -141,14 +141,14 @@ class ProveedoresTraduccionTest {
         val cuerpo = """{"data":{"translations":[{"translatedText":"Hello, how are you?",""" +
             """"detectedSourceLanguage":"es"}]}}"""
         val r = ProveedoresTraduccion.leerRespuesta(Traduccion.Proveedor.GOOGLE, cuerpo, 200)
-        assertEquals("Hello, how are you?", r.texto())
+        assertEquals("Hello, how are you?", r.comoTexto())
     }
 
     @Test
     fun lee_la_respuesta_de_deepl() {
         val cuerpo = """{"translations":[{"detected_source_language":"ES","text":"Hello, how are you?"}]}"""
         val r = ProveedoresTraduccion.leerRespuesta(Traduccion.Proveedor.DEEPL, cuerpo, 200)
-        assertEquals("Hello, how are you?", r.texto())
+        assertEquals("Hello, how are you?", r.comoTexto())
     }
 
     @Test
@@ -156,7 +156,7 @@ class ProveedoresTraduccionTest {
         val cuerpo = """[{"detectedLanguage":{"language":"es","score":1.0},""" +
             """"translations":[{"text":"Hello, how are you?","to":"en"}]}]"""
         val r = ProveedoresTraduccion.leerRespuesta(Traduccion.Proveedor.MICROSOFT, cuerpo, 200)
-        assertEquals("Hello, how are you?", r.texto())
+        assertEquals("Hello, how are you?", r.comoTexto())
     }
 
     @Test
@@ -164,7 +164,7 @@ class ProveedoresTraduccionTest {
         val bien = """{"errorCode":"0","translation":["Hello, how are you?"]}"""
         assertEquals(
             "Hello, how are you?",
-            ProveedoresTraduccion.leerRespuesta(Traduccion.Proveedor.YOUDAO, bien, 200).texto(),
+            ProveedoresTraduccion.leerRespuesta(Traduccion.Proveedor.YOUDAO, bien, 200).comoTexto(),
         )
         // Youdao contesta SIEMPRE HTTP 200 y pone el error en errorCode.
         val mal = """{"errorCode":"108","translation":null}"""
@@ -202,14 +202,14 @@ class ProveedoresTraduccionTest {
     fun lee_caracteres_no_latinos_y_escapes() {
         val cuerpo = """{"translatedText":"こんにちは、\"amigo\"\n¿qué tal?"}"""
         val r = ProveedoresTraduccion.leerRespuesta(Traduccion.Proveedor.LIBRE, cuerpo, 200)
-        assertEquals("こんにちは、\"amigo\"\n¿qué tal?", r.texto())
+        assertEquals("こんにちは、\"amigo\"\n¿qué tal?", r.comoTexto())
     }
 
     @Test
     fun lee_escapes_unicode() {
         val cuerpo = """{"translatedText":"\u4f60\u597d"}"""
         val r = ProveedoresTraduccion.leerRespuesta(Traduccion.Proveedor.LIBRE, cuerpo, 200)
-        assertEquals("你好", r.texto())
+        assertEquals("你好", r.comoTexto())
     }
 
     @Test

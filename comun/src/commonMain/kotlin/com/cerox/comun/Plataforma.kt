@@ -17,14 +17,6 @@ package com.cerox.comun
  * `android.*`, no se mueve**. Si solo usa `kotlin.*`, se mueve tal cual. Eso deja
  * fuera el lector de bitmaps y dentro las reglas, que es donde están los fallos.
  */
-/**
- * Qué plataforma se está ejecutando, resuelto por `expect/actual`.
- *
- * Cada plataforma tiene un archivo de tres líneas. Es el precio de que el mismo
- * fuente compile en la JVM, en iOS y en JS sin `if` por todas partes.
- */
-expect fun plataformaReal(): String
-
 object Plataforma {
 
     /** En qué plataforma se está ejecutando. Se usa para no prometer de más. */

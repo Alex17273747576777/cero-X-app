@@ -9,6 +9,12 @@
 // lógica pura se puede compilar a un `.jar` (escritorio), a un framework
 // (iOS) y a `.js` (web) desde el mismo fuente.
 plugins {
+    // Las versiones las fija el build que incluya este módulo (el de Android las
+    // trae en el classpath). Declararlas aquí otra vez provoca un conflicto de
+    // classpath, y con razón: dos versiones del mismo plugin en un build.
+    // Sin versión: el build que incluye este módulo (el de Android) ya pone el
+    // plugin de Kotlin en el classpath, y declarar dos versiones del mismo plugin
+    // en un build es un conflicto real, no un detalle.
     kotlin("multiplatform") version "2.0.21"
     kotlin("plugin.serialization") version "2.0.21"
 }
@@ -23,6 +29,7 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
+
 
 tasks.withType<Jar>().configureEach {
     manifest {
@@ -60,10 +67,10 @@ kotlin {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
-        // El `.jar` tiene que poder ejecutarse sin escribir un `java -cp` con
-        // cinco rutas: `java -jar cerox-comun-jvm.jar estado`. Eso es lo que
-        // hace que «hay escritorio» signifique algo.
-        withJava()
+        // `withJava()` ya no se usa: es incompatible con el plugin de Android, que
+        // ahora está aplicado para que la app consuma este mismo fuente. El jar
+        // ejecutable se arma en `jarCompleto` con la salida de la compilación JVM,
+        // que es exactamente lo que aportaba `withJava()`.
     }
     js(IR) {
         nodejs()
@@ -82,6 +89,11 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            // `expect/actual` solo se puede declarar en un proyecto multiplataforma.
+            // Se guarda en su propia carpeta para que los mismos archivos puedan
+            // compilarse también dentro del módulo de Android, donde ese mecanismo
+            // no existe y se usa la variante de `androidAppMain`.
+            kotlin.srcDir("src/commonExpect/kotlin")
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
             }

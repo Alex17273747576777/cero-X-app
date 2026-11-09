@@ -98,7 +98,10 @@ object ProveedoresTraduccion {
             )
 
             Traduccion.Proveedor.YOUDAO -> {
-                val sal = System.currentTimeMillis().toString()
+                // `System.currentTimeMillis` no existe en el target JS. Para el
+                // salt de Youdao sirve cualquier valor único, y Random es
+                // multiplataforma: el mismo fuente compila a Android, JVM, JS e iOS.
+                val sal = kotlin.random.Random.nextLong(1L, Long.MAX_VALUE).toString()
                 Peticion(
                     url = Traduccion.urlDe(proveedor, null)!!,
                     metodo = "POST",
@@ -170,7 +173,8 @@ object ProveedoresTraduccion {
         data class Exito(val texto: String) : Resultado()
         data class Fallo(val mensaje: String) : Resultado()
 
-        fun texto(): String? = (this as? Exito)?.texto
+        /** El texto traducido, o null si fue un fallo. */
+        fun comoTexto(): String? = (this as? Exito)?.texto
         fun esExito(): Boolean = this is Exito
     }
 

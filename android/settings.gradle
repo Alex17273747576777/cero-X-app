@@ -14,3 +14,11 @@ dependencyResolutionManagement {
 }
 rootProject.name = "ceroX"
 include ':app'
+
+// El núcleo compartido: un solo fuente para Android, escritorio (JVM), web (JS)
+// e iOS. La app de Android lo consume como proyecto hermano, no como copia.
+// El núcleo compartido NO se incluye como subproyecto: se compila dentro de la
+// app leyendo su carpeta de fuentes (`../comun/src/commonMain`). Así la app de
+// Android, el jar de escritorio y el .js de la web salen del MISMO archivo, y no
+// de una copia. Incluirlo como subproyecto choca con el plugin de Android de la
+// app (`clean` duplicado, LifecycleBasePlugin), y no hace falta para compartir.

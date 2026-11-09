@@ -67,11 +67,11 @@ class ProveedorTraduccionAndroid(
 
     private val registro: Idiomas.Registro
         get() = Idiomas.Registro.entries.firstOrNull {
-            it.id == prefs.getString(CLAVE_REGISTRO, Idiomas.Registro.NEUTRO.id)
+            it.id == (prefs.getString(CLAVE_REGISTRO, Idiomas.Registro.NEUTRO.id) ?: "")
         } ?: Idiomas.Registro.NEUTRO
 
     private val variante: Variante.Definicion
-        get() = Variante.porCodigo(prefs.getString(CLAVE_VARIANTE, "es-DO"))
+        get() = Variante.porCodigo(prefs.getString(CLAVE_VARIANTE, "es-DO") ?: "es-DO")
 
     /**
      * Traduce la interfaz al idioma pedido. Devuelve una línea con el resultado
@@ -97,7 +97,7 @@ class ProveedorTraduccionAndroid(
 
         val glosario = leerGlosario()
         val clave = claveDe(proveedor)
-        val urlLibre = prefs.getString(CLAVE_URL_LIBRE, "").takeIf { it.isNotBlank() }
+        val urlLibre = prefs.getString(CLAVE_URL_LIBRE, "")?.takeIf { it.isNotBlank() }
 
         val salida = JSONObject()
         var ok = 0
@@ -162,7 +162,7 @@ class ProveedorTraduccionAndroid(
     }.getOrElse { emptyMap() }
 
     private fun leerGlosario(): Map<String, String> = runCatching {
-        val json = prefs.getString(CLAVE_GLOSARIO, "")
+        val json = prefs.getString(CLAVE_GLOSARIO, "") ?: ""
         if (json.isBlank()) return emptyMap()
         val o = JSONObject(json)
         o.keys().asSequence().associateWith { o.getString(it) }
