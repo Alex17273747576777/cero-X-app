@@ -38,4 +38,21 @@
     <string name="booru_search_hint">Etiquetas de búsqueda</string>
     <string name="booru_site_hint">Sitio (ej. gelbooru)</string>
     <string name="booru_search_button">Buscar</string>
+    <string name="titulo_idiomas">Idiomas</string>
+    <string name="idioma_interfaz">Idioma de la app</string>
+    <string name="idioma_contenido">Idiomas del contenido</string>
+    <string name="idioma_contenido_explicacion">Filtra las fuentes por el idioma en que publican. «Multiidioma» incluye las que sirven cualquier idioma.</string>
+    <string name="registro_titulo">Cómo se escribe</string>
+    <string name="registro_neutro">Neutro</string>
+    <string name="registro_neutro_explicacion">Sin regionalismos: se entiende en todo el ámbito hispano.</string>
+    <string name="registro_modismos">Con modismos</string>
+    <string name="registro_modismos_explicacion">Usa la variante que elijas (dominicana, rioplatense…). Más cercano, menos universal.</string>
+    <string name="variante_titulo">Variante regional</string>
+    <string name="traduccion_titulo">Traducción de los textos de la app</string>
+    <string name="traduccion_proveedor">Proveedor</string>
+    <string name="traduccion_aviso_privacidad">Aviso de privacidad</string>
+    <string name="traduccion_traducir_ahora">Traducir la app a este idioma</string>
+    <string name="traduccion_sin_traduccion">Este idioma aún no tiene textos traducidos: se muestra en inglés.</string>
+    <string name="fuente_idioma">Idioma de la fuente</string>
+    <string name="multiidioma">Multiidioma</string>
 </resources>

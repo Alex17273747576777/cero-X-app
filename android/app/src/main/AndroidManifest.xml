@@ -184,6 +184,17 @@
             android:label="Sincronización"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Idiomas: interfaz, registro (neutro o con modismos), variante regional,
+             idiomas del contenido y proveedor de traducción. El español dominicano
+             es obligatorio para lo que publica La Bandita, no para la app. -->
+        <activity
+            android:name=".ui.idiomas.IdiomasActivity"
+            android:exported="false"
+            android:label="@string/titulo_idiomas"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Estado del sistema: privilegios, motor JS y fuentes, comprobados. -->
         <activity
             android:name=".ui.estado.EstadoSistemaActivity"

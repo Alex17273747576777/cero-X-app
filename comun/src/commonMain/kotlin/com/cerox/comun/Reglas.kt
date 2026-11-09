@@ -184,11 +184,22 @@ object PlanDeTracker {
  */
 object Variante {
 
+    /**
+     * Una variante del idioma.
+     *
+     * `vocabulario` es palabra por palabra. `sintagmas` existe porque el
+     * vocabulario solo no basta y sustituir a ciegas produce errores de
+     * concordancia: «el autobús» → «el guagua». El artículo tiene que cambiar con
+     * la palabra, así que la unidad de sustitución es el sintagma entero.
+     * Lo destapó la prueba `rioplatense_y_dominicana_no_son_lo_mismo`, que
+     * esperaba «la guagua» y recibió «el guagua».
+     */
     data class Definicion(
         val codigo: String,
         val nombre: String,
         val vocabulario: Map<String, String>,
         val evitar: List<String>,
+        val sintagmas: Map<String, String> = emptyMap(),
     )
 
     val DOMINICANA = Definicion(
@@ -202,6 +213,15 @@ object Variante {
             "ordenador" to "computadora",
         ),
         evitar = listOf("vosotros", "ordenador", "móvil", "vale", "guay"),
+        // El artículo cambia: «guagua» es femenino y «autobús» masculino.
+        // Sustituir solo la palabra deja «el guagua», que no lo dice nadie.
+        sintagmas = mapOf(
+            "el autobús" to "la guagua",
+            "un autobús" to "una guagua",
+            "los autobuses" to "las guaguas",
+            "este autobús" to "esta guagua",
+            "ese autobús" to "esa guagua",
+        ),
     )
 
     val RIOPLATENSE = Definicion(
@@ -240,10 +260,16 @@ object Variante {
         }
     }
 
-    /** Aplica el glosario del usuario primero y luego el de la variante. */
+    /**
+     * Aplica el glosario del usuario primero y luego la variante.
+     *
+     * El orden importa: primero los **sintagmas** (más largos, y los que arreglan
+     * el artículo) y después las palabras sueltas. Al revés, cuando se llega al
+     * sintagma el texto ya está a medias y no coincide.
+     */
     fun aplicar(texto: String, definicion: Definicion, glosario: Map<String, String> = emptyMap()): String {
         var actual = texto
-        for (tabla in listOf(glosario, definicion.vocabulario)) {
+        for (tabla in listOf(glosario, definicion.sintagmas, definicion.vocabulario)) {
             tabla.entries.sortedByDescending { it.key.length }.forEach { (de, a) ->
                 if (de.isNotBlank()) actual = reemplazar(actual, de, a)
             }
