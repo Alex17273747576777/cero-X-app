@@ -38,10 +38,38 @@ class ReadingProgress(private val context: Context) {
         val progreso: Float get() = if (total <= 0) 0f else (pagina + 1).toFloat() / total
     }
 
-    private val archivo: java.io.File
-        get() = java.io.File(context.filesDir, "lector-progreso.properties")
+    /**
+     * Dónde vive el marcapáginas.
+     *
+     * ANTES: `context.filesDir` = `/data/data/<paquete>/files`, almacenamiento
+     * interno. La regla lo prohíbe para todo lo que no sea un token.
+     * AHORA: el directorio externo propio de la app ([com.ceroX.app.core.AlmacenExterno]),
+     * sin permisos.
+     * MIGRACIÓN: si existe el archivo viejo y el nuevo no, se copia y **se borra
+     * el interno**. Perder la página donde ibas al actualizar sería peor que la
+     * deuda que se está saldando.
+     */
+    private val archivo: java.io.File?
+        get() {
+            val nuevo = com.ceroX.app.core.AlmacenExterno.archivo(context, NOMBRE) ?: return null
+            if (!nuevo.exists()) {
+                val viejo = java.io.File(context.filesDir, NOMBRE)
+                if (viejo.isFile) {
+                    runCatching {
+                        nuevo.writeBytes(viejo.readBytes())
+                        viejo.delete()
+                    }
+                }
+            }
+            return nuevo
+        }
 
     private fun clave(fuente: String, obra: String, capitulo: String) = "$fuente\u0000$obra\u0000$capitulo"
+
+    companion object {
+        /** Nombre del archivo, dentro del almacenamiento externo de la app. */
+        const val NOMBRE = "lector-progreso.properties"
+    }
 
     /** Guarda o actualiza una marca. No lanza: perder una marca no puede cerrar la app. */
     fun guardar(marca: Marca) {
@@ -83,7 +111,7 @@ class ReadingProgress(private val context: Context) {
 
     private fun leerTodas(): Map<String, List<String>> = try {
         val f = archivo
-        if (!f.exists()) {
+        if (f == null || !f.exists()) {
             emptyMap()
         } else {
             val props = java.util.Properties()
@@ -99,15 +127,16 @@ class ReadingProgress(private val context: Context) {
     }
 
     private fun escribir(props: Map<String, List<String>>) {
+        val destino = archivo ?: return   // sin almacén externo no se guarda, y no se finge
         val p = java.util.Properties()
         props.forEach { (k, v) -> p.setProperty(k, v.joinToString("\u0001")) }
         // Se escribe a un temporal y se renombra: si el proceso muere a mitad,
         // el archivo bueno sigue entero en vez de quedar truncado.
-        val temporal = java.io.File(archivo.parentFile, archivo.name + ".tmp")
+        val temporal = java.io.File(destino.parentFile, destino.name + ".tmp")
         temporal.outputStream().use { p.store(it, "cero-X — marcapáginas del lector") }
-        if (!temporal.renameTo(archivo)) {
-            archivo.delete()
-            temporal.renameTo(archivo)
+        if (!temporal.renameTo(destino)) {
+            destino.delete()
+            temporal.renameTo(destino)
         }
     }
 

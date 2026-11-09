@@ -26,7 +26,11 @@ class ExtensionFactoryModule : ModuleInterface() {
     private val templates = mutableListOf<ExtensionTemplate>()
 
     override fun initialize(config: Map<String, Any>): Boolean {
-        factory.initialize()
+        // La fábrica solo se enciende si hay un directorio de destino declarado.
+        // Si no, `isEnabled()` dirá que no en vez de escribir en el interno.
+        val destino = (config["factory_dir"] as? String)?.let { java.io.File(it) }
+            ?.takeIf { it.isDirectory || it.mkdirs() }
+        factory.initialize(destino)
         builder.initialize()
         compiler.initialize()
         registerDefaultTemplates()

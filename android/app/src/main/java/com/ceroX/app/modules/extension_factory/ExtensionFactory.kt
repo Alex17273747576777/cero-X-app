@@ -9,7 +9,19 @@ class ExtensionFactory {
 
     private var enabled = false
 
-    fun initialize() { enabled = true }
+    /**
+     * Dónde se generan los proyectos. Se pasa desde fuera (normalmente el
+     * almacenamiento externo propio de la app) para que la fábrica no invente una
+     * ruta que puede caer en el interno.
+     */
+    var destino: File? = null
+        private set
+
+    /** Sin destino no hay fábrica: se dice en vez de escribir donde no toca. */
+    fun initialize(destino: File? = null) {
+        this.destino = destino
+        enabled = destino != null
+    }
 
     /**
      * Antes devolvía `true` fijo, sin que nadie hubiera inicializado nada: la
@@ -19,7 +31,16 @@ class ExtensionFactory {
     fun isEnabled(): Boolean = enabled
 
     fun createExtension(template: ExtensionTemplate, config: ExtensionConfig): FactoryResult {
-        val projectDir = File("${System.getProperty("java.io.tmpdir")}/ceroX_extensions/${config.packageName}")
+        // Antes se creaba en `java.io.tmpdir`: una ruta que cambia según el ROM y
+        // puede caer dentro del almacenamiento interno. Ahora es explícita.
+        val raiz = destino
+            ?: return FactoryResult(
+                false,
+                "sin directorio de destino: no se genera la extensión en el almacenamiento " +
+                    "interno (regla del proyecto). Llamar a initialize() con un directorio externo.",
+                null,
+            )
+        val projectDir = File(raiz, "ceroX_extensions/${config.packageName}")
         projectDir.mkdirs()
 
         // Crear estructura de proyecto

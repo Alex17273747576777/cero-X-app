@@ -180,7 +180,16 @@ class ExtensionInstaller(private val context: Context? = null) {
         val ctx = context
             ?: return InstallResult(false, "Sin contexto de Android: no se puede copiar al sandbox", null)
         return try {
-            val dir = File(ctx.filesDir, "extension_sandbox").apply { mkdirs() }
+            // Un APK que el usuario instaló no es caché: es un recurso, y la regla
+            // lo prohíbe en el almacenamiento interno. Va al directorio externo.
+            val base = com.ceroX.app.core.AlmacenExterno.directorio(ctx)
+                ?: return InstallResult(
+                    false,
+                    "no hay almacenamiento externo: el APK de la extensión no se copia al " +
+                        "almacenamiento interno (regla del proyecto)",
+                    null,
+                )
+            val dir = File(base, "extension_sandbox").apply { mkdirs() }
             if (!dir.isDirectory) {
                 return InstallResult(false, "No se pudo crear el directorio del sandbox", null)
             }

@@ -147,7 +147,16 @@ class NeuralAIModule : ModuleInterface() {
             return fallo(resultado.motivo.ifBlank { "el motor no devolvió imagen" })
         }
 
-        val salida = File(entrada.parentFile, entrada.nameWithoutExtension + "_color.png")
+        // Antes la imagen coloreada se escribía JUNTO a la de entrada, y la de
+        // entrada puede estar en cualquier sitio — incluido el almacenamiento
+        // interno, que es lo que la regla prohíbe. Ahora va al externo de la app.
+        val destinoExterno = com.ceroX.app.core.AlmacenExterno.directorio(ctx)
+            ?: return fallo(
+                "sin almacenamiento externo: la imagen coloreada no se escribe en el " +
+                    "almacenamiento interno (regla del proyecto)",
+            )
+        val carpetaSalida = File(destinoExterno, "colorizadas").apply { mkdirs() }
+        val salida = File(carpetaSalida, entrada.nameWithoutExtension + "_color.png")
         try {
             FileOutputStream(salida).use { flujo ->
                 resultado.bitmap.compress(Bitmap.CompressFormat.PNG, 100, flujo)

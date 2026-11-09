@@ -80,9 +80,12 @@ object RepositorioGlobal {
      * que el usuario no ha pedido es exactamente lo que no se debe hacer.
      */
     fun arrancar(context: Context) {
+        // Solo la carpeta externa de la app: la de `filesDir` era el almacenamiento
+        // interno, que el usuario no puede llenar sin root, así que no aportaba
+        // nada y sí ensuciaba el inventario.
         val candidatas = buildList {
-            add(java.io.File(context.filesDir, "lector"))
-            context.getExternalFilesDir(null)?.let { add(java.io.File(it, "lector")) }
+            com.ceroX.app.core.AlmacenExterno.directorio(context)
+                ?.let { add(java.io.File(it, "lector")) }
         }
         candidatas.firstOrNull { it.isDirectory }?.let { registrar(LocalFolderSource(raiz = it)) }
     }

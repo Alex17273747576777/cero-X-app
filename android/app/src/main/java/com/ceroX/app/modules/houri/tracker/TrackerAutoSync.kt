@@ -147,24 +147,32 @@ class TrackerAutoSync(
  */
 class MapaDeObras(contexto: Context) {
 
-    private val prefs = contexto.getSharedPreferences("cerox_mapa_obras", Context.MODE_PRIVATE)
+    // Antes: `getSharedPreferences(...)`, que vive en el almacenamiento interno.
+    // El id de una serie no es un secreto, pero tampoco es un token, así que va
+    // a `core/Prefs`, en el almacenamiento externo de la app.
+    private val prefs = com.ceroX.app.core.Prefs(contexto)
+
+    init {
+        prefs.migrarDesdeSharedPreferences(listOf("cerox_mapa_obras"))
+    }
 
     fun idDe(obra: String, tracker: Tracker): Long? =
         prefs.getLong(clave(obra, tracker), -1L).takeIf { it > 0 }
 
     fun guardar(obra: String, tracker: Tracker, idEnTracker: Long) {
         if (idEnTracker <= 0) return
-        prefs.edit().putLong(clave(obra, tracker), idEnTracker).apply()
+        prefs.putLong(clave(obra, tracker), idEnTracker)
     }
 
     fun borrar(obra: String, tracker: Tracker) {
-        prefs.edit().remove(clave(obra, tracker)).apply()
+        prefs.borrar(clave(obra, tracker))
     }
 
     /** Todas las obras mapeadas para un tracker. Para la pantalla de ajustes. */
-    fun obras(tracker: Tracker): Map<String, Long> = prefs.all.entries
-        .filter { it.key.startsWith("${tracker.id}|") && it.value is Long && (it.value as Long) > 0 }
-        .associate { it.key.substringAfter('|') to it.value as Long }
+    fun obras(tracker: Tracker): Map<String, Long> = prefs.claves()
+        .filter { it.startsWith("${tracker.id}|") }
+        .mapNotNull { k -> prefs.getLong(k, -1L).takeIf { it > 0 }?.let { k.substringAfter('|') to it } }
+        .toMap()
 
     private fun clave(obra: String, tracker: Tracker) =
         "${tracker.id}|${obra.trim().lowercase()}"

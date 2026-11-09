@@ -88,8 +88,14 @@ class CrashHandler(private val context: Context) : Thread.UncaughtExceptionHandl
 
     private fun saveCrashReport(report: CrashReport) {
         try {
-            val dir = context.getExternalFilesDir(null) ?: context.filesDir
-            val crashDir = java.io.File(dir, "crash_reports")
+            // Sin caída al almacenamiento interno: un informe de fallo tampoco es
+            // un token. Si no hay externo, no se escribe y se dice en el log.
+            val base = com.ceroX.app.core.AlmacenExterno.directorio(context)
+            if (base == null) {
+                android.util.Log.w("ceroX.crash", "sin almacenamiento externo: no se guarda el informe")
+                return
+            }
+            val crashDir = java.io.File(base, "crash_reports")
             if (!crashDir.exists()) {
                 crashDir.mkdirs()
             }

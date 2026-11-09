@@ -28,14 +28,26 @@ package com.ceroX.app.core
  *   · **Registros del sistema** (`HardwareMonitor`) → ya no consultan
  *     `filesDir`; leen espacio libre y total del sistema.
  *
- * LO QUE ESTÁ CLARO Y HAY QUE CAMBIAR (sin disfrazarlo)
- * ----------------------------------------------------
- *   · `ui/reader/ReadingProgress` escribe un `.properties` en `filesDir`.
- *   · `modules/reader/LibraryRepository` y `modules/houri/SingleSQLiteConnection`
- *     crean dos bases de datos SQLite distintas para los mismos datos; las dos
- *     en el almacenamiento interno, y una de ellas ni se usa.
- *   · `modules/backup/BackupManager` cae a `filesDir` cuando no hay
- *     almacenamiento externo.
+ * LO QUE SE ARREGLÓ (y cómo)
+ * -------------------------
+ *   · `ReadingProgress` escribía en `filesDir`. Ahora en `AlmacenExterno`, y al
+ *     arrancar copia y **borra** el archivo viejo del interno: actualizar no
+ *     cuesta la página donde ibas.
+ *   · `ConfigManager` y el mapa de obras del tracker usaban `SharedPreferences`
+ *     (vive en `/data/data/<pkg>/shared_prefs`). Ahora `core/Prefs`: JSON en
+ *     `AlmacenExterno`, escritura atómica por renombrado y migración del interno.
+ *   · `BibliotecaDb` abre Room con **ruta absoluta**; `LibraryRepository` y
+ *     `SingleSQLiteConnection` ya no construyen nada y piden la misma instancia.
+ *   · `BackupManager`, `CrashHandler`, `ExtensionInstaller`, `ExtensionFactory`,
+ *     `NeuralAIModule`, `RepositorioGlobal` y `NightlyUpdater` ya no caen al
+ *     interno: o escriben fuera, o devuelven el fallo con su motivo.
+ *
+ * LO QUE SIGUE SIENDO DEUDA (sin disfrazarlo)
+ * -------------------------------------------
+ *   · `NightlyUpdater` recibe el `apkPath` de fuera: rechaza los del interno, pero
+ *     quien descarga tiene que usar `directorioDeDescarga()`.
+ *   · `MangaOcrEngine.extraerAssets` rechaza un destino interno, pero quien llama
+ *     todavía tiene que pasarle uno externo.
  *   · `modules/source_api/.../ExtensionSourceLoader` usa `cacheDir` para el
  *     dexopt de extensiones: ese directorio es obligatorio para el cargador de
  *     clases y no es un recurso del usuario — es caché regenerable del sistema.
@@ -58,6 +70,12 @@ object InventoryStorage {
         /** Nada se escribe: se lee del APK o se consulta al sistema. */
         SOLO_LECTURA,
 
+        /**
+         * Escribe, pero **fuera** del almacenamiento interno: en el directorio
+         * externo propio de la app (`AlmacenExterno`), sin permisos.
+         */
+        FUERA_DEL_INTERNO,
+
         /** Debe migrar fuera del almacenamiento interno. Es deuda, no excusa. */
         DEUDA_MIGRACION,
     }
@@ -71,6 +89,23 @@ object InventoryStorage {
     )
 
     val sitios: List<Sitio> = listOf(
+        Sitio(
+            "core/AlmacenExterno.kt",
+            "dónde van los datos que no son tokens",
+            Verdict.FUERA_DEL_INTERNO,
+            "Es el mecanismo, no un sitio de escritura de datos: resuelve " +
+                "`getExternalFilesDirs` (carpeta propia de la app en el almacenamiento " +
+                "compartido, sin permisos) y comprueba que se puede escribir de verdad antes " +
+                "de decir que sí. No cae al interno: devuelve null y quien llama decide.",
+        ),
+        Sitio(
+            "core/Prefs.kt",
+            "preferencias de la app (JSON)",
+            Verdict.FUERA_DEL_INTERNO,
+            "Sustituye a SharedPreferences: un JSON en AlmacenExterno con escritura atómica por " +
+                "renombrado. El único `MODE_PRIVATE` que queda es el de abrir las preferencias " +
+                "viejas para copiarlas y BORRARLAS del interno.",
+        ),
         Sitio(
             "modules/houri/tracker/TrackerCredentials.kt",
             "token de AniList y de MyAnimeList",
@@ -108,63 +143,65 @@ object InventoryStorage {
         Sitio(
             "ui/reader/ReadingProgress.kt",
             "marcapáginas de lectura",
-            Verdict.DEUDA_MIGRACION,
-            "Escribe lector-progreso.properties en filesDir. Es dato del usuario en el " +
-                "almacenamiento interno: la regla lo prohíbe. Va a la base de datos de la " +
-                "biblioteca, y esa base de datos también tiene que salir de ahí.",
+            Verdict.FUERA_DEL_INTERNO,
+            "Escribe lector-progreso.properties en `AlmacenExterno` (externo propio, sin permisos). Al " +
+                "arrancar copia y borra el archivo que hubiera en `filesDir`."
         ),
         Sitio(
             "modules/reader/LibraryRepository.kt",
             "biblioteca del usuario (Room, reader_database)",
-            Verdict.DEUDA_MIGRACION,
-            "Base de datos SQLite en el almacenamiento interno. Es la deuda principal.",
+            Verdict.FUERA_DEL_INTERNO,
+            "Ya no construye nada: pide la instancia única a `BibliotecaDb`, que abre Room con ruta " +
+                "absoluta en `AlmacenExterno`. Con nombre relativo Room siempre usa el interno."
         ),
         Sitio(
             "modules/houri/SingleSQLiteConnection.kt",
             "una segunda base de datos (ceroX_database)",
-            Verdict.DEUDA_MIGRACION,
-            "Duplica el esquema de LibraryRepository en otra base. O sobra una o hay que " +
-                "migrar las dos: tener dos es peor que tener una.",
+            Verdict.FUERA_DEL_INTERNO,
+            "Delega en `BibliotecaDb`. Ya no existe la segunda base `ceroX_database`: un solo archivo, " +
+                "en el directorio externo de la app."
         ),
         Sitio(
             "modules/backup/BackupManager.kt",
             "copias de seguridad",
-            Verdict.DEUDA_MIGRACION,
-            "Usa el almacenamiento externo de la app y cae a filesDir si no hay. El respaldo " +
-                "es del usuario y no puede acabar en el interno por defecto.",
+            Verdict.FUERA_DEL_INTERNO,
+            "Escribe en `AlmacenExterno`. Ya no cae a `filesDir`: sin externo devuelve un fallo con su " +
+                "motivo en vez de guardar el respaldo donde la regla lo prohíbe."
         ),
         Sitio(
             "core/CrashHandler.kt",
             "volcado de un fallo",
-            Verdict.DEUDA_MIGRACION,
-            "Escribe el informe en el externo de la app y cae a filesDir. Un informe de fallo " +
-                "es diagnóstico, no token.",
+            Verdict.FUERA_DEL_INTERNO,
+            "Escribe el informe en `AlmacenExterno` y ya no cae a `filesDir`: sin externo no se escribe " +
+                "nada y se anota en el log."
         ),
         Sitio(
             "core/ConfigManager.kt",
             "ajustes de la app",
-            Verdict.DEUDA_MIGRACION,
-            "SharedPreferences (que vive en el almacenamiento interno). Los ajustes no son tokens.",
+            Verdict.FUERA_DEL_INTERNO,
+            "Usa `core/Prefs`: JSON en `AlmacenExterno` con escritura atómica por renombrado. " +
+                "`SharedPreferences` deja de usarse; lo que hubiera en el interno se migra y se borra."
         ),
         Sitio(
             "modules/houri/tracker/TrackerAutoSync.kt",
             "relación obra -> id de AniList/MAL",
-            Verdict.DEUDA_MIGRACION,
-            "SharedPreferences. El id de una serie es público, así que no es un token, pero " +
-                "tampoco es un recurso descargable: es un ajuste y comparte la deuda con ConfigManager.",
+            Verdict.FUERA_DEL_INTERNO,
+            "`MapaDeObras` usa `core/Prefs`, no `SharedPreferences`: el archivo queda fuera del interno y " +
+                "lo anterior se migra y se borra."
         ),
         Sitio(
             "modules/extension_sandbox/ExtensionInstaller.kt",
             "APK de extensión instalado por el usuario",
-            Verdict.DEUDA_MIGRACION,
-            "filesDir/extension_sandbox. Un APK que el usuario instaló no es caché: es un " +
-                "recurso, y la regla lo prohíbe en el interno.",
+            Verdict.FUERA_DEL_INTERNO,
+            "El APK de la extensión se copia a `AlmacenExterno/extension_sandbox`. Sin externo devuelve " +
+                "un fallo con su motivo: no se escribe en el interno."
         ),
         Sitio(
             "modules/extension_factory/ExtensionFactory.kt",
             "APK generado por la fábrica de extensiones",
-            Verdict.DEUDA_MIGRACION,
-            "Escribe el APK en el directorio de la app antes de instalarlo.",
+            Verdict.FUERA_DEL_INTERNO,
+            "Exige un directorio de destino explícito (el externo de la app) y ya no usa " +
+                "`java.io.tmpdir`. Sin destino, `isEnabled()` es `false`."
         ),
         Sitio(
             "modules/diagnostics/ModelHonestyGuard.kt",
@@ -176,9 +213,9 @@ object InventoryStorage {
         Sitio(
             "modules/reader/BibliotecaDb.kt",
             "la única base de datos de la biblioteca (biblioteca.db)",
-            Verdict.DEUDA_MIGRACION,
-            "Es la puerta única: sustituye a las dos bases que había. Sigue en el almacenamiento " +
-                "interno y por eso sigue siendo deuda; lo que se arregló es que ya no haya dos.",
+            Verdict.FUERA_DEL_INTERNO,
+            "Abre Room con **ruta absoluta** en `AlmacenExterno`; con nombre relativo Room ignora " +
+                "cualquier directorio. Migra el archivo viejo con sus `-wal` y `-shm` y lo borra del interno."
         ),
         Sitio(
             "modules/installflow/SilentInstaller.kt",
@@ -218,7 +255,8 @@ object InventoryStorage {
     fun cumplen(): List<Sitio> = sitios.filter {
         it.verdicto == Verdict.TOKEN_CIFRADO ||
             it.verdicto == Verdict.CACHE_DEL_SISTEMA ||
-            it.verdicto == Verdict.SOLO_LECTURA
+            it.verdicto == Verdict.SOLO_LECTURA ||
+            it.verdicto == Verdict.FUERA_DEL_INTERNO
     }
 
     /** Las que hay que migrar. El número tiene que bajar, no subir. */

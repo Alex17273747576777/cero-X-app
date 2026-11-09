@@ -11,15 +11,18 @@ import java.io.FileOutputStream
  */
 class BackupManager(private val context: Context) {
 
-    private val backupDir: File
+    /** `null` cuando no hay almacenamiento externo: entonces no se escribe nada. */
+    private val backupDir: File?
 
     init {
         // `Context.externalFilesDirs` no existe: es `getExternalFilesDirs(type)`,
         // que devuelve un Array<File>? (null si no hay almacenamiento externo).
         // Se prefiere el externo propio de la app y se cae al interno si no hay.
-        val externo = context.getExternalFilesDirs(null)?.firstOrNull()
-        backupDir = File(externo ?: context.filesDir, "backups")
-        backupDir.mkdirs()
+        // ANTES se caía a `context.filesDir` cuando no había externo, y eso metía
+        // las copias de seguridad del usuario en el almacenamiento interno. Ahora
+        // NO hay caída: sin externo, `createBackup` devuelve un fallo con el motivo.
+        val base = com.ceroX.app.core.AlmacenExterno.directorio(context)
+        backupDir = base?.let { File(it, "backups").also { d -> d.mkdirs() } }
     }
 
     fun createBackup(
@@ -29,7 +32,16 @@ class BackupManager(private val context: Context) {
     ): BackupResult {
         val timestamp = System.currentTimeMillis()
         val fileName = "$backupName-$timestamp.zip"
-        val backupFile = File(backupDir, fileName)
+        val dir = backupDir ?: return BackupResult(
+            fileName = "",
+            success = false,
+            backupPath = null,
+            sizeBytes = 0,
+            createdAt = timestamp,
+            errorMessage = "no hay almacenamiento externo disponible: la copia NO se escribe en " +
+                "el almacenamiento interno (regla del proyecto)",
+        )
+        val backupFile = File(dir, fileName)
 
         try {
             // Antes esto abría un ZipOutputStream con un comentario dentro y lo
@@ -130,14 +142,15 @@ class BackupManager(private val context: Context) {
         BackupIndex.indexar(File(backupPath))
 
     fun listBackups(): List<BackupInfo> {
-        return backupDir.listFiles()
+        return backupDir?.listFiles()
             ?.filter { it.extension == "zip" }
             ?.map { BackupInfo(it.name, it.absolutePath, it.length(), it.lastModified()) }
             ?: emptyList()
     }
 
     fun deleteBackup(fileName: String): Boolean {
-        return File(backupDir, fileName).delete()
+        val dir = backupDir ?: return false
+        return File(dir, fileName).delete()
     }
 }
 

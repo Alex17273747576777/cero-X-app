@@ -110,6 +110,13 @@ class MangaOcrEngine(
             destino: File,
             archivos: List<String> = listOf(ARCHIVO_CODIFICADOR, ARCHIVO_DECODIFICADOR, ARCHIVO_VOCAB),
         ): String? {
+            // Un modelo de OCR es un recurso: la regla prohíbe escribirlo en el
+            // almacenamiento interno. Si el destino cae ahí, se rechaza con el
+            // motivo en vez de duplicar 202 MiB donde no deben estar.
+            if (destino.absolutePath.startsWith(context.applicationInfo.dataDir)) {
+                return "el destino ${destino.absolutePath} está en el almacenamiento interno: " +
+                    "los modelos no se copian ahí (regla del proyecto); usar un directorio externo"
+            }
             destino.mkdirs()
             if (!destino.isDirectory) return "no se pudo crear ${destino.absolutePath}"
 

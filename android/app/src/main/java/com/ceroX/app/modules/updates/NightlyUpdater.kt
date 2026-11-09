@@ -50,9 +50,27 @@ class NightlyUpdater(private val context: Context) {
             downloadUrl = url,
         )
 
+    /**
+     * Dónde debe el llamador dejar el APK descargado. Null si no hay externo.
+     * Se expone para que quien descarga no tenga que decidirlo por su cuenta.
+     */
+    fun directorioDeDescarga(): File? =
+        com.ceroX.app.core.AlmacenExterno.directorio(context)?.let { File(it, "actualizaciones") }
+
     fun installUpdate(apkPath: String): Boolean {
         val file = File(apkPath)
         if (!file.exists()) return false
+        // Un APK de actualización es un recurso y la regla lo prohíbe en el
+        // almacenamiento interno. Antes aceptaba cualquier ruta, incluida una
+        // dentro de /data/data/<paquete>.
+        val interno = context.applicationInfo.dataDir
+        if (file.absolutePath.startsWith(interno)) {
+            android.util.Log.w(
+                "ceroX.updates",
+                "APK en el almacenamiento interno ($apkPath): no se instala desde ahí (regla)",
+            )
+            return false
+        }
 
         val intent = Intent(Intent.ACTION_VIEW)
         val authority = "${context.packageName}.fileprovider"
