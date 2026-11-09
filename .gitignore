@@ -41,3 +41,4 @@ ceroX_config*
 #  - El APK va en Releases, con su hash al lado.
 android/app/src/main/assets/models/*.onnx
 apk/*.apk
+*.apk
