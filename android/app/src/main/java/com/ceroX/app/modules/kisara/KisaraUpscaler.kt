@@ -3,6 +3,7 @@ package com.ceroX.app.modules.kisara
 import android.graphics.Bitmap
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.modules.ai.SalidaTensor
 import java.nio.FloatBuffer
 
 /**
@@ -106,26 +107,20 @@ class KisaraUpscaler(
                 // Ese detalle costó un rato: el modelo cargaba y fallaba al ejecutar.
                 val salida = sesion.session.run(mapOf(sesion.modelo.entrada to tensor))
                 salida.use { out ->
-                    @Suppress("UNCHECKED_CAST")
-                    val rgb = out.get(0).value as Array<Array<FloatArray>>
-                    val altoSalida = rgb[0][0].size / w
-                    val anchoSalida = w
+                    // La salida es [1,3,4H,4W], no [1,3,H,W] con los píxeles
+                    // apilados. Deducir el alto dividiendo el total entre el ancho
+                    // daba 4 veces el alto real y creaba un Bitmap del tamaño
+                    // equivocado; además el casteo a tres niveles lanzaba
+                    // ClassCastException y el catch devolvía null sin decir nada.
+                    val valor = out.get(0).value
+                    val altoSalida = h * 4
+                    val anchoSalida = w * 4
+                    val destino = SalidaTensor.aPixeles(valor, anchoSalida, altoSalida)
                     val bmp = Bitmap.createBitmap(anchoSalida, altoSalida, Bitmap.Config.ARGB_8888)
-                    val destino = IntArray(anchoSalida * altoSalida)
-                    for (y in 0 until altoSalida) {
-                        for (x in 0 until anchoSalida) {
-                            val i = y * anchoSalida + x
-                            destino[i] = android.graphics.Color.rgb(
-                                (rgb[0][0][i].coerceIn(0f, 1f) * 255).toInt(),
-                                (rgb[0][1][i].coerceIn(0f, 1f) * 255).toInt(),
-                                (rgb[0][2][i].coerceIn(0f, 1f) * 255).toInt(),
-                            )
-                        }
-                    }
                     bmp.setPixels(destino, 0, anchoSalida, 0, 0, anchoSalida, altoSalida)
                     Resultado(
                         bmp, true, System.currentTimeMillis() - t0, id,
-                        "×4 a partir de ${w}x$h con $id",
+                        "×4 de ${w}x$h a ${anchoSalida}x$altoSalida con $id",
                     )
                 }
             }

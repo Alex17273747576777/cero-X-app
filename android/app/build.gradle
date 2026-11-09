@@ -275,6 +275,12 @@ dependencies {
     // returnDefaultValues de Gradle, allocationByteCount devuelve 0 y las
     // pruebas de tamaño pasarían todas sin probar nada.
     testImplementation 'org.robolectric:robolectric:4.13'
+    // ONNX Runtime de escritorio: hace falta para ejecutar los modelos en las pruebas
+    // y comprobar la forma de su salida. Sin esto, la suite compila el lector de
+    // tensores pero nunca lo enfrenta a un modelo, que es justo cómo se colaron el
+    // casteo de tres niveles y el tamaño ×4 mal calculado.
+    // Es `testImplementation` y no `implementation`: no viaja en el APK.
+    testImplementation 'com.microsoft.onnxruntime:onnxruntime:1.17.0'
     testImplementation 'androidx.test:core:1.6.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -290,8 +296,18 @@ dependencies {
 // resolutor y solo entiende `robolectric.dependency.dir`. Se pasa como propiedad
 // de sistema a la JVM de las pruebas, que es donde la lee.
 tasks.withType(Test).configureEach {
-    systemProperty "robolectric.dependency.dir", "/opt/robolectric"
-    systemProperty "maven.repo.local", "/opt/m2"
+    // Solo se fija si el directorio existe. Antes se fijaba siempre, y en cualquier
+    // máquina que no fuera esta —un CI, otro portátil— Robolectric buscaba el jar en
+    // /opt/robolectric, no lo encontraba y las 60 pruebas que lo usan fallaban con
+    // «Path is not a file». Un rojo de configuración disfrazado de rojo de código.
+    def dirRobolectric = file("/opt/robolectric")
+    if (dirRobolectric.directory) {
+        systemProperty "robolectric.dependency.dir", dirRobolectric.absolutePath
+    }
+    def dirM2 = file("/opt/m2")
+    if (dirM2.directory) {
+        systemProperty "maven.repo.local", dirM2.absolutePath
+    }
 
     // Los nombres de archivo se decodifican con el juego de caracteres del
     // entorno. En un contenedor sin locale (LC_CTYPE=POSIX) la JVM los lee como

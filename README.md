@@ -41,8 +41,8 @@ no se puede comprobar con un comando, no está en este README.
 | 🖼️ | **Booru** y **Catálogo** de apps del ecosistema | funciona |
 | 📰 | **Feed multi-entrada**: seis tipos de entrada, cada una con su cursor | funciona |
 | ✨ | **Sugerencias sin red** calculadas con lo que ya lees | funciona |
-| 🎨 | **Colorización de páginas** con modelo ONNX dentro del APK | funciona (falta pantalla) |
-| 🔍 | **Reescalado ×4** con dos modelos, elegidos según la página | funciona (falta pantalla) |
+| 🎨 | **Colorización de páginas** con modelo ONNX dentro del APK | funciona · interruptor en el lector |
+| 🔍 | **Reescalado ×4** con dos modelos, elegidos según la página | funciona · interruptor en el lector |
 | 📖 | **Lector** con tres modos, orden natural, marcapáginas y caché en bytes | funciona (falta verlo en un panel) |
 | 📖 | **Caché de páginas** con tope en bytes y prefetch adaptado a la red | funciona |
 | 🔌 | **Extensiones JVM** del ecosistema Mihon, cargadas en aislamiento | funciona |
@@ -50,13 +50,34 @@ no se puede comprobar con un comando, no está en este README.
 | 🩺 | **Estado del sistema**: privilegios, motor JS y fuentes, medidos y visibles | funciona |
 | 🔗 | **Camino completo** Panel → Catálogo → Lector → Tracker, declarado y probado | funciona |
 
-«Funciona (falta pantalla)» merece una explicación, porque es fácil decirlo y
-difícil que sea verdad. El modelo carga, ejecuta inferencia —medido— **y existe
-un pipeline que recibe la página, aplica el motor y devuelve el bitmap listo para
-pintar** (`ReaderPipeline`, 6 pruebas). La pantalla de lectura **ya existe**
-(`ReaderActivity`, con los tres modos y marcapáginas); lo que no tiene todavía es
-un interruptor que encienda la colorización, porque el pipeline cuesta 1 490 ms
-por página medidos y encenderlo sin pedirlo convertiría el lector en una estufa.
+Hasta el 9-nov-2026 estas dos líneas decían «funciona (falta pantalla)», y era
+verdad: existía el modelo, existía `ReaderPipeline` probado, y **no había ningún
+sitio en la app desde donde encenderlo**. El lector decodificaba la página y la
+pintaba sin pasar por el pipeline: 373 MiB de modelos dentro del APK que nunca se
+ejecutaban.
+
+Ahora hay pantalla (`ui/ia/PantallaIa.kt`) y está conectada: el botón de la barra
+del lector abre los interruptores, cada uno con su coste medido al lado, y una
+prueba que **ejecuta el modelo de verdad** sobre una imagen sintética y dice los
+milisegundos y el tamaño de antes y después. El camino completo quedó así:
+
+    PageLoader → IaDePagina → ReaderPipeline → KisaraColorizer / KisaraUpscaler
+
+Y de paso se arreglaron dos fallos que impedían que esos modelos devolvieran nada:
+
+- **El casteo de la salida.** Los dos módulos leían el tensor como
+  `Array<Array<FloatArray>>` y la salida tiene cuatro niveles. Lanzaba
+  `ClassCastException` en cada página y el `catch` lo contaba como «el modelo
+  falló». Medido con los modelos del APK: `colorize.onnx` [1,5,H,W] → [1,3,H,W];
+  `anime4x.onnx` y `esrgan_x4.onnx` [1,3,H,W] → [1,3,4H,4W].
+- **El tamaño del reescalado.** El alto se deducía dividiendo el total de píxeles
+  entre el ancho, lo que con una salida ×4 da cuatro veces el alto real y crea un
+  `Bitmap` del tamaño equivocado. Ahora las dimensiones se leen del tensor
+  (`SalidaTensor`), y si no cuadran se dice en vez de inventarse un tamaño.
+
+Sigue apagado por defecto, y por el mismo motivo de antes: 1 490 ms por página de
+colorización y entre 2 673 y 24 587 ms por página de reescalado. La diferencia es
+que ahora se enciende, se apaga y se ve cuánto tarda.
 
 Es un avance real sobre «motor listo» —antes no había nada entre el modelo y la
 nada— y sigue sin ser «lector completo». Las dos cosas son verdad a la vez.

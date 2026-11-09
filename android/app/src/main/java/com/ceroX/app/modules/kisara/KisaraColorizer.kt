@@ -5,6 +5,7 @@ import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import android.graphics.Color
+import com.ceroX.app.modules.ai.SalidaTensor
 import java.io.File
 import java.nio.FloatBuffer
 
@@ -100,20 +101,13 @@ class KisaraColorizer(
                         mapOf(sesion.modelo.entrada to tensor),
                     )
                     salida.use { out ->
-                        @Suppress("UNCHECKED_CAST")
-                        val rgb = out.get(0).value as Array<Array<FloatArray>>
+                        // La salida es [1,3,H,W]: cuatro niveles, no tres. El casteo
+                        // anterior a Array<Array<FloatArray>> lanzaba ClassCastException
+                        // en cada llamada y el catch lo contaba como «el modelo falló».
+                        // Medido: colorize.onnx devuelve [1,3,H,W] con los mismos H y W
+                        // de la entrada.
+                        val destino = SalidaTensor.aPixeles(out.get(0).value, w, h)
                         val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-                        val destino = IntArray(w * h)
-                        for (y in 0 until h) {
-                            for (x in 0 until w) {
-                                // La red devuelve [0,1]; hay que recortar antes de
-                                // multiplicar porque se sale del rango en los bordes.
-                                val r = (rgb[0][0][y * w + x].coerceIn(0f, 1f) * 255).toInt()
-                                val g = (rgb[0][1][y * w + x].coerceIn(0f, 1f) * 255).toInt()
-                                val b = (rgb[0][2][y * w + x].coerceIn(0f, 1f) * 255).toInt()
-                                destino[y * w + x] = Color.rgb(r, g, b)
-                            }
-                        }
                         bitmap.setPixels(destino, 0, w, 0, 0, w, h)
                         val final = Bitmap.createScaledBitmap(bitmap, original.width, original.height, true)
                         Resultado(final, true, System.currentTimeMillis() - t0, "Coloreada a ${w}x$h")

@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.runtime.Composable
@@ -104,6 +105,7 @@ class ReaderActivity : AppCompatActivity() {
     }
 
     private lateinit var cache: PageCache
+    private lateinit var ia: IaDePagina
     private lateinit var cargador: PageLoader
     private lateinit var progreso: ReadingProgress
 
@@ -122,6 +124,9 @@ class ReaderActivity : AppCompatActivity() {
 
         cache = PageCache(96L * 1024 * 1024)
         cargador = PageLoader(cache)
+        // El pipeline de modelos: si está apagado, procesar() devuelve el mismo
+        // bitmap sin copiarlo. Si está encendido, cuesta lo que cuesta y se dice.
+        ia = IaDePagina(this)
         progreso = ReadingProgress(this)
         autoSync = TrackerAutoSync(this)
 
@@ -147,6 +152,7 @@ class ReaderActivity : AppCompatActivity() {
                                 .map { it.imagenUrl ?: it.url }
                         },
                         cargador = cargador,
+                        ia = ia,
                         clave = { i -> cache.clave(fuenteNombre, obra, capitulo, i) },
                         modo = modo,
                         indiceInicial = inicial,
@@ -180,6 +186,14 @@ class ReaderActivity : AppCompatActivity() {
                             }
                         },
                         alSalir = { finish() },
+                        alAbrirModelos = {
+                            startActivity(
+                                android.content.Intent(
+                                    this,
+                                    com.ceroX.app.ui.ia.PantallaIaActivity::class.java,
+                                )
+                            )
+                        },
                     )
                 }
             }
@@ -208,10 +222,12 @@ fun LectorScreen(
     cargarPaginas: suspend () -> List<String>,
     cargador: PageLoader,
     clave: (Int) -> String,
+    ia: IaDePagina,
     modo: ReaderState.Modo,
     indiceInicial: Int,
     alCambiarPagina: (Int, Int) -> Unit,
     alSalir: () -> Unit,
+    alAbrirModelos: () -> Unit,
 ) {
     var urls by remember { mutableStateOf<List<String>>(emptyList()) }
     var errorGlobal by remember { mutableStateOf<String?>(null) }
@@ -294,6 +310,7 @@ fun LectorScreen(
                             .coerceIn(0, maxOf(0, urls.size - 1))
                         alcance.launch { listaState.animateScrollToItem(destino) }
                     },
+                    alAbrirModelos = alAbrirModelos,
                 )
             }
             Box(
@@ -342,7 +359,16 @@ fun LectorScreen(
                                 estado = paginas[indice],
                                 cargar = {
                                     alcance.launch {
-                                        paginas[indice] = cargador.cargar(clave(indice), urls[indice])
+                                        val cruda = cargador.cargar(clave(indice), urls[indice])
+                                        // Si hay modelos encendidos y la página se
+                                        // decodificó, se procesa antes de pintarla.
+                                        // Si falla, vuelve la misma: nunca null.
+                                        val bmp = cruda.bitmap
+                                        paginas[indice] = if (bmp != null && ia.activa) {
+                                            cruda.copy(bitmap = ia.procesar(bmp))
+                                        } else {
+                                            cruda
+                                        }
                                     }
                                 },
                                 alTocar = { mostrarBarra = !mostrarBarra },
@@ -417,6 +443,7 @@ private fun BarraSuperior(
     posicion: String,
     alSalir: () -> Unit,
     alIrA: (Int) -> Unit,
+    alAbrirModelos: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -439,6 +466,12 @@ private fun BarraSuperior(
                 }
                 IconButton(onClick = { alIrA(1) }) {
                     Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Siguiente", tint = Color.White)
+                }
+                // Los modelos: encender, apagar y ver qué pasó de verdad. Está aquí
+                // y no en los ajustes globales porque se decide leyendo, al ver una
+                // página que se lee mal.
+                IconButton(onClick = alAbrirModelos) {
+                    Icon(Icons.Filled.Build, contentDescription = "Modelos", tint = Color.White)
                 }
             }
         }
