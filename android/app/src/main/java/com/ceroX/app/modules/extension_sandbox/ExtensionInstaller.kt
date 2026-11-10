@@ -109,7 +109,7 @@ class ExtensionInstaller(private val context: Context? = null) {
             ?: return InstallResult(false, "Sin contexto de Android: no se puede lanzar el instalador", null)
         return try {
             val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                FileProvider.getUriForFile(ctx, "${ctx.packageName}.extensions", apk)
+                FileProvider.getUriForFile(ctx, "${ctx.packageName}.fileprovider", apk)
             } else {
                 @Suppress("DEPRECATION")
                 Uri.fromFile(apk)

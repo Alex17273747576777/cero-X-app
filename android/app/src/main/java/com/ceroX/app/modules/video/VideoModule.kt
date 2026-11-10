@@ -66,7 +66,7 @@ class VideoModule : ModuleInterface() {
         val ctx = appContext ?: return false
         return try {
             val uri = androidx.core.content.FileProvider.getUriForFile(
-                ctx, "${ctx.packageName}.extensions", archivo
+                ctx, "${ctx.packageName}.fileprovider", archivo
             )
             val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "video/*")

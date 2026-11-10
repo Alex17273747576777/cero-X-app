@@ -5,5 +5,8 @@
     <cache-path name="cache" path="." />
     <external-cache-path name="external_cache" path="." />
     <external-media-path name="external_media" path="." />
-    <root-path name="root" path="." />
+    <!-- Antes: root-path ".", que deja pedir una URI de CUALQUIER ruta del
+         teléfono (incluido /data). Lo que la app comparte de verdad fuera de
+         sus carpetas son vídeos y APK del almacenamiento compartido. -->
+    <external-path name="almacenamiento" path="." />
 </paths>

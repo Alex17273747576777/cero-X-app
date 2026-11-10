@@ -100,7 +100,7 @@ class UpdatesModule : ModuleInterface() {
         val lanzado = try {
             val ctx = appContext ?: return false
             val uri = androidx.core.content.FileProvider.getUriForFile(
-                ctx, "${ctx.packageName}.extensions", apk
+                ctx, "${ctx.packageName}.fileprovider", apk
             )
             val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "application/vnd.android.package-archive")

@@ -102,4 +102,60 @@ class NavegacionTest {
             !estado.contains("PackageInstaller") && !estado.contains("requestPermissions"),
         )
     }
+
+    // ── Tres fallos que el CI no veía (2026-11-10) ────────────────────────────
+    //
+    // Las pruebas de Robolectric inflan una Activity aunque no esté en el
+    // manifiesto y no resuelven autoridades de FileProvider, así que estos tres
+    // errores pasaban en verde y sólo reventaban en un teléfono.
+
+    private fun fuentes(): List<File> =
+        File(raiz, "src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+
+    private val claseActivity = Regex("""class\s+(\w+)\s*(?:\([^)]*\))?\s*:\s*(\w*Activity)\(""")
+
+    @Test
+    fun toda_activity_del_codigo_esta_declarada_en_el_manifiesto() {
+        val m = manifiesto()
+        val sinDeclarar = fuentes().flatMap { f ->
+            claseActivity.findAll(f.readText()).map { it.groupValues[1] }.toList()
+        }.filter { nombre -> !Regex("""android:name="[\w.]*\.""" + nombre + "\"").containsMatchIn(m) }
+        assertTrue("Activity sin declarar (startActivity lanzaría): $sinDeclarar", sinDeclarar.isEmpty())
+    }
+
+    @Test
+    fun ninguna_pantalla_appcompat_usa_un_tema_de_plataforma() {
+        // Todas las pantallas son AppCompatActivity: un tema `@android:style/…`
+        // no desciende de Theme.AppCompat y la pantalla muere al crearse.
+        val temas = Regex("""android:theme="([^"]+)"""").findAll(manifiesto()).map { it.groupValues[1] }.toList()
+        assertTrue("no se leyó ningún tema", temas.isNotEmpty())
+        val malos = temas.filter { it.startsWith("@android:style/") }
+        assertTrue("tema que no es AppCompat: $malos", malos.isEmpty())
+        val estilos = File(raiz, "src/main/res/values/themes.xml").readText()
+        temas.filter { it.startsWith("@style/") }.forEach { t ->
+            assertTrue("el tema $t no existe en themes.xml",
+                estilos.contains("name=\"" + t.removePrefix("@style/") + "\""))
+        }
+    }
+
+    @Test
+    fun toda_autoridad_de_fileprovider_usada_esta_declarada() {
+        val m = manifiesto()
+        val declaradas = Regex("""android:authorities="\$\{applicationId\}(\.\w+)"""").findAll(m)
+            .map { it.groupValues[1] }.toSet()
+        assertTrue("no hay FileProvider declarado", ".fileprovider" in declaradas)
+        // En el código la autoridad siempre se arma como "${…packageName}.algo".
+        val usadas = fuentes().flatMap { f ->
+            Regex("""ackageName\}(\.\w+)"""").findAll(f.readText()).map { f.name to it.groupValues[1] }.toList()
+        }
+        assertTrue("no se encontró ningún uso de FileProvider", usadas.isNotEmpty())
+        val huerfanas = usadas.filter { it.second !in declaradas }
+        assertTrue("autoridad usada pero no declarada (getUriForFile lanzaría): $huerfanas", huerfanas.isEmpty())
+    }
+
+    @Test
+    fun el_fileprovider_no_expone_la_raiz_del_telefono() {
+        val rutas = File(raiz, "src/main/res/xml/file_paths.xml").readText()
+        assertTrue("root-path deja compartir cualquier ruta, /data incluida", !rutas.contains("<root-path"))
+    }
 }

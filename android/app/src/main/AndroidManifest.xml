@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
 
     <!-- Permisos de almacenamiento (Android 10+ usa scoped storage) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -60,13 +59,6 @@
     -->
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
-    <!--
-      Permiso para el servicio de instalación en segundo plano. En Android 14+
-      el tipo tiene que existir y ser explícito, o el servicio no arranca.
-    -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_INSTALL_PACKAGES"
-        tools:targetApi="34" />
-
     <!-- Servicios en primer plano -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
@@ -78,14 +70,6 @@
 
     <!-- Vibración y háptico -->
     <uses-permission android:name="android.permission.VIBRATE" />
-
-    <!-- Bluetooth (para dispositivos periféricos) -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"
-        android:usesPermissionFlags="neverForLocation" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
-        android:usesPermissionFlags="neverForLocation" />
 
     <!-- Hardware features (opcionales, no requeridos) -->
     <uses-feature
@@ -117,7 +101,6 @@
         <!-- Gestores con protocolo Dhizuku (el Device Owner de AxManagerD y
              Dhizuku van por aquí). -->
         <package android:name="com.rosan.dhizuku" />
-        <package android:name="com.rosan.dhizuku.permission.BIND_DHIZUKU" />
         <package android:name="eu.kanade.tachiyomi.extension" />
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -174,7 +157,7 @@
             android:label="Leyendo"
             android:parentActivityName=".ui.catalogo.CatalogoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+            android:theme="@style/Theme.ceroX.Lector" />
 
         <!-- Sincronización con AniList / MyAnimeList. El token vive cifrado con
              el Keystore, no en preferencias en claro. -->
@@ -203,6 +186,16 @@
             android:parentActivityName=".ui.main.MainActivity" />
 
         <!-- Actividad de pruebas de estrés -->
+        <!-- Pantalla de modelos de IA. El lector la abre desde su menú
+             (ReaderActivity). Estuvo sin declarar: la prueba de Robolectric la
+             inflaba igual, pero en un teléfono `startActivity` lanzaba
+             ActivityNotFoundException. NavegacionTest ahora lo vigila. -->
+        <activity
+            android:name=".ui.ia.PantallaIaActivity"
+            android:exported="false"
+            android:label="Modelos de IA"
+            android:parentActivityName=".ui.reader.ReaderActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density" />
         <activity
             android:name=".ui.StressTestActivity"
             android:exported="false"
