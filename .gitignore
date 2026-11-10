@@ -42,3 +42,11 @@ ceroX_config*
 android/app/src/main/assets/models/*.onnx
 apk/*.apk
 *.apk
+
+*.keystore
+
+*.jks
+
+*.p12
+
+*.pfx

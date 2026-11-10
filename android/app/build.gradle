@@ -47,12 +47,7 @@ android {
                 keyPassword System.getenv('CEROX_KEY_PASS')
             }
         }
-        debug {
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-            storeFile file('../debug.keystore')
-            storePassword 'android'
-        }
+        // Debug usa la clave de desarrollo generada por Android, nunca una del repositorio.
     }
 
     buildTypes {
