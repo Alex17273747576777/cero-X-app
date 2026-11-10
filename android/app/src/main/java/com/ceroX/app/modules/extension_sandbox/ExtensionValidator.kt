@@ -1,62 +1,39 @@
 package com.ceroX.app.modules.extension_sandbox
 
+import com.android.apksig.ApkVerifier
 import java.io.File
 import java.security.MessageDigest
 
-/**
- * ExtensionValidator — Validador de extensiones antes de instalación.
- * Verifica firma, permisos, estructura y seguridad.
- */
-class ExtensionValidator {
-
-    fun initialize() {
-        // Inicializar validador
-    }
+/** Verificación criptográfica más confianza explícita. Una firma cualquiera NO da confianza. */
+class ExtensionValidator(private val trustedSignerSha256: Set<String> = emptySet()) {
+    fun initialize() = Unit
 
     fun validate(apkPath: String): ValidationResult {
         val file = File(apkPath)
         val errors = mutableListOf<String>()
-        val permissions = mutableListOf<String>()
-
-        if (!file.exists()) {
-            errors.add("Archivo APK no encontrado")
-            return ValidationResult(false, errors, permissions)
+        fun invalid(message: String): ValidationResult = ValidationResult(false, listOf(message), emptyList())
+        if (!file.isFile || !file.canRead()) return invalid("Archivo APK no encontrado o ilegible")
+        if (!file.name.endsWith(".apk", ignoreCase = true)) return invalid("El archivo no es un APK")
+        if (file.length() !in 1L..(100L * 1024 * 1024)) return invalid("APK vacío o superior a 100 MiB")
+        val trusted = trustedSignerSha256.map { it.replace(":", "").lowercase() }.toSet()
+        if (trusted.isEmpty() || trusted.any { !it.matches(Regex("[0-9a-f]{64}")) }) {
+            return invalid("No hay certificados de extensiones aprobados. No se ejecuta código de terceros sin confianza explícita.")
         }
-
-        // Verificar extensión
-        if (!apkPath.lowercase().endsWith(".apk")) {
-            errors.add("El archivo no es un APK válido")
-        }
-
-        // Verificar tamaño (máximo 100MB)
-        val sizeMb = file.length() / 1024 / 1024
-        if (sizeMb > 100) {
-            errors.add("APK demasiado grande: ${sizeMb}MB (máximo 100MB)")
-        }
-
-        // Calcular SHA-256
-        val sha256 = calculateSha256(file)
-
-        // Placeholder: verificar firma del APK
-        permissions.add("INTERNET")
-        permissions.add("READ_EXTERNAL_STORAGE")
-
-        return ValidationResult(
-            isValid = errors.isEmpty(),
-            errors = errors,
-            permissions = permissions
-        )
-    }
-
-    private fun calculateSha256(file: File): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        file.inputStream().use { entrada ->
-            val buffer = ByteArray(8192)
-            var read: Int
-            while (entrada.read(buffer).also { read = it } != -1) {
-                digest.update(buffer, 0, read)
+        return try {
+            val verified = ApkVerifier.Builder(file).setMinCheckedPlatformVersion(26).build().verify()
+            if (!verified.isVerified || verified.signerCertificates.isEmpty()) {
+                errors.add("La firma criptográfica del APK no es válida")
+            } else {
+                val signers = verified.signerCertificates.map { cert ->
+                    MessageDigest.getInstance("SHA-256").digest(cert.encoded)
+                        .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                }
+                if (signers.any { it !in trusted }) errors.add("Certificado de extensión no aprobado")
             }
+            // No inventar permisos: este verificador no interpreta el manifiesto binario.
+            ValidationResult(errors.isEmpty(), errors, emptyList())
+        } catch (e: Exception) {
+            invalid("No se pudo verificar criptográficamente el APK")
         }
-        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 }
