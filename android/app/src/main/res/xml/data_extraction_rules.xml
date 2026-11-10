@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
     <cloud-backup>
-        <!-- No incluir credenciales ni datos sensibles en backup en la nube -->
-        <exclude domain="sharedpref" path="." />
         <exclude domain="database" path="ceroX_config" />
         <exclude domain="database" path="crash_reports" />
         <exclude domain="file" path="credentials" />
         <exclude domain="file" path="api_keys" />
         <exclude domain="file" path="tokens" />
-        <!-- Incluir biblioteca de usuario y configuración de temas -->
         <include domain="sharedpref" path="." />
         <include domain="database" path="library_db" />
         <include domain="database" path="app_database" />
+        <exclude domain="sharedpref" path="cerox_trackers_cifrado.xml" />
+        <exclude domain="sharedpref" path="credentials.xml" />
+        <exclude domain="sharedpref" path="api_keys.xml" />
+        <exclude domain="sharedpref" path="tokens.xml" />
     </cloud-backup>
     <device-transfer>
-        <!-- Todo excepto datos sensibles para transferencia entre dispositivos -->
-        <exclude domain="sharedpref" path="." />
         <exclude domain="file" path="credentials" />
+        <exclude domain="sharedpref" path="cerox_trackers_cifrado.xml" />
+        <exclude domain="sharedpref" path="credentials.xml" />
+        <exclude domain="sharedpref" path="api_keys.xml" />
+        <exclude domain="sharedpref" path="tokens.xml" />
     </device-transfer>
 </data-extraction-rules>

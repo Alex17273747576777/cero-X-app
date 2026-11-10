@@ -41,11 +41,11 @@ jobs:
 
       - name: Compilar
         working-directory: android
-        run: gradle :app:compileDebugKotlin --console=plain
+        run: bash ./gradlew :app:compileDebugKotlin --console=plain
 
       - name: Ejecutar las pruebas
         working-directory: android
-        run: gradle :app:testDebugUnitTest --console=plain
+        run: bash ./gradlew :app:testDebugUnitTest --console=plain
 
       - name: Resumen de resultados
         if: always()
