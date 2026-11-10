@@ -14,7 +14,7 @@ numpy>=1.24.0
 ffmpeg-python>=0.2.0
 
 # Database
-sqlite3 (stdlib)
+# sqlite3 forma parte de la biblioteca estándar de Python; no es un requisito de pip.
 
 # Testing
 pytest>=7.0.0

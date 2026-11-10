@@ -1,5 +1,8 @@
 # cero-X
 
+> **Estado de seguridad, 2026-11-10.** El APK de idiomas y el APK debug con clave pública están en cuarentena (release en borrador). El código actual incluye correcciones que todavía **no tienen un APK de publicación nuevo y seguro**: falta la clave privada legítima. Las extensiones se rechazan hasta configurar certificados aprobados; esto es contención, no compatibilidad terminada. Véanse [firma](SEGURIDAD-FIRMA.md), [extensiones](SEGURIDAD-EXTENSIONES.md) y [pendientes verificables](https://github.com/Alex17273747576777/cero-X-app/issues/6).
+
+
 ### Un lector de manga, novelas y anime que trae la IA dentro del APK.
 
 `Android 8.0 – 16` · `arm64 · armv7 · x86 · x86_64` · `453 MiB con 5 modelos` · `Apache-2.0`
@@ -385,7 +388,7 @@ Todo lo de esta tabla se midió con un comando en la máquina donde se construy�
 | librerías nativas (4 ABIs) | 62,32 MiB |
 | `classes.dex` | 39,84 MiB |
 | archivos Kotlin | 125 |
-| pruebas unitarias (app Android) | **353, todas pasando** |
+| pruebas unitarias (app Android) | **393 descubiertas: 387 ejecutadas y 6 omitidas; 0 fallos y 0 errores** ([CI del código Android](https://github.com/Alex17273747576777/cero-X-app/actions/runs/42867247425)) |
 | pruebas del núcleo compartido | **41 en JVM y 33 en JS, todas pasando** |
 | comprobaciones del `.js` desde Node | **15, todas en verde** |
 | errores de compilación | **0** (venían de 519) |
@@ -394,7 +397,7 @@ Todo lo de esta tabla se midió con un comando en la máquina donde se construy�
 ```bash
 # verificable en cualquier clon
 $ ANDROID_HOME=/opt/android-sdk ./gradlew testDebugUnitTest
-353 tests completed, 0 failed
+393 pruebas · 0 fallos · 0 errores · 6 saltadas (CI 2026-11-10)
 
 # el núcleo compartido, en las dos plataformas que esta máquina compila
 $ cd comun && gradle jvmTest jsNodeTest
