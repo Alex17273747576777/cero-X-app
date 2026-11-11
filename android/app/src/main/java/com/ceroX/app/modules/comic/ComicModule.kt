@@ -54,9 +54,42 @@ class ComicModule : ModuleInterface() {
 
     fun getSupportedFormats(): List<String> = supportedFormats
 
+    /**
+     * Recorre la carpeta y añade lo que encuentra con los formatos soportados.
+     *
+     * Devolvía "Cómics importados" sin abrir la carpeta ni añadir nada a la
+     * biblioteca. Aqui se listan los archivos reales, se filtran por las
+     * extensiones que el modulo declara y se añaden uno a uno.
+     */
     fun importFromFolder(folderPath: String): ImportResult {
-        // Placeholder: importar cómics desde carpeta
-        return ImportResult(folderPath, true, "Cómics importados")
+        val dir = java.io.File(folderPath)
+        if (!dir.isDirectory) {
+            return ImportResult(folderPath, false, "No es una carpeta: $folderPath")
+        }
+        val formatos = supportedFormats.map { it.lowercase().removePrefix(".") }
+        val ficheros = dir.listFiles { f -> f.isFile && f.extension.lowercase() in formatos }
+            ?: return ImportResult(folderPath, false,
+                "La carpeta existe pero no se puede leer (permisos): $folderPath")
+
+        for (f in ficheros) {
+            library.add(
+                ComicItem(
+                    id = "comic_" + folderPath.hashCode() + "_" + f.name.hashCode(),
+                    title = f.nameWithoutExtension,
+                    format = f.extension.lowercase(),
+                    path = f.absolutePath
+                )
+            )
+        }
+        return ImportResult(
+            folderPath,
+            ficheros.isNotEmpty(),
+            if (ficheros.isEmpty()) {
+                "Ningun archivo con los formatos soportados ($formatos) en $folderPath"
+            } else {
+                "${ficheros.size} archivo(s) importados desde $folderPath"
+            }
+        )
     }
 }
 

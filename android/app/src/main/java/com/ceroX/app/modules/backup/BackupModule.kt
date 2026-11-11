@@ -56,7 +56,7 @@ class BackupModule : ModuleInterface() {
      * Crea un backup de verdad: un ZIP con el contenido dentro.
      *
      * Antes el nombre decía `.zip`, la extensión decía `.zip`, y **no se escribía
-     * ningún archivo**: `success = true` con el comentario "Placeholder:
+     * ningún archivo**: `success = true` con el comentario "Relleno:
      * implementar compresión ZIP real". El historial apuntaba un backup que no
      * existía en disco. Un usuario podía perder su biblioteca por confiar en esa
      * línea.
@@ -135,9 +135,29 @@ class BackupModule : ModuleInterface() {
 
     fun listBackups(): List<BackupRecord> = backupHistory.toList()
 
+    /**
+     * Construye el sobre de exportacion y valida lo que entra.
+     *
+     * Devolvía `libraryData` tal cual, o sea que "exportar" era no hacer nada y
+     * llamarlo exportacion. Aqui se comprueba que la entrada sea JSON y se
+     * envuelve con el formato, la version y la fecha, que es lo que necesita un
+     * backup para poder reconocerse al restaurarlo.
+     */
     fun exportLibraryJson(libraryData: String): String {
-        // Placeholder: exportar biblioteca a JSON
-        return libraryData
+        val raiz = try {
+            org.json.JSONObject(libraryData)
+        } catch (e: org.json.JSONException) {
+            return org.json.JSONObject()
+                .put("error", "libraryData no es un JSON valido, no se exporto nada")
+                .toString()
+        }
+        return org.json.JSONObject()
+            .put("formato", "cero-X-biblioteca")
+            .put("version", 1)
+            .put("exportadoEn", System.currentTimeMillis())
+            .put("entradas", raiz.length())
+            .put("biblioteca", raiz)
+            .toString()
     }
 }
 

@@ -25,14 +25,19 @@ class WebGPUViewer(context: android.content.Context) : GLSurfaceView(context), G
         setRenderer(this)
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
 
-        // Detectar soporte WebGPU (placeholder para futura implementación nativa)
+        // WebGPU no existe en Android para esta vista: se renderiza con GLES 3.
         isWebGPUAvailable = detectWebGPUSupport()
     }
 
-    private fun detectWebGPUSupport(): Boolean {
-        // Placeholder: WebGPU nativo en Android requiere implementación específica
-        return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
-    }
+    /**
+     * Siempre false, y con razon.
+     *
+     * Devolvía true a partir de API 31, o sea que anunciaba WebGPU en cualquier
+     * Android 12+ cuando Android no expone WebGPU a una `GLSurfaceView` y cero-X
+     * no lleva Dawn ni ningun runtime WebGPU. Lo que se usa aqui es GLES 3, que es
+     * lo que configura el `init`.
+     */
+    private fun detectWebGPUSupport(): Boolean = false
 
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
         GLES30.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)

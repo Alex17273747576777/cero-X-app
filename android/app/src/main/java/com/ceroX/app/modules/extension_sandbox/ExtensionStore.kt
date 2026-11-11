@@ -13,40 +13,20 @@ class ExtensionStore {
         registerDefaultExtensions()
     }
 
+    /**
+     * El catalogo empieza vacio, a proposito.
+     *
+     * Aqui habia tres extensiones inventadas —Madara Manga, WordPress Anime y
+     * Novel Updates— con `downloadUrl` apuntando a un dominio que no existe y
+     * `sha256` sin valor real. Listarlas era prometer descargas que no se podian
+     * hacer ni verificar, y una huella falsa en un instalador de extensiones es
+     * justo lo que no se puede fingir.
+     *
+     * El catalogo de verdad se llena desde un repositorio de extensiones externo
+     * que trae su index y su huella de firma; ese repositorio vive fuera del APK.
+     */
     private fun registerDefaultExtensions() {
-        availableExtensions.add(AvailableExtension(
-            id = "ext_madara_manga",
-            name = "Madara Manga",
-            type = "manga",
-            version = "1.0.0",
-            author = "Community",
-            description = "Extensión para sitios tipo Madara",
-            downloadUrl = "https://extensions.cero-x.app/madara.apk",
-            sha256 = "placeholder",
-            sandboxCompatible = true
-        ))
-        availableExtensions.add(AvailableExtension(
-            id = "ext_wordpress_anime",
-            name = "WordPress Anime",
-            type = "anime",
-            version = "1.0.0",
-            author = "Community",
-            description = "Extensión para sitios anime tipo WordPress",
-            downloadUrl = "https://extensions.cero-x.app/wordpress_anime.apk",
-            sha256 = "placeholder",
-            sandboxCompatible = true
-        ))
-        availableExtensions.add(AvailableExtension(
-            id = "ext_novel_updates",
-            name = "Novel Updates",
-            type = "novel",
-            version = "1.0.0",
-            author = "Community",
-            description = "Extensión para Novel Updates",
-            downloadUrl = "https://extensions.cero-x.app/novel_updates.apk",
-            sha256 = "placeholder",
-            sandboxCompatible = true
-        ))
+        // Nada que registrar: el catalogo lo llena el repositorio externo.
     }
 
     fun listAvailable(): List<AvailableExtension> = availableExtensions.toList()

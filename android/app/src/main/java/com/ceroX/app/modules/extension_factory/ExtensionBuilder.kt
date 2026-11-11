@@ -12,13 +12,19 @@ class ExtensionBuilder {
         // Inicializar constructor
     }
 
+    /**
+     * Comprueba la estructura del proyecto y ahi se queda.
+     *
+     * Devolvía `success = true` con la ruta de un `app-debug.apk` inexistente. La
+     * comprobacion de que haya manifiesto y build.gradle sí es real, y se
+     * conserva; lo que no se hace es construir nada.
+     */
     fun buildExtension(projectDir: String): BuildResult {
         val dir = File(projectDir)
         if (!dir.exists()) {
             return BuildResult(false, "Directorio de proyecto no encontrado", null)
         }
 
-        // Verificar estructura
         val manifest = File(dir, "src/main/AndroidManifest.xml")
         val buildGradle = File(dir, "build.gradle")
 
@@ -26,9 +32,8 @@ class ExtensionBuilder {
             return BuildResult(false, "Estructura de proyecto incompleta", null)
         }
 
-        // Placeholder: compilación real usaría Gradle
-        val apkPath = "${dir.absolutePath}/build/outputs/apk/debug/app-debug.apk"
-
-        return BuildResult(true, "Extensión construida", apkPath)
+        return BuildResult(false,
+            "El proyecto tiene la estructura correcta, pero no se construyo: " +
+                "hace falta Gradle y cero-X no lo lleva en el dispositivo", null)
     }
 }

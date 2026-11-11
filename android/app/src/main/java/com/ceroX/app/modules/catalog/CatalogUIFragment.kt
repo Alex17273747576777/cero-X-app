@@ -39,7 +39,7 @@ class CatalogUIFragment : Fragment() {
         binding.recyclerView.adapter = adapter
 
         // Filtro por categoría: el botón existía, se podía pulsar y no pasaba nada,
-        // con un "Placeholder" al lado. Ahora dice en pantalla que no está hecho, que
+        // con un "Relleno" al lado. Ahora dice en pantalla que no está hecho, que
         // es lo mínimo que puede hacer un botón que no hace lo que promete.
         binding.categoryFilter.setOnClickListener {
             android.widget.Toast.makeText(

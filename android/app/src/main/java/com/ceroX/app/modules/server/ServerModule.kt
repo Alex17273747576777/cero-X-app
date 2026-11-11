@@ -59,9 +59,34 @@ class ServerModule : ModuleInterface() {
         return listOf("jellyfin", "plex", "seanime", "komga", "kavita", "lanraragi", "suwayomi")
     }
 
+    /**
+     * Abre TCP contra el servidor y dice lo que paso.
+     *
+     * Devolvía `success = true` con "Conectado" sin tocar la red. Aqui se abre el
+     * socket de verdad, con cinco segundos de espera: si el puerto responde, se
+     * dice con la direccion que contesto; si no, se dice la excepcion.
+     *
+     * Ojo: esto bloquea y hace red, así que hay que llamarlo fuera del hilo
+     * principal (en Android, red en el hilo principal lanza
+     * NetworkOnMainThreadException).
+     */
     fun connectToServer(host: String, port: Int, type: String): ConnectionResult {
-        // Placeholder: conexión real al servidor
-        return ConnectionResult(host, port, type, true, "Conectado")
+        if (host.isBlank()) {
+            return ConnectionResult(host, port, type, false, "No se dio ningun host al que conectarse")
+        }
+        if (port !in 1..65535) {
+            return ConnectionResult(host, port, type, false, "El puerto $port no es valido")
+        }
+        return try {
+            java.net.Socket().use { s ->
+                s.connect(java.net.InetSocketAddress(host, port), 5000)
+                val ip = s.inetAddress?.hostAddress ?: host
+                ConnectionResult(host, port, type, true, "TCP abierto con $ip:$port (tipo $type sin autenticar)")
+            }
+        } catch (e: Exception) {
+            ConnectionResult(host, port, type, false,
+                "No se pudo abrir TCP con $host:$port — " + (e.message ?: e.javaClass.simpleName))
+        }
     }
 }
 

@@ -52,5 +52,12 @@ class ExtensionSandboxManager {
         java.io.File(sandboxDir, extensionId).deleteRecursively()
     }
 
-    fun getActiveExtensionsCount(): Int = 0 // Placeholder
+    /**
+     * Extensiones con su directorio de aislamiento creado de verdad.
+     *
+     * Devolvía 0 fijo, que es el mismo numero que da un sandbox vacio: no habia
+     * forma de distinguir "no hay ninguna" de "no se ha mirado". Se mira.
+     */
+    fun getActiveExtensionsCount(): Int =
+        sandboxDir.listFiles { f -> f.isDirectory }?.size ?: 0
 }

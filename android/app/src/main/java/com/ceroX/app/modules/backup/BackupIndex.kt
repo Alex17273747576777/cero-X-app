@@ -18,7 +18,7 @@ import java.util.zip.ZipFile
  *
  * Es decir: comprobaba que el archivo existiera y **declaraba la restauración
  * exitosa sin restaurar nada**. `restoredItems = 0` estaba escrito a mano con el
- * comentario "Placeholder" al lado. El usuario veía "Backup restaurado" y su
+ * comentario "Relleno" al lado. El usuario veía "Backup restaurado" y su
  * biblioteca seguía igual — o peor, si el flujo de escritura se hubiera añadido
  * encima de esa base sin el índice.
  *

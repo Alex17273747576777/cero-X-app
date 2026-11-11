@@ -59,16 +59,18 @@ class NovelModule : ModuleInterface() {
 
     fun listSources(): List<NovelSource> = sources.toList()
 
-    fun searchNovels(query: String): List<NovelSearchResult> {
-        // Placeholder: búsqueda en fuentes registradas
-        return listOf(
-            NovelSearchResult("Resultado para: $query", "placeholder", "novel")
-        )
-    }
+    /**
+     * Sin fuentes conectadas no hay resultados.
+     *
+     * Devolvía una fila inventada con el texto de la consulta como titulo, igual
+     * que `ReaderModule.search()`.
+     */
+    fun searchNovels(query: String): List<NovelSearchResult> = emptyList()
 
+    /** No hay ninguna biblioteca externa conectada, así que no se descarga nada. */
     fun downloadFromShadowLibrary(query: String): ShadowLibraryResult {
-        // Placeholder: Openlib / Anna's Archive integration
-        return ShadowLibraryResult(query, false, "Shadow library download not implemented")
+        return ShadowLibraryResult(query, false,
+            "No hay ninguna biblioteca externa conectada a cero-X; no se descargo nada para " + query)
     }
 }
 

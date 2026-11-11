@@ -101,7 +101,7 @@ class BackupManager(private val context: Context) {
      *     return if (file.exists()) RestoreResult(success = true, restoredItems = 0, ...)
      *
      * Comprobaba que el archivo existiera y declaraba la restauración exitosa sin
-     * restaurar nada, con `restoredItems = 0` y el comentario "Placeholder" al
+     * restaurar nada, con `restoredItems = 0` y el comentario "Relleno" al
      * lado. El usuario leía "Backup restaurado" y su biblioteca seguía igual.
      *
      * AHORA

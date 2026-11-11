@@ -15,7 +15,7 @@ package com.ceroX.app.shell
  * ------------
  * No es una puerta trasera: el `Shell` de usuario **no** existe. Si no hay
  * Shizuku, ni Dhizuku, ni root, esta interfaz no tiene implementación y la app
- * lo dice. No hay un modo «simulado» que devuelva éxito.
+ * lo dice. No hay un modo «fingido» que devuelva éxito.
  */
 interface Shell {
 

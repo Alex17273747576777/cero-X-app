@@ -23,9 +23,16 @@ class RepoForgeGenerator(private val context: Context) {
         )
     }
 
+    /**
+     * Selectores por defecto, marcados como tales.
+     *
+     * No se hace ninguna peticion ni se parsea HTML, así que esto no es un
+     * analisis del sitio. El mapa lo declara en su primera clave para que quien
+     * lo consuma no crea que los selectores salieron de la pagina.
+     */
     private fun analyzeSiteStructure(url: String): Map<String, String> {
-        // Placeholder: análisis real usaría Jsoup o similar para extraer selectores CSS
         return mapOf(
+            "origen_selectores" to "por defecto, no analizados del sitio",
             "title_selector" to "h1, .title, .entry-title",
             "chapter_selector" to ".chapter, .chapter-item, .episode",
             "image_selector" to "img, .page-image, .reader-image",
@@ -34,9 +41,10 @@ class RepoForgeGenerator(private val context: Context) {
         )
     }
 
+    /** Devolvía éxito con el mensaje "Bypass fingido". No hay bypass. */
     fun bypassCloudflare(url: String): CloudflareBypassResult {
-        // Placeholder: implementación real usaría cloudscraper equivalent o similar
-        return CloudflareBypassResult(url, true, "Bypass simulado")
+        return CloudflareBypassResult(url, false,
+            "No hay bypass de Cloudflare: no se resolvio ningun desafio para $url")
     }
 }
 

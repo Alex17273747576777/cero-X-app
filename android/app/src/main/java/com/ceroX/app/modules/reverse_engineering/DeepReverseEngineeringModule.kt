@@ -58,13 +58,19 @@ class DeepReverseEngineeringModule : ModuleInterface() {
 
     // ========== Antigravity: Análisis de binarios ==========
 
+    /**
+     * Delega en el analizador, que lee el contenedor de verdad.
+     *
+     * Antes marcaba `completed` con el detalle "Análisis de binario APK con
+     * Antigravity" habiendo mirado solo si el archivo existia.
+     */
     fun analyzeApkBinary(apkPath: String): ReverseAnalysisResult {
-        val file = File(apkPath)
+        val r = AntigravityAnalyzer().analyzeApk(apkPath)
         val result = ReverseAnalysisResult(
             target = apkPath,
             analysisType = "binary",
-            status = if (file.exists()) "completed" else "error",
-            details = "Análisis de binario APK con Antigravity",
+            status = r.status,
+            details = r.details,
             timestamp = System.currentTimeMillis()
         )
         analysisResults.add(result)
@@ -73,6 +79,12 @@ class DeepReverseEngineeringModule : ModuleInterface() {
 
     // ========== DeepSeek Harness: Evaluación de IA ==========
 
+    /**
+     * No existe ningun arnes de evaluacion, y no se inventa la nota.
+     *
+     * Devolvía `status = "evaluated"` con `score = 0.95`: un numero escrito a
+     * mano, sin cargar el modelo ni ejecutar el benchmark.
+     */
     fun evaluateAiModel(modelPath: String, benchmark: String): AiEvaluationResult {
         if (!_started || !deepseekHarnessEnabled) {
             return AiEvaluationResult(modelPath, benchmark, "error", 0.0, "DeepSeek Harness no habilitado")
@@ -80,41 +92,79 @@ class DeepReverseEngineeringModule : ModuleInterface() {
         return AiEvaluationResult(
             modelPath = modelPath,
             benchmark = benchmark,
-            status = "evaluated",
-            score = 0.95, // Placeholder
-            details = "Evaluación completada con DeepSeek Harness"
+            status = "error",
+            score = 0.0,
+            details = "No se evaluo nada: cero-X no lleva un arnes de benchmarks, asi que no hay puntuacion que dar"
         )
     }
 
     // ========== CodeComparator: Comparativa en paralelo ==========
 
+    /**
+     * Delega en CodeComparator, que dice que no compara.
+     *
+     * Antes elegia "la optima" quedandose con la primera clave del mapa, que es
+     * el orden en que llegaron, no una medida.
+     */
     fun compareImplementations(functionName: String, implementations: Map<String, String>): CodeComparisonResult {
         if (!_started || !codeComparisonEnabled) {
             return CodeComparisonResult(functionName, implementations, "error", null, "CodeComparator deshabilitado")
         }
-        // Placeholder: analizar cada implementación y determinar la óptima
-        val bestImpl = implementations.keys.firstOrNull() ?: "none"
-        return CodeComparisonResult(
-            functionName = functionName,
-            implementations = implementations,
-            status = "completed",
-            bestImplementation = bestImpl,
-            details = "Comparativa completada: $bestImpl seleccionada como óptima"
-        )
+        return CodeComparator().compareFunction(functionName, implementations)
     }
 
     // ========== StressTester: Pruebas de estrés ==========
 
+    /**
+     * Ejecuta la prueba que corresponde al tipo y devuelve lo que midio.
+     *
+     * Antes devolvía `durationMs = 0` y `passed = true` para los seis tipos sin
+     * llamar al probador: la pantalla de estres enseñaba seis pruebas en verde
+     * que no se habian ejecutado nunca.
+     */
     fun runStressTest(testType: StressTestType): StressTestResult {
         if (!_started || !stressTestingEnabled) {
             return StressTestResult(testType, "error", 0L, false, "StressTester deshabilitado")
         }
+
+        val probador = StressTester()
+        val t0 = System.currentTimeMillis()
+        var pasado = false
+        var detalle = ""
+
+        when (testType) {
+            StressTestType.LIBRARY_MASSIVE -> {
+                val r = probador.runLibraryStressTest(10000)
+                pasado = r.passed; detalle = r.details
+            }
+            StressTestType.DOWNLOADS_CONCURRENT -> {
+                val r = probador.runDownloadStressTest(50)
+                pasado = r.passed; detalle = r.details
+            }
+            StressTestType.AI_INFERENCE -> {
+                val r = probador.runAiInferenceStressTest(100)
+                pasado = r.passed; detalle = r.details
+            }
+            StressTestType.EXTENSIONS_MULTIPLE -> {
+                val r = probador.runExtensionStressTest(100)
+                pasado = r.passed; detalle = r.details
+            }
+            StressTestType.THERMAL_2H -> {
+                val r = probador.runThermalStressTest(120)
+                pasado = r.passed; detalle = r.details
+            }
+            StressTestType.COMPATIBILITY_8_TO_14 -> {
+                val r = probador.runCompatibilityStressTest(listOf(26, 27, 28, 29, 30, 31, 32, 33, 34))
+                pasado = r.passed; detalle = r.details
+            }
+        }
+
         return StressTestResult(
             testType = testType,
-            status = "completed",
-            durationMs = 0, // Placeholder
-            passed = true,
-            details = "Prueba de estrés $testType completada"
+            status = if (pasado) "completed" else "error",
+            durationMs = System.currentTimeMillis() - t0,
+            passed = pasado,
+            details = detalle
         )
     }
 

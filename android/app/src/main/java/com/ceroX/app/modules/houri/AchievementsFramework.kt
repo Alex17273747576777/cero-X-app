@@ -53,9 +53,30 @@ class AchievementsFramework {
 
     fun listAll(): List<AchievementDefinition> = achievements.toList()
 
+    /** Progreso registrado de verdad, de 0f a 1f. Solo existe lo que se anoto. */
+    private val progreso = mutableMapOf<String, Float>()
+
+    /**
+     * Anota el progreso real de un logro.
+     *
+     * Quien mida la actividad del usuario (capitulos leidos, episodios vistos)
+     * llama aqui con lo que conto. Este metodo no deduce nada por su cuenta.
+     */
+    fun recordProgress(achievementId: String, valor: Float) {
+        progreso[achievementId] = valor.coerceIn(0f, 1f)
+    }
+
+    /**
+     * Devuelve el progreso registrado, o 1f si el logro ya esta desbloqueado.
+     *
+     * El comentario decía que faltaba calcularlo a partir de la actividad del
+     * usuario y mientras tanto devolvía 0f o 1f segun el desbloqueo, que no es
+     * progreso: es un booleano con otra forma. Ahora devuelve lo que se anoto con
+     * [recordProgress]; si nadie anoto nada, devuelve 0f, que es lo que se sabe.
+     */
     fun getProgress(achievementId: String): Float {
-        // Placeholder: calcular progreso basado en actividad del usuario
-        return if (isUnlocked(achievementId)) 1.0f else 0.0f
+        if (isUnlocked(achievementId)) return 1.0f
+        return progreso[achievementId] ?: 0.0f
     }
 }
 

@@ -93,18 +93,19 @@ class PrismaModule : ModuleInterface() {
         return download
     }
 
+    /**
+     * La cola no avanza: Prisma no tiene un descargador conectado.
+     *
+     * Se marcaban las tareas como DOWNLOADING respetando los huecos libres y ahi
+     * acababa todo, así que la pantalla enseñaba descargas en curso que no
+     * existian. Se dejan en ERROR, que es lo que de verdad pasa con una tarea que
+     * nadie va a descargar.
+     */
     fun processDownloadQueue() {
-        val pending = downloadQueue.filter { it.status == DownloadStatus.QUEUED }
-        val active = downloadQueue.filter { it.status == DownloadStatus.DOWNLOADING }
-        val availableSlots = maxParallelDownloads - active.size
-
-        for (i in 0 until availableSlots.coerceAtLeast(0)) {
-            if (i < pending.size) {
-                val download = pending[i]
-                downloadQueue[downloadQueue.indexOf(download)] = download.copy(
-                    status = DownloadStatus.DOWNLOADING
-                )
-                // Placeholder: descarga real
+        for (i in downloadQueue.indices) {
+            val estado = downloadQueue[i].status
+            if (estado == DownloadStatus.QUEUED || estado == DownloadStatus.DOWNLOADING) {
+                downloadQueue[i] = downloadQueue[i].copy(status = DownloadStatus.ERROR, progress = 0f)
             }
         }
     }

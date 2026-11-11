@@ -6,6 +6,10 @@ import com.ceroX.app.core.engine.ModuleInterface
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.OrtSession.SessionOptions
 import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OnnxTensor
+import android.graphics.Color
+import com.ceroX.app.modules.ai.SalidaTensor
+import java.nio.FloatBuffer
 import java.io.File
 
 /**
@@ -158,31 +162,82 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
         }
     }
 
+    /**
+     * Colorea una pagina con `colorize.onnx`.
+     *
+     * Este es el modulo que la app registra como `kisara-neural-colorizer`, y
+     * devolvía una copia del bitmap de entrada con `success = true`: en pantalla
+     * la pagina salia sin colorear y el modulo informaba de una inferencia hecha.
+     *
+     * La inferencia es real y usa los nombres que `verifyTensorProbe()` exige al
+     * cargar el modelo: entrada `input`, salida `rgb`, forma [1,5,H,W] -> [1,3,H,W].
+     */
     fun colorizePage(bitmap: Bitmap): KisaraColorizationResult {
         val startTime = System.currentTimeMillis()
+        val sesion = session
 
-        if (!isInitialized || session == null) {
+        if (!isInitialized || sesion == null) {
             return KisaraColorizationResult(
                 inputBitmap = bitmap,
                 outputBitmap = null,
                 success = false,
                 inferenceTimeMs = System.currentTimeMillis() - startTime,
-                errorMessage = "Modelo de colorización no cargado"
+                errorMessage = "Modelo de colorizacion no cargado"
             )
         }
 
-        // Placeholder: inferencia ONNX real para colorización
-        val outputBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
-        val inferenceTime = System.currentTimeMillis() - startTime
+        val lado = 256
+        val escala = minOf(lado.toFloat() / bitmap.width, lado.toFloat() / bitmap.height, 1f)
+        val w = ((bitmap.width * escala).toInt() / 32 * 32).coerceAtLeast(32)
+        val h = ((bitmap.height * escala).toInt() / 32 * 32).coerceAtLeast(32)
+        val pequena = Bitmap.createScaledBitmap(bitmap, w, h, true)
+        val pixeles = IntArray(w * h)
+        pequena.getPixels(pixeles, 0, w, 0, 0, w, h)
 
-        return KisaraColorizationResult(
-            inputBitmap = bitmap,
-            outputBitmap = outputBitmap,
-            success = true,
-            inferenceTimeMs = inferenceTime,
-            modelUsed = modelPath ?: "unknown",
-            dynamicRangeCompensationApplied = dynamicRangeCompensation
-        )
+        val entrada = FloatArray(5 * w * h)
+        for (i in pixeles.indices) {
+            val p = pixeles[i]
+            entrada[i] = 0.299f * Color.red(p) / 255f + 0.587f * Color.green(p) / 255f + 0.114f * Color.blue(p) / 255f
+        }
+
+        return try {
+            OnnxTensor.createTensor(env, FloatBuffer.wrap(entrada), longArrayOf(1, 5, h.toLong(), w.toLong())).use { t ->
+                sesion.run(mapOf("input" to t), setOf("rgb")).use { out ->
+                    val destino = SalidaTensor.aPixeles(out.get(0).value, w, h)
+                    val coloreada = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+                    coloreada.setPixels(destino, 0, w, 0, 0, w, h)
+                    val final = Bitmap.createScaledBitmap(coloreada, bitmap.width, bitmap.height, true)
+                    KisaraColorizationResult(
+                        inputBitmap = bitmap,
+                        outputBitmap = final,
+                        success = true,
+                        inferenceTimeMs = System.currentTimeMillis() - startTime,
+                        modelUsed = modelPath ?: "desconocido",
+                        dynamicRangeCompensationApplied = dynamicRangeCompensation
+                    )
+                }
+            }
+        } catch (e: OutOfMemoryError) {
+            KisaraColorizationResult(
+                inputBitmap = bitmap,
+                outputBitmap = null,
+                success = false,
+                inferenceTimeMs = System.currentTimeMillis() - startTime,
+                errorMessage = "Sin memoria para colorear una pagina de " + bitmap.width + "x" + bitmap.height,
+                modelUsed = modelPath ?: "desconocido",
+                dynamicRangeCompensationApplied = dynamicRangeCompensation
+            )
+        } catch (e: Exception) {
+            KisaraColorizationResult(
+                inputBitmap = bitmap,
+                outputBitmap = null,
+                success = false,
+                inferenceTimeMs = System.currentTimeMillis() - startTime,
+                errorMessage = "La inferencia fallo: " + (e.message ?: e.javaClass.simpleName),
+                modelUsed = modelPath ?: "desconocido",
+                dynamicRangeCompensationApplied = dynamicRangeCompensation
+            )
+        }
     }
 
     fun toggleNnapi(enabled: Boolean) {

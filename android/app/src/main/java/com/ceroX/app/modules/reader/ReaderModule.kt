@@ -56,12 +56,14 @@ class ReaderModule : ModuleInterface() {
         return true
     }
 
-    fun search(query: String): List<SearchResult> {
-        // Placeholder: search through registered extensions
-        return listOf(
-            SearchResult("Resultado para: $query", "placeholder", "manga")
-        )
-    }
+    /**
+     * Sin fuentes conectadas no hay resultados.
+     *
+     * Devolvía una fila inventada con el texto de la consulta como titulo y un id
+     * de relleno, que en pantalla se veía como un resultado de verdad. Una lista
+     * vacia es la respuesta honesta.
+     */
+    fun search(query: String): List<SearchResult> = emptyList()
 
     fun getCacheDir(): File? {
         return context?.externalCacheDir

@@ -38,12 +38,16 @@ class ToolsModule : ModuleInterface() {
             if (_started) "healthy" else "stopped",
             mapOf(
                 "tools_available" to availableTools.size,
-                "gallery_dl" to true,
-                "anime_downloader_nx" to true,
-                "free_manga_downloader_2" to true,
-                "jam" to true,
-                "hdoujin_downloader" to true,
-                "mangaplus_downloader" to true
+                "tools_ejecutables" to availableTools.count { it.ejecutable },
+                // El valor de cada una dice si se puede ejecutar desde la app.
+                // Ninguna puede: son binarios de escritorio o scripts de
+                // navegador, y aqui solo se listan.
+                "gallery_dl" to false,
+                "anime_downloader_nx" to false,
+                "free_manga_downloader_2" to false,
+                "jam" to false,
+                "hdoujin_downloader" to false,
+                "mangaplus_downloader" to false
             )
         )
     }
@@ -59,19 +63,43 @@ class ToolsModule : ModuleInterface() {
 
     fun listTools(): List<ToolInfo> = availableTools.toList()
 
+    /**
+     * No ejecuta la herramienta, y dice por que.
+     *
+     * Devolvía "Tool $toolId executed with N args" sin ejecutar nada. Estas son
+     * herramientas de escritorio (gallery-dl) o scripts de navegador (JAM,
+     * HDoujin Downloader, MangaPlus Downloader NG): cero-X no las lleva dentro y
+     * no puede lanzarlas.
+     */
     fun runTool(toolId: String, args: List<String>): ToolResult {
-        val tool = availableTools.firstOrNull { it.id == toolId } ?: return ToolResult(toolId, false, "Tool not found")
-        // Placeholder: ejecución real de la herramienta
-        return ToolResult(toolId, true, "Tool $toolId executed with ${args.size} args")
+        val tool = availableTools.firstOrNull { it.id == toolId }
+            ?: return ToolResult(toolId, false, "Tool not found")
+        if (!tool.ejecutable) {
+            return ToolResult(
+                toolId, false,
+                tool.name + " no se ejecuta desde cero-X: es una herramienta de escritorio o un " +
+                    "script de navegador. Aqui solo se lista, con " + args.size + " argumento(s) sin usar."
+            )
+        }
+        return ToolResult(toolId, false,
+            "Ninguna herramienta de este catalogo esta marcada como ejecutable en este build")
     }
 }
 
+/**
+ * Una herramienta del catalogo.
+ *
+ * `available` dice si está en el catálogo, no si se puede lanzar: todas las que
+ * hay son de escritorio o de navegador. Lo que dice si cero-X puede ejecutarla es
+ * `ejecutable`, y en este build no hay ninguna en true.
+ */
 data class ToolInfo(
     val id: String,
     val name: String,
     val description: String,
     val category: String,
-    val available: Boolean
+    val available: Boolean,
+    val ejecutable: Boolean = false
 )
 
 data class ToolResult(

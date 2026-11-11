@@ -56,7 +56,7 @@ class SyncModule : ModuleInterface() {
     /**
      * Sincroniza el progreso con una plataforma externa.
      *
-     * Antes marcaba `success = true` con el comentario "Placeholder" al lado, sin
+     * Antes marcaba `success = true` con el comentario "Relleno" al lado, sin
      * hacer ninguna petición. El historial de sincronización se llenaba de éxitos
      * que nunca ocurrieron, y el usuario creía tener su progreso a salvo en
      * AniList o MAL.

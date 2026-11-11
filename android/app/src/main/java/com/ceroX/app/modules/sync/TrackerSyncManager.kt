@@ -27,9 +27,17 @@ class TrackerSyncManager {
         return TrackerSyncOutcome(result.platform.name.lowercase(), result.mangaId, result.success, result.message)
     }
 
+    /**
+     * Pasa por el tracker, que es el que sabe si puede enviar algo.
+     *
+     * Devolvía `success = true` con "Sincronizado con $platform" sin hacer una
+     * sola peticion. `syncToUniversal()` ya iba por el camino bueno; las demas
+     * plataformas, no. `UniversalTracker.syncProgress` dice la verdad: si no hay
+     * cliente para la plataforma, devuelve fallo y explica donde se configura.
+     */
     private fun syncProgress(mangaId: String, chapter: Int, status: String, platform: String): TrackerSyncOutcome {
-        // Placeholder: llamada real a API de cada plataforma
-        return TrackerSyncOutcome(platform, mangaId, true, "Sincronizado con $platform")
+        val r = universalTracker.syncProgress(mangaId, chapter, status, platform)
+        return TrackerSyncOutcome(platform, mangaId, r.success, r.message)
     }
 
     fun listSupportedPlatforms(): List<String> {

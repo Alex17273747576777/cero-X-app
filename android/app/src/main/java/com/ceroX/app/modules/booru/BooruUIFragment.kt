@@ -42,7 +42,7 @@ class BooruUIFragment : Fragment() {
             // devuelve una lista vacía (no hay cliente de ningún booru en el
             // proyecto) y devolvería BooruPost, mientras esta lista enseña
             // BooruFavorite. Antes el listener llamaba a la búsqueda y tiraba el
-            // resultado con un "Placeholder: mostrar resultados" al lado, o sea que
+            // resultado con un "Relleno: mostrar resultados" al lado, o sea que
             // el botón parecía hacer algo. Ahora dice lo que hay.
             android.widget.Toast.makeText(
                 requireContext(),

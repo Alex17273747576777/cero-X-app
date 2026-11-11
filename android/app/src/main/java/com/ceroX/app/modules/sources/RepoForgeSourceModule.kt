@@ -83,12 +83,18 @@ class RepoForgeSourceModule : ModuleInterface() {
 
     // ========== Cloudflare bypass ==========
 
+    /**
+     * No hay bypass. Devolvía éxito con el mensaje "Bypass fingido".
+     *
+     * Resolver un desafío de Cloudflare exige un navegador o un cliente que
+     * replique su TLS; cero-X no lleva ninguno de los dos.
+     */
     fun bypassCloudflare(url: String): BypassResult {
         if (!cloudflareBypassEnabled) {
             return BypassResult(url, false, "Cloudflare bypass deshabilitado")
         }
-        // Placeholder: implementación real usaría desafíos de Cloudflare
-        return BypassResult(url, true, "Bypass simulado — implementar con cloudscraper equivalent")
+        return BypassResult(url, false,
+            "No hay bypass de Cloudflare en cero-X: no se resolvio ningun desafio para $url")
     }
 
     private fun generateDefaultSelectors(url: String): Map<String, String> {

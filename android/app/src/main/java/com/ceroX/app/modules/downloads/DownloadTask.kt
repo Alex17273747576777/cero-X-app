@@ -68,8 +68,40 @@ class DownloadTask(private val context: Context) {
         return downloadManager.remove(id) > 0
     }
 
+    /**
+     * Quita de la lista las descargas que ya terminaron.
+     *
+     * Era un metodo vacio. Se pregunta al DownloadManager del sistema por cada id
+     * activo y se retiran las que están completas o fallidas, que es lo unico que
+     * se puede saber de verdad desde aqui.
+     */
     fun cleanup() {
-        // No-op placeholder
+        val ids = activeDownloads.keys.toLongArray()
+        if (ids.isEmpty()) return
+
+        val query = android.app.DownloadManager.Query()
+        query.setFilterById(*ids)
+        val cursor = try {
+            downloadManager.query(query)
+        } catch (e: Exception) {
+            null
+        } ?: return
+
+        cursor.use { c ->
+            val colId = c.getColumnIndex(android.app.DownloadManager.COLUMN_ID)
+            val colEstado = c.getColumnIndex(android.app.DownloadManager.COLUMN_STATUS)
+            if (colId < 0 || colEstado < 0) return
+            val terminadas = mutableListOf<Long>()
+            while (c.moveToNext()) {
+                val estado = c.getInt(colEstado)
+                if (estado == android.app.DownloadManager.STATUS_SUCCESSFUL ||
+                    estado == android.app.DownloadManager.STATUS_FAILED
+                ) {
+                    terminadas.add(c.getLong(colId))
+                }
+            }
+            for (id in terminadas) activeDownloads.remove(id)
+        }
     }
 }
 

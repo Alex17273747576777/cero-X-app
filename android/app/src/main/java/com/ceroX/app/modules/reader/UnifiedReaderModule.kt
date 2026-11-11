@@ -127,11 +127,57 @@ class UnifiedReaderModule : ModuleInterface() {
 
     // ========== Cover-color theming (Reikai ← Komikku) ==========
 
+    /**
+     * Color dominante de la portada, calculado sobre la imagen.
+     *
+     * Devolvía "#6200EE" —el color de la marca— para cualquier archivo que
+     * existiera, así que el tema por portada era siempre el mismo tema.
+     *
+     * Se decodifica reducida (para un color dominante no hace falta la resolución
+     * completa y una portada grande agota el heap), se cuantiza a 4 bits por
+     * canal y se toma la moda. Promediar daría gris; el dominante es una moda. Se
+     * descartan los pixeles casi negros y casi blancos, que en una portada son el
+     * fondo y el texto, no el color.
+     */
     fun extractCoverColor(imagePath: String): String? {
         if (!coverColorThemingEnabled) return null
-        // Placeholder: extraer color dominante de la portada
         val file = File(imagePath)
-        return if (file.exists()) "#6200EE" else null // color por defecto cero-X
+        if (!file.isFile) return null
+
+        val soloBordes = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        android.graphics.BitmapFactory.decodeFile(file.absolutePath, soloBordes)
+        if (soloBordes.outWidth <= 0 || soloBordes.outHeight <= 0) return null
+
+        var muestra = 1
+        while (soloBordes.outWidth / muestra > 64 || soloBordes.outHeight / muestra > 64) muestra *= 2
+        val opciones = android.graphics.BitmapFactory.Options().apply { inSampleSize = muestra }
+        val bmp = android.graphics.BitmapFactory.decodeFile(file.absolutePath, opciones) ?: return null
+
+        val w = bmp.width
+        val h = bmp.height
+        if (w <= 0 || h <= 0) {
+            bmp.recycle()
+            return null
+        }
+        val pixeles = IntArray(w * h)
+        bmp.getPixels(pixeles, 0, w, 0, 0, w, h)
+        bmp.recycle()
+
+        val cubos = mutableMapOf<Int, Int>()
+        for (p in pixeles) {
+            val r = (p shr 16) and 0xFF
+            val g = (p shr 8) and 0xFF
+            val b = p and 0xFF
+            val suma = r + g + b
+            if (suma < 90 || suma > 690) continue
+            val clave = ((r and 0xF0) shl 8) or ((g and 0xF0) shl 4) or (b and 0xF0)
+            cubos[clave] = (cubos[clave] ?: 0) + 1
+        }
+        val dominante = cubos.maxByOrNull { it.value }?.key ?: return null
+        val rr = ((dominante shr 8) and 0xF0) or 0x08
+        val gg = ((dominante shr 4) and 0xF0) or 0x08
+        val bb = (dominante and 0xF0) or 0x08
+        return "#%02X%02X%02X".format(rr, gg, bb)
     }
 
     // ========== Extensions ==========

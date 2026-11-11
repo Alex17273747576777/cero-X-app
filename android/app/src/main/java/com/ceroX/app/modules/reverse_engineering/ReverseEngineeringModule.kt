@@ -44,33 +44,51 @@ class ReverseEngineeringModule : ModuleInterface() {
         )
     }
 
+    /**
+     * Delega en AntigravityAnalyzer, que lee el contenedor de verdad.
+     *
+     * El detalle "Static analysis performed with antigravity" se devolvía con
+     * `completed` sin haber ejecutado ningun analisis.
+     */
     fun analyzeBinary(binaryPath: String): AnalysisResult {
         if (!_started) {
             return AnalysisResult(binaryPath, "error", "Engine not started")
         }
-        val file = File(binaryPath)
-        val result = AnalysisResult(
-            binaryPath,
-            "completed",
-            "Static analysis performed with antigravity"
-        )
+        val r = AntigravityAnalyzer().analyzeApk(binaryPath)
+        val result = AnalysisResult(binaryPath, r.status, r.details)
         analysisResults.add(result)
         return result
     }
 
+    /**
+     * No se clona nada: no hay git en el dispositivo.
+     *
+     * Devolvía `status = "cloned"` con la herramienta "git" sin ejecutar nada. La
+     * clonacion de los repositorios del ecosistema se hace en el ordenador, con
+     * `scripts/clone_all_repos.sh`.
+     */
     fun cloneEcosystem(sourceUrl: String, targetDir: String): CloneResult {
         if (!_started || !autoClone) {
             return CloneResult(sourceUrl, targetDir, "error", "Auto-clone disabled")
         }
-        // Placeholder: git clone would happen here
-        return CloneResult(sourceUrl, targetDir, "cloned", "git")
+        return CloneResult(
+            sourceUrl, targetDir, "error",
+            "No se puede clonar en el dispositivo: no hay git y cero-X no lleva un entorno Linux. " +
+                "La clonacion se hace en el ordenador con scripts/clone_all_repos.sh"
+        )
     }
 
+    /**
+     * No hay arnes de evaluacion: no se ejecuta ningun benchmark.
+     *
+     * Devolvía `status = "evaluated"` con puntuacion 0.0, que se leía como "se
+     * evaluó y saco un cero", no como "no se evaluo".
+     */
     fun evaluateWithDeepSeek(modelPath: String, benchmark: String): EvaluationResult {
         if (!_started || !deepseekHarnessEnabled) {
             return EvaluationResult(modelPath, benchmark, "error", 0.0)
         }
-        return EvaluationResult(modelPath, benchmark, "evaluated", 0.0)
+        return EvaluationResult(modelPath, benchmark, "sin_evaluar", 0.0)
     }
 }
 

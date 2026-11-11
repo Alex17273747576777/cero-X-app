@@ -117,12 +117,19 @@ class KaiModule : ModuleInterface() {
         linuxSandboxEnabled = enabled
     }
 
+    /**
+     * No se ejecuta nada: cero-X no lleva proot ni una rootfs.
+     *
+     * Devolvía "Ejecutado en sandbox Linux" para cualquier comando, incluido uno
+     * que no existiera. Un resultado de ejecución que no se ejecutó es lo peor que
+     * puede enseñar una consola.
+     */
     fun runLinuxCommand(command: String): LinuxCommandResult {
         if (!linuxSandboxEnabled) {
             return LinuxCommandResult(command, false, "Linux Sandbox no habilitado")
         }
-        // Placeholder: ejecución real en proot Alpine Linux
-        return LinuxCommandResult(command, true, "Ejecutado en sandbox Linux")
+        return LinuxCommandResult(command, false,
+            "No hay entorno Linux en cero-X: no se lleva proot ni rootfs, asi que no se ejecuto nada")
     }
 }
 

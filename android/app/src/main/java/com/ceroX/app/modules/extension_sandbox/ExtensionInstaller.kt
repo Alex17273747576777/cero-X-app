@@ -16,11 +16,11 @@ import java.io.File
  *
  *     private fun installViaShizuku(apkPath: String): InstallResult {
  *         if (!shizukuAvailable) return InstallResult(false, "Shizuku no disponible", null)
- *         // Placeholder: instalación silenciosa vía Shizuku
+ *         // Relleno: instalación silenciosa vía Shizuku
  *         return InstallResult(true, "Instalado vía Shizuku (silent)", extId)
  *     }
  *
- * Tres "Placeholder" y tres `true`. El de Shizuku al menos miraba una bandera
+ * Tres "Relleno" y tres `true`. El de Shizuku al menos miraba una bandera
  * —que `detectShizuku()` devolvía siempre `false`, así que nunca se llegaba—,
  * pero `installViaSystem` y `installViaSandbox` devolvían éxito sin ejecutar
  * una sola instrucción. La extensión no se instalaba en ningún sitio y la app
@@ -218,7 +218,7 @@ class ExtensionInstaller(private val context: Context? = null) {
     /**
      * ¿Está Shizuku instalado y corriendo?
      *
-     * Antes devolvía `false` fijo con un "Placeholder" al lado. Ahora se pregunta
+     * Antes devolvía `false` fijo con un "Relleno" al lado. Ahora se pregunta
      * al sistema por el paquete y se comprueba si su binder está vivo, que es la
      * única forma de saberlo sin la librería de Shizuku.
      */

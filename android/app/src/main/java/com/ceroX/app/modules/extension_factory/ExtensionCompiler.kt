@@ -20,25 +20,29 @@ class ExtensionCompiler {
 
     fun isEnabled(): Boolean = isEnabled
 
+    /**
+     * No se compila: no hay toolchain en el dispositivo.
+     *
+     * Devolvía `success = true` con la ruta de un `.jar` que nadie habia escrito.
+     * Compilar una extension hace falta un JDK y Gradle, y cero-X no los lleva.
+     */
     fun compileExtension(projectPath: String): CompileResult {
         val dir = File(projectPath)
         if (!dir.exists()) {
             return CompileResult(false, "Proyecto no encontrado", null)
         }
-
-        // Placeholder: compilación real con Gradle
-        val outputPath = "${dir.absolutePath}/build/outputs/extension.jar"
-
-        return CompileResult(true, "Extensión compilada", outputPath)
+        return CompileResult(false,
+            "No se compilo nada: cero-X no lleva JDK ni Gradle en el dispositivo. " +
+                "Las extensiones se compilan fuera y se instalan como APK.", null)
     }
 
+    /** Igual que `compileExtension`: no se genera ningun APK. */
     fun exportToApk(projectPath: String, outputPath: String): ExportResult {
         val dir = File(projectPath)
         if (!dir.exists()) {
             return ExportResult(false, "Proyecto no encontrado", null)
         }
-
-        // Placeholder: exportación real a APK
-        return ExportResult(true, "Extensión exportada a APK", outputPath)
+        return ExportResult(false,
+            "No se exporto ningun APK a $outputPath: no hay toolchain de compilacion en el dispositivo", null)
     }
 }

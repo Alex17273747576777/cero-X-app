@@ -285,7 +285,8 @@ class KisaraModule : ModuleInterface() {
     }
 
     fun getSuggestions(sourceId: String, entryId: String): List<KisaraSuggestion> {
-        return emptyList() // Placeholder: se conectaría con la API del source
+        // No hay sugerencias: la API de la fuente no esta conectada a este modulo.
+        return emptyList()
     }
 }
 
