@@ -249,7 +249,11 @@ class Ecualizador {
 
     /** Ganancia fina actual, o null si no hay realce de sonoridad. */
     fun gananciaFinaActual(): Int? = try {
-        ganancia?.targetGain
+        // En los stubs de android-36 getTargetGain() declara float, no int, aunque
+        // setTargetGain() si toma un entero. Se convierte para que el contrato del
+        // modulo siga siendo el mismo: milibelios enteros, que es la unidad con la
+        // que se fija y con la que se ensena.
+        ganancia?.targetGain?.toInt()
     } catch (e: Exception) {
         null
     }
