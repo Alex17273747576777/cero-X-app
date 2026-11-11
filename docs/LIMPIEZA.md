@@ -101,25 +101,113 @@ arranque en segundo plano y repinta la pantalla cuando termina. De paso:
 
 ## Los «Placeholder» que quedan
 
-El repo tiene sesenta y tantos comentarios «Placeholder». La mayoría son honestos:
-están al lado de un `return emptyList()` o de un `false`, o sea que dicen «esto no se
-hizo» y devuelven justamente eso. Los que **fabrican** un resultado son otra cosa y
-van en un barrido propio, porque tocan módulos con pruebas que hoy afirman el
-resultado falso:
+## El barrido de fabricaciones (commit `8d56dff7` y su continuación)
 
-- `NeuralColorizer.colorize()` devuelve **una copia del bitmap de entrada** como
-  `outputBitmap` con `success = true`: la app enseña la foto original y dice que la
-  coloreó.
-- `ModelManager.runInference()` devuelve `FloatArray(10) { 0.0f }` como si hubiera
-  inferido.
-- `DeepReverseEngineeringModule.evaluateAiModel()` devuelve `score = 0.95` y
-  «Evaluación completada con DeepSeek Harness».
-- `DeepReverseEngineeringModule.runStressTest()` devuelve `durationMs = 0`,
-  `passed = true`.
-- `DeepReverseEngineeringModule.compareImplementations()` elige
-  `implementations.keys.firstOrNull()` y lo llama «óptima».
-- `StressTester.runAiInferenceStressTest()` y `runExtensionStressTest()` cronometran
-  un bucle vacío y concluyen `passed = true` (0 ms < 2000 ms siempre).
-- `StressTester.runThermalStressTest()` duerme los minutos pedidos sin medir nada.
-- `ToolsModule.runTool()` devuelve `success = true` y «Tool X executed with N args»
-  sin ejecutar nada.
+La lista de ocho sitios que había escrita aquí se quedó corta. El inventario real,
+buscando las marcas en todo `src/main`, eran **66 apariciones y unas 45
+fabricaciones vivas en 30 ficheros**. La diferencia no es un detalle: una lista
+hecha a mano encuentra lo que uno recuerda, y lo que queda fuera sigue mintiendo
+con el repo en verde.
+
+Se barrió con una regla única: **o se hace de verdad, o se devuelve un fallo con el
+motivo**. Lo que no se hace nunca es devolver éxito con datos inventados.
+
+### Lo que ahora se ejecuta de verdad
+
+| Sitio | Antes | Ahora |
+| --- | --- | --- |
+| `NeuralColorizer.colorizePage` | copia del bitmap de entrada con `success = true` | inferencia ONNX: entrada `[1,5,H,W]`, salida `[1,3,H,W]` leída con `SalidaTensor` |
+| `KisaraNeuralColorizerModule.colorizePage` | lo mismo, y es el módulo registrado `kisara-neural-colorizer` | inferencia con los nombres que exige `verifyTensorProbe()` (`input` → `rgb`) |
+| `ModelManager.runInference` | `FloatArray(10) { 0.0f }` | forma declarada por el modelo, entrada comprobada, salida aplanada |
+| `HardwareMonitor.getCpuUsage` | `0.0f` fijo | delta entre dos lecturas de `/proc/stat`; `null` cuando SELinux no deja leer |
+| `HardwareMonitor.getDeviceTemperature` | `null` siempre | `/sys/class/thermal/thermal_zone*/temp` + `getThermalStatus()` con `PowerManager` |
+| `UnifiedReaderModule.extractCoverColor` | `#6200EE` para cualquier archivo | moda de los píxeles cuantizados a 4 bits, sin negros ni blancos |
+| `ComicModule.importFromFolder` | «Cómics importados» sin abrir la carpeta | lista la carpeta, filtra por los formatos declarados y añade a la biblioteca |
+| `BackupModule.exportLibraryJson` | devolvía la entrada tal cual | valida que sea JSON y construye el sobre con formato, versión y fecha |
+| `ServerModule.connectToServer` | «Conectado» sin tocar la red | abre TCP con 5 s de espera y dice la dirección que contestó o la excepción |
+| `ExtensionSandboxManager.getActiveExtensionsCount` | `0` fijo | cuenta los directorios de aislamiento que existen |
+| `DownloadTask.cleanup` | método vacío | pregunta al `DownloadManager` y retira las terminadas |
+| `AntigravityAnalyzer.analyzeApk` / `analyzeDex` | «análisis completado» mirando el tamaño | contenedor ZIP (entradas, DEX, manifiesto, firma) y cabecera DEX (0x38/0x58/0x60); estado `parcial` |
+| `AchievementsFramework.getProgress` | 0f o 1f según el desbloqueo | lo que se anota con `recordProgress()` |
+| `TrackerSyncManager.syncProgress` | «Sincronizado con X» sin petición | pasa por `UniversalTracker.syncProgress`, que sí decía la verdad |
+| `StressTester.runDownloadStressTest` | «50 descargas concurrentes» | mide el pool de 10 hilos y lo llama lo que es: tareas de 100 ms |
+
+### Lo que ahora devuelve un fallo con el motivo
+
+La función no existe en la app y no se finge:
+
+- **`StressTester`**, cinco de las seis pruebas. El bucle de biblioteca estaba vacío
+  y decía «Cargadas N series»; el de inferencia no ejecutaba nada y, como 0 ms es
+  menor que el umbral de 2000, «pasaba» siempre; el térmico dormía la duración
+  pedida —dos horas de hilo bloqueado desde una pantalla— y devolvía `passed = true`
+  con la temperatura en `null` porque `throttlingDetected` estaba en `false` fijo; el
+  de extensiones devolvía el propio parámetro como si fuera una medida; el de
+  compatibilidad marcaba `true` para cada nivel de API pedido, que es algo que hace
+  el CI con emuladores, no una app en ejecución.
+- **`DeepReverseEngineeringModule.runStressTest`** devolvía `durationMs = 0` y
+  `passed = true` para los seis tipos sin llamar al probador. Ahora despacha al
+  método que corresponde y devuelve lo que midió. **`evaluateAiModel`** daba 0.95 de
+  nota sin cargar el modelo ni ejecutar el benchmark.
+- **`CodeComparator.compareFunction` / `compareReaders`** elegían «la óptima»
+  quedándose con la primera clave del mapa, que es el orden de llegada.
+- **`ReverseEngineeringModule.cloneEcosystem`** devolvía `status = "cloned"` con la
+  herramienta `git` sin ejecutar nada: no hay git en el dispositivo. La clonación del
+  ecosistema se hace en el ordenador con `scripts/clone_all_repos.sh`.
+- **`ToolsModule.runTool`** devolvía «Tool X executed with N args». Las seis
+  herramientas del catálogo son binarios de escritorio (`gallery-dl`) o scripts de
+  navegador (JAM, HDoujin, MangaPlus NG): `ToolInfo` gana un campo `ejecutable` que
+  vale `false` por defecto y el `healthCheck` pasa sus seis claves a `false`.
+- **`KaiModule.runLinuxCommand`** devolvía «Ejecutado en sandbox Linux» para
+  cualquier comando. No hay proot ni rootfs en la app.
+- **`RepoForgeSourceModule.bypassCloudflare`** y **`RepoForgeGenerator.bypassCloudflare`**
+  devolvían éxito con «Bypass simulado». Resolver un desafío de Cloudflare exige un
+  navegador o un cliente que replique su TLS.
+- **`ExtensionCompiler`** y **`ExtensionBuilder`** devolvían `success = true` con la
+  ruta de un `.jar` o un `app-debug.apk` que nadie había escrito. No hay JDK ni
+  Gradle en el dispositivo; la comprobación de estructura del `ExtensionBuilder` sí
+  es real y se conserva.
+- **`ReaderModule.search`**, **`NovelModule.searchNovels`** y
+  **`BooruModule.searchBooru`** devolvían éxito con resultados inventados o con una
+  lista vacía que se leía como «buscado, cero resultados». Ahora la lista va vacía y
+  `BooruSearchResult` gana un campo `motivo`, porque sin él no se distinguía «no
+  encontré nada» de «no llegué a buscar».
+- **`BooruModule.downloadMedia`** devolvía «Descargado» sin abrir una conexión.
+- **`PrismaModule.processDownloadQueue`** marcaba las tareas como `DOWNLOADING`
+  respetando los huecos libres y ahí acababa todo: la pantalla enseñaba descargas en
+  curso que no existían. Ahora pasan a `ERROR`, que es lo que le ocurre a una tarea
+  que nadie va a descargar.
+- **`WebGPUViewer.detectWebGPUSupport`** devolvía `true` en cualquier Android 12+.
+  Android no expone WebGPU a una `GLSurfaceView` y la app no lleva Dawn: se
+  renderiza GLES 3.
+
+### Lo que se borró
+
+`ExtensionStore` registraba tres extensiones inventadas —Madara Manga, WordPress
+Anime y Novel Updates— con `downloadUrl` apuntando a `extensions.cero-x.app`, un
+dominio que no existe, y `sha256 = "placeholder"`. Una huella falsa en un instalador
+de extensiones es lo que menos se puede fingir: es el valor con el que se va a
+verificar lo que se instala. El catálogo empieza vacío y lo llenará un repositorio
+de extensiones externo, con su índice y su huella de firma, que vive fuera del APK.
+
+### La puerta
+
+`FabricacionTest` (nueve pruebas) prohíbe las marcas en `src/main` y comprueba que
+los sitios donde estaban siguen haciendo lo que dicen: que los dos colorizadores
+crean el tensor y leen la salida con el lector que comprueba la forma, que el gestor
+de modelos consulta la forma declarada, que la pantalla de estrés llama al módulo
+fuera del hilo principal, que `getCpuUsage` puede devolver `null`, que el catálogo
+de herramientas distingue entre estar listado y poder ejecutarse, que los
+analizadores dicen `parcial`, y que nadie afirma una conexión o una ejecución que no
+ocurre.
+
+Prohibir la palabra no basta —lo siguiente sería borrar la palabra y dejar la
+mentira—, por eso la mitad de las pruebas son positivas.
+
+Dos detalles que costaron tiempo y quedan anotados para quien toque esto:
+
+1. **El texto que explica por qué algo está prohibido no puede citar lo
+   prohibido.** Los comentarios de `src/main` que describían arreglos anteriores
+   citaban las marcas y se reescribieron en el mismo barrido. Es el mismo error que
+   hizo fallar `PantallasTest` tres veces en este repo.
+2. **Las mayúsculas importan.** Buscar `TODO:` sin distinguirlas acusa a cualquier
+   `metodo:`, que contiene esa secuencia.

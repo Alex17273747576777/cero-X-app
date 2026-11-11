@@ -71,7 +71,8 @@ class HardwareMonitor(private val context: Context) {
      * Temperatura mas alta de las zonas térmicas legibles, en grados, o `null`.
      *
      * Devolvía `null` siempre, con una nota diciendo que faltaba leer los
-     * sensores. Se leen: `/sys/class/thermal/thermal_zone*/temp`. Segun el
+     * sensores. Se lee el archivo `temp` de cada `thermal_zone<N>` de
+     * `/sys/class/thermal`. Segun el
      * fabricante vienen en grados o en miligrados, y no todas las zonas se pueden
      * leer, así que se descartan los valores que no son una temperatura creíble.
      */

@@ -85,14 +85,38 @@ class BooruModule : ModuleInterface() {
 
     fun listFavorites(): List<BooruFavorite> = favoritePosts.toList()
 
+    /**
+     * No busca: cero-X no lleva ningun cliente de booru.
+     *
+     * Devolvía `success = true` con la lista vacía, o sea "búsqueda correcta, cero
+     * resultados", que es exactamente lo que se ve cuando una búsqueda no encuentra
+     * nada. La diferencia importa: aquí no se llegó a preguntar. La pantalla ya lo
+     * dice con un Toast; este resultado lleva el motivo para quien llame por código.
+     */
     fun searchBooru(site: String, tags: String, limit: Int = 20): BooruSearchResult {
-        // Placeholder: búsqueda real usaría API del booru correspondiente
-        return BooruSearchResult(site, tags, limit, emptyList(), true)
+        return BooruSearchResult(
+            site = site,
+            tags = tags,
+            limit = limit,
+            results = emptyList(),
+            success = false,
+            motivo = "No hay ningún cliente de booru en cero-X: no se llegó a consultar " + site
+        )
     }
 
+    /**
+     * No descarga: este módulo no tiene descargador conectado.
+     *
+     * Devolvía `success = true` con el mensaje "Descargado" sin abrir una conexión
+     * ni escribir el archivo de destino.
+     */
     fun downloadMedia(url: String, destination: String): DownloadResult {
-        // Placeholder: descarga real con MediaStore e IS_PENDING
-        return DownloadResult(url, destination, true, "Descargado")
+        return DownloadResult(
+            url = url,
+            destination = destination,
+            success = false,
+            message = "No se descargó nada: el módulo no tiene descargador ni MediaStore conectado"
+        )
     }
 
     fun getSupportedSites(): List<String> = supportedSites.toList()
@@ -114,7 +138,10 @@ data class BooruSearchResult(
     val tags: String,
     val limit: Int,
     val results: List<BooruPost>,
-    val success: Boolean
+    val success: Boolean,
+    /** Por qué no hay resultados. Con `success = true` y la lista vacía no se
+     *  distinguía "no encontré nada" de "no llegué a buscar". */
+    val motivo: String? = null
 )
 
 data class BooruPost(

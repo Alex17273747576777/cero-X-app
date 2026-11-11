@@ -12,6 +12,9 @@ import androidx.compose.ui.unit.dp
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.modules.reverse_engineering.DeepReverseEngineeringModule
 import com.ceroX.app.modules.reverse_engineering.StressTestType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * StressTestScreen — Pantalla de pruebas de estrés al extremo.
@@ -26,45 +29,65 @@ fun StressTestScreen(
     // el mapa en mutableStateOf y leerlo desde .value.
     var testResults by remember { mutableStateOf(mutableMapOf<String, String>()) }
     var isRunning by remember { mutableStateOf(false) }
+    val alcance = rememberCoroutineScope()
 
     Column(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = "Pruebas de Estrés al Extremo 🐦‍🔥",
+            text = "Pruebas de estrés",
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Las etiquetas dicen lo que se mide de verdad. Antes anunciaban "10,000
+        // series", "50 descargas" y "estrés térmico 2 horas" y el botón no
+        // ejecutaba nada: escribía "completado" en el mapa para las seis.
         val tests = listOf(
-            StressTestType.LIBRARY_MASSIVE to "Biblioteca 10,000 series",
-            StressTestType.DOWNLOADS_CONCURRENT to "50 descargas concurrentes",
-            StressTestType.AI_INFERENCE to "IA: 100 páginas colorización",
-            StressTestType.EXTENSIONS_MULTIPLE to "100+ extensiones simultáneas",
-            StressTestType.THERMAL_2H to "Estrés térmico 2 horas",
+            StressTestType.LIBRARY_MASSIVE to "Biblioteca: carga masiva",
+            StressTestType.DOWNLOADS_CONCURRENT to "Concurrencia: 50 tareas de 100 ms",
+            StressTestType.AI_INFERENCE to "Inferencia IA: 100 páginas",
+            StressTestType.EXTENSIONS_MULTIPLE to "Extensiones simultáneas",
+            StressTestType.THERMAL_2H to "Térmico: muestra de 3 s",
             StressTestType.COMPATIBILITY_8_TO_14 to "Compatibilidad Android 8-14"
         )
 
         tests.forEach { (type, label) ->
             val status = testResults[type.name] ?: "Pendiente"
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = label, style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    text = status.uppercase(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = when (status) {
-                        "completado" -> MaterialTheme.colorScheme.primary
-                        "fallido" -> MaterialTheme.colorScheme.error
-                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
+            val detalle = testResults[type.name + " / detalle"]
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = label, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = status.uppercase(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = when (status) {
+                            "completado" -> MaterialTheme.colorScheme.primary
+                            "fallido" -> MaterialTheme.colorScheme.error
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
+                // Aquí es donde se ve la diferencia: cada prueba cuenta lo que midió
+                // o por qué no pudo medir nada. Cinco de las seis van a fallar, y
+                // eso es correcto —la app no lleva modelo, ni biblioteca, ni
+                // extensiones conectadas a este probador, ni puede emular otros
+                // niveles de API—. Un panel todo en verde que no ejecutó nada es
+                // peor que uno que dice lo que falta.
+                if (detalle != null) {
+                    Text(
+                        text = detalle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Divider()
             }
-            Divider()
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -72,12 +95,25 @@ fun StressTestScreen(
         Button(
             onClick = {
                 isRunning = true
-                // Ejecutar pruebas de estrés
-                tests.forEachIndexed { index, (type, _) ->
-                    // Simular ejecución
-                    testResults[type.name] = "completado"
+                // Fuera del hilo principal: una de las pruebas abre 50 tareas y
+                // otra hace red si algún día se conecta un termómetro real.
+                alcance.launch {
+                    val resultados = withContext(Dispatchers.Default) {
+                        tests.map { (tipo, _) -> tipo to reModule?.runStressTest(tipo) }
+                    }
+                    val mapa = mutableMapOf<String, String>()
+                    for ((tipo, r) in resultados) {
+                        mapa[tipo.name] = when {
+                            r == null -> "sin módulo"
+                            r.passed -> "completado"
+                            else -> "fallido"
+                        }
+                        mapa[tipo.name + " / detalle"] = r?.details
+                            ?: "El módulo de ingeniería inversa no está registrado"
+                    }
+                    testResults = mapa
+                    isRunning = false
                 }
-                isRunning = false
             },
             enabled = !isRunning,
             modifier = Modifier.fillMaxWidth()
@@ -85,7 +121,7 @@ fun StressTestScreen(
             if (isRunning) {
                 CircularProgressIndicator()
             } else {
-                Text(text = "Ejecutar Todas las Pruebas")
+                Text(text = "Ejecutar todas las pruebas")
             }
         }
     }
