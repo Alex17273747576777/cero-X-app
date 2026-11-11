@@ -14,7 +14,8 @@ class KisaraUiFragment : Fragment() {
 
     private lateinit var binding: FragmentKisaraBinding
     private lateinit var adapter: KisaraLibraryAdapter
-    private lateinit var kisaraModule: KisaraModule
+    private var kisaraModule: KisaraModule? = null
+    private var libraryModule: KisaraLibraryModule? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,24 +30,21 @@ class KisaraUiFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val app = requireActivity().application as com.ceroX.app.core.CeroXApplication
-        kisaraModule = app.coreEngine.registry.getInstance("kisara-reader") as KisaraModule
-
-        // toggleBulkSelection vive en KisaraLibraryModule, no en KisaraModule.
-        // Se resuelve la instancia correcta del registro antes de usarla.
-        val libraryModule = app.coreEngine.registry.getInstance("kisara-library") as? KisaraLibraryModule
-
-        adapter = KisaraLibraryAdapter(kisaraModule.listLibraryEntries()) { entryId ->
-            libraryModule?.toggleBulkSelection(entryId)
-            adapter.notifyDataSetChanged()
+        kisaraModule = com.ceroX.app.core.Pantallas.modulo(app, "kisara-reader", KisaraModule::class.java) {
+            if (isAdded) pintar()
         }
 
+        // toggleBulkSelection vive en KisaraLibraryModule, no en KisaraModule: son
+        // dos clases distintas y esta pantalla necesita las dos.
+        libraryModule = com.ceroX.app.core.Pantallas.modulo(app, "kisara-library", KisaraLibraryModule::class.java)
+
         binding.libraryRecycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.libraryRecycler.adapter = adapter
+        pintar()
 
         binding.searchInput.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
                 val query = binding.searchInput.text.toString()
-                val results = kisaraModule.searchLibrary(query)
+                val results = kisaraModule?.searchLibrary(query) ?: emptyList()
                 adapter.submitList(results)
                 true
             } else false
@@ -57,7 +55,12 @@ class KisaraUiFragment : Fragment() {
         // por lotes llevaba tiempo implementada en KisaraLibraryModule y no habia
         // forma de invocarla desde la pantalla.
         binding.bulkFavoriteButton.setOnClickListener {
-            val biblioteca = kisaraModule as? KisaraLibraryModule ?: return@setOnClickListener
+            // El cast era sobre kisaraModule, que es un KisaraModule: dos clases
+            // distintas, así que daba null siempre y el botón salía en silencio por
+            // el return. El comentario de encima decía que la operación por lotes ya
+            // se podía invocar desde la pantalla; no se podía. La instancia correcta
+            // es la de kisara-library, que es donde vive la operación.
+            val biblioteca = libraryModule ?: return@setOnClickListener
             if (biblioteca.selectedCount() == 0) {
                 // Sin seleccion: el boton entra en modo seleccion en vez de no
                 // hacer nada, que es lo que confundia.
@@ -68,6 +71,23 @@ class KisaraUiFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
+    }
+
+    /**
+     * Dibuja la biblioteca con lo que el lector tenga cargado.
+     *
+     * Se llama al abrir la pantalla y otra vez cuando el módulo termina de
+     * inicializarse, que es cuando la biblioteca puede haber cambiado. Crea siempre
+     * el adaptador, aunque la lista esté vacía, para que los listeners de
+     * onViewCreated puedan usarlo sin comprobar si existe.
+     */
+    private fun pintar() {
+        if (!this::binding.isInitialized) return
+        adapter = KisaraLibraryAdapter(kisaraModule?.listLibraryEntries() ?: emptyList()) { entryId ->
+            libraryModule?.toggleBulkSelection(entryId)
+            adapter.notifyDataSetChanged()
+        }
+        binding.libraryRecycler.adapter = adapter
     }
 }
 

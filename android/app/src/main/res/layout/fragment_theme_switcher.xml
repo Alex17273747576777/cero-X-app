@@ -19,7 +19,7 @@
         android:id="@+id/theme_subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Elige la paleta: Kiroku, Kototoro, AniZen, Media o Personalizado. Se guarda, pero todavía no se aplica a la interfaz."
+        android:text="Elige la paleta: Kiroku, Kototoro, AniZen, Media o Personalizado. Cambia los colores de la interfaz Compose; el desenfoque aún no existe y las pantallas en XML siguen con el tema del sistema."
         android:textSize="14sp"
         android:paddingHorizontal="16dp"
         android:textColor="?attr/colorOnSurfaceVariant" />

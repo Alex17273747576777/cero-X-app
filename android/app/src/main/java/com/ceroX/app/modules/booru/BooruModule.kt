@@ -30,6 +30,12 @@ class BooruModule : ModuleInterface() {
     private var cacheSizeMb = 200
     private var coilMemoryCachePercent = 25
 
+    init {
+        // Los sitios soportados están desde la construcción, por la misma razón que
+        // en los otros catálogos.
+        registerDefaultSites()
+    }
+
     override fun initialize(config: Map<String, Any>): Boolean {
         cacheSizeMb = config["cache_size_mb"] as? Int ?: 200
         coilMemoryCachePercent = config["coil_memory_cache_percent"] as? Int ?: 25
@@ -65,6 +71,8 @@ class BooruModule : ModuleInterface() {
     }
 
     private fun registerDefaultSites() {
+        // Idempotente: se llama en init y otra vez en initialize().
+        if (supportedSites.isNotEmpty()) return
         supportedSites.addAll(listOf(
             "rule34.xxx", "gelbooru.com", "danbooru.donmai.us",
             "safebooru.org", "konachan.com", "yande.re"

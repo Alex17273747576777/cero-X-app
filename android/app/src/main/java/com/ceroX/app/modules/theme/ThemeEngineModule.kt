@@ -44,6 +44,15 @@ class ThemeEngineModule : ModuleInterface() {
     private var glassBlurRadius = 24f
     private var customPalette: String? = null
 
+    init {
+        // Las paletas están desde la construcción. La pantalla de Diseño las lista
+        // en cuanto se abre, y el registro de módulos ocurre en el onCreate de la
+        // aplicación mientras que initialize() va en otro hilo: si las paletas
+        // dependieran de inicializar, la pantalla se abriría vacía —o se caería,
+        // que es lo que pasaba con el `!!` de getCurrentTheme()—.
+        registerDefaultThemes()
+    }
+
     override fun initialize(config: Map<String, Any>): Boolean {
         liquidGlassEnabled = config["liquid_glass"] as? Boolean ?: true
         glassBlurRadius = config["glass_blur_radius"] as? Float ?: 24f
@@ -82,6 +91,8 @@ class ThemeEngineModule : ModuleInterface() {
     }
 
     private fun registerDefaultThemes() {
+        // Idempotente: se llama en init y otra vez en initialize().
+        if (availableThemes.isNotEmpty()) return
         availableThemes.addAll(listOf(
             AppTheme(
                 id = "kiroku_liquid_glass",
@@ -178,8 +189,8 @@ class ThemeEngineModule : ModuleInterface() {
      * id de una paleta —como acaba de pasar con la que se atribuía a Namida— y pasa
      * con cualquier preferencia guardada de una versión anterior.
      */
-    fun getCurrentTheme(): AppTheme =
-        availableThemes.find { it.id == currentThemeId } ?: availableThemes.first()
+    fun getCurrentTheme(): AppTheme? =
+        availableThemes.find { it.id == currentThemeId } ?: availableThemes.firstOrNull()
     fun listThemes(): List<AppTheme> = availableThemes.toList()
 
     fun setLiquidGlass(enabled: Boolean) {

@@ -25,6 +25,12 @@ class ModeManagerModule : ModuleInterface() {
     private var currentModeId = "dashboard"
     private val modeHistory = mutableListOf<String>()
 
+    init {
+        // Los modos están desde la construcción: la pantalla de modos los lista en
+        // cuanto se abre, y initialize() corre en el hilo de arranque.
+        registerDefaultModes()
+    }
+
     override fun initialize(config: Map<String, Any>): Boolean {
         registerDefaultModes()
         _initialized = true
@@ -56,6 +62,8 @@ class ModeManagerModule : ModuleInterface() {
     }
 
     private fun registerDefaultModes() {
+        // Idempotente: se llama en init y otra vez en initialize().
+        if (availableModes.isNotEmpty()) return
         availableModes.addAll(listOf(
             AppMode(
                 id = "dashboard",
@@ -184,7 +192,9 @@ class ModeManagerModule : ModuleInterface() {
 
     fun getMode(modeId: String): AppMode? = availableModes.find { it.id == modeId }
 
-    fun getCurrentMode(): AppMode = availableModes.find { it.id == currentModeId }!!
+    /** Null si todavía no hay modos registrados, en vez de una excepción. */
+    fun getCurrentMode(): AppMode? =
+        availableModes.find { it.id == currentModeId } ?: availableModes.firstOrNull()
     fun listModes(): List<AppMode> = availableModes.toList()
     fun listModesByCategory(category: ModeCategory): List<AppMode> = availableModes.filter { it.category == category }
     fun listModesForPlatform(platform: String): List<AppMode> = availableModes.filter { it.compatiblePlatforms.contains(platform) }

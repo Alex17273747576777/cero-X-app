@@ -42,10 +42,10 @@ ajeno, un healthCheck que informa de una función que no existe.
 
 ## Lo que sigue sin estar, dicho en la propia app
 
-- La pantalla de Diseño **guarda** la paleta elegida pero **no la aplica**:
-  `CeroXTheme` usa los colores fijos de `ui/theme/Color.kt`. El conversor existe
-  (`UIThemeManager.colorSchemeFor()` convierte `AppTheme` en un `ColorScheme` de
-  Material 3 y nadie lo llama). Conectarlos es el paso siguiente.
+- ~~La pantalla de Diseño guarda la paleta pero no la aplica~~ **hecho en el commit
+  siguiente**: `CeroXTheme` acepta un `ColorScheme` y `MainActivity` convierte la
+  paleta elegida con `UIThemeManager`, que ya sabía hacerlo y no lo llamaba nadie.
+  Límite: cambia los colores de Compose, no los de las pantallas en XML.
 - El interruptor «Liquid Glass» y la barra de desenfoque guardan dos valores que
   ningún renderer usa. No hay desenfoque en la app. El healthCheck informa
   `desenfoque_aplicado = false`.
@@ -56,7 +56,7 @@ ajeno, un healthCheck que informa de una función que no existe.
 - `AudioModule` y `MediaModule` se solapan (los dos son lista + `MediaPlayer`). Se
   mantienen los dos hasta decidir cuál sobrevive; el candidato es `MediaModule`.
 
-## Pendiente en el siguiente commit: seis pantallas que revientan al abrirlas
+## Hecho en el commit siguiente: seis pantallas que reventaban al abrirlas
 
 Encontrado mientras se comprobaban las atribuciones del tema. `CeroXApplication.coreEngine`
 crea un `CoreEngine` **legacy vacío** —el getter sólo hace `CoreEngine(applicationContext)`,
@@ -72,10 +72,32 @@ de ahí con un cast no nulo:
 | `BooruUIFragment` | `booru-viewer` | excepción |
 | `StressTestActivity` | `deep-reverse-engineering` | excepción |
 
-`ModuleDashboardFragment` no revienta pero enseña siempre cero módulos, porque recorre
-ese registro vacío mientras el panel real tiene 36. Y `CrashHandler` y
-`ConnectivityReceiver` publican en `coreEngine.eventBus`, un bus distinto del que
-escucha el gestor: los eventos no llegan a ninguna parte.
+`ModuleDashboardFragment` no reventaba pero enseñaba siempre cero módulos, porque
+recorría ese registro vacío mientras el panel real tiene 36. Y `CrashHandler` y
+`ConnectivityReceiver` publicaban en `coreEngine.eventBus`, un bus distinto del que
+escucha el gestor: los eventos no llegaban a ninguna parte.
+
+**Cómo se arregló.** `CoreEngine` está borrado, para que el camino roto no vuelva a
+existir, y `core/Pantallas.kt` es el único sitio por el que una pantalla pide un
+módulo: devuelve null en vez de reventar, y si el módulo aún no se inicializó pide su
+arranque en segundo plano y repinta la pantalla cuando termina. De paso:
+
+- Los catálogos de temas, modos, apps y sitios booru se registran en `init`, no en
+  `initialize()`: son datos fijos, y `initialize()` corre en el hilo de arranque, así
+  que una pantalla abierta antes se encontraba la lista vacía. El registro es
+  idempotente.
+- `getCurrentTheme()` y `getCurrentMode()` terminaban en `!!`: devuelven null.
+- El botón de favoritos en lote de Kisara hacía `kisaraModule as? KisaraLibraryModule`
+  —dos clases distintas— y salía en silencio por el `return`. Usa la instancia de
+  `kisara-library`, que es donde vive la operación.
+- El filtro por categorías del catálogo y la búsqueda de boorus eran botones que no
+  hacían nada con un «Placeholder» al lado. Ahora dicen en pantalla que no están
+  implementados.
+- Los logs de arranque decían «v1.0.0-beta-kisara-universal initialized — 30 modules
+  fused» y «APK Universal: armeabi-v7a, arm64-v8a, x86, x86_64»: versión escrita a
+  mano y atrasada, un recuento fijo, «initialized» cuando la inicialización aún no ha
+  empezado, y cuatro ABI cuando el APK publicado lleva una. Ahora dicen la versión
+  real, el recuento del registro, y el aparato con las ABI que soporta.
 
 ## Los «Placeholder» que quedan
 

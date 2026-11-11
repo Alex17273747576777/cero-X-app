@@ -49,7 +49,9 @@ class CrashHandler(private val context: Context) : Thread.UncaughtExceptionHandl
         // Notificar al EventBus si está disponible
         try {
             val app = context.applicationContext as com.ceroX.app.core.CeroXApplication
-            app.coreEngine.eventBus.publish("system.crash", report)
+            // Iba al bus del motor legacy, que no es el que escucha el gestor de
+            // módulos: el evento se publicaba y no lo recibía nadie.
+            app.lifecycleManager.getEventBus().publish("system.crash", report)
         } catch (e: Exception) {
             Log.e(TAG, "No se pudo publicar evento de crash", e)
         }

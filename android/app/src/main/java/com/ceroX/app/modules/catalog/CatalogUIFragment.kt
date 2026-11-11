@@ -14,7 +14,7 @@ class CatalogUIFragment : Fragment() {
 
     private lateinit var binding: FragmentCatalogBinding
     private lateinit var adapter: CatalogAdapter
-    private lateinit var catalogModule: CatalogModule
+    private var catalogModule: CatalogModule? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,32 +28,40 @@ class CatalogUIFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Obtener instancia del módulo de catálogo desde la aplicación
+        // La instancia sale del gestor real, no del motor legacy vacío (ver Pantallas).
         val app = requireActivity().application as com.ceroX.app.core.CeroXApplication
-        catalogModule = app.coreEngine.registry.getInstance("app-catalog") as CatalogModule
+        catalogModule = com.ceroX.app.core.Pantallas.modulo(app, "app-catalog", CatalogModule::class.java) {
+            if (isAdded && this::adapter.isInitialized) adapter.submitList(catalogModule?.listApps() ?: emptyList())
+        }
 
-        adapter = CatalogAdapter(catalogModule.listApps())
+        adapter = CatalogAdapter(catalogModule?.listApps() ?: emptyList())
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
 
-        // Filtro por categoría
+        // Filtro por categoría: el botón existía, se podía pulsar y no pasaba nada,
+        // con un "Placeholder" al lado. Ahora dice en pantalla que no está hecho, que
+        // es lo mínimo que puede hacer un botón que no hace lo que promete.
         binding.categoryFilter.setOnClickListener {
-            // Placeholder: mostrar filtro de categorías
+            android.widget.Toast.makeText(
+                requireContext(),
+                "El filtro por categorías no está implementado",
+                android.widget.Toast.LENGTH_SHORT,
+            ).show()
         }
 
         // Búsqueda
         binding.searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                val results = catalogModule.searchApps(query)
+                val results = catalogModule?.searchApps(query) ?: emptyList()
                 adapter.submitList(results)
                 return true
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
                 if (newText.isEmpty()) {
-                    adapter.submitList(catalogModule.listApps())
+                    adapter.submitList(catalogModule?.listApps() ?: emptyList())
                 } else {
-                    val results = catalogModule.searchApps(newText)
+                    val results = catalogModule?.searchApps(newText) ?: emptyList()
                     adapter.submitList(results)
                 }
                 return true

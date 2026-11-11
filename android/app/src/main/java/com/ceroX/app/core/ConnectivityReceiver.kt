@@ -34,7 +34,7 @@ class ConnectivityReceiver : BroadcastReceiver() {
 
             try {
                 val app = context.applicationContext as CeroXApplication
-                app.coreEngine.eventBus.publish("network.changed", isConnected)
+                app.lifecycleManager.getEventBus().publish("network.changed", isConnected)
             } catch (e: Exception) {
                 Log.e(TAG, "Error publicando evento de red", e)
             }

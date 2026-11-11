@@ -32,6 +32,13 @@ class CatalogModule : ModuleInterface() {
         }
     }
 
+    init {
+        // El catálogo está desde la construcción: es una lista fija de
+        // aplicaciones, no trabajo pesado, y la pantalla lo enseña en cuanto se
+        // abre aunque initialize() siga corriendo en su hilo.
+        registerAllApps()
+    }
+
     override fun initialize(config: Map<String, Any>): Boolean {
         registerAllApps()
         _initialized = true
@@ -62,6 +69,8 @@ class CatalogModule : ModuleInterface() {
     }
 
     private fun registerAllApps() {
+        // Idempotente: se llama en init y otra vez en initialize().
+        if (apps.isNotEmpty()) return
         // === APPS DE MIYOMI ===
         addApp(CatalogApp(
             id = "mihon",

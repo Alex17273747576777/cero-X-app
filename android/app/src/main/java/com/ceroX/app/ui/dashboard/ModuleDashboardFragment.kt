@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ceroX.app.R
+import android.util.Log
 import com.ceroX.app.core.CeroXApplication
 import com.ceroX.app.core.engine.ModuleStatus
 import com.ceroX.app.databinding.FragmentModuleDashboardBinding
@@ -15,6 +16,7 @@ import com.ceroX.app.ui.main.MainActivity
 
 class ModuleDashboardFragment : Fragment() {
 
+    private val TAG = "ModuleDashboard"
     private lateinit var binding: FragmentModuleDashboardBinding
     private lateinit var viewModel: DashboardViewModel
     private lateinit var adapter: ModuleAdapter
@@ -34,14 +36,12 @@ class ModuleDashboardFragment : Fragment() {
         viewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
 
         val app = requireActivity().application as CeroXApplication
-        val engine = app.coreEngine
 
         // Setup RecyclerView
-        adapter = ModuleAdapter(engine) { moduleName ->
-            // Handle module click
-            val status = engine.registry.getMetadata(moduleName)?.status
+        adapter = ModuleAdapter { moduleName ->
+            val status = app.getModuleStatus(moduleName)
             if (status == ModuleStatus.STARTED) {
-                // Module is running, could show details
+                Log.i(TAG, "módulo en marcha: $moduleName")
             }
         }
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -54,19 +54,16 @@ class ModuleDashboardFragment : Fragment() {
 
         // Refresh button
         binding.refreshButton.setOnClickListener {
-            val healthMap = engine.healthCheckAll()
-            viewModel.moduleHealth.value = healthMap
+            viewModel.refresh(app)
         }
 
         // Initial load
-        val healthMap = engine.healthCheckAll()
-        viewModel.moduleHealth.value = healthMap
+        viewModel.refresh(app)
     }
 }
 
 /** Simple adapter for module list */
 class ModuleAdapter(
-    private val engine: com.ceroX.app.core.engine.CoreEngine,
     private val onModuleClick: (String) -> Unit
 ) : androidx.recyclerview.widget.ListAdapter<ModuleItem, ModuleAdapter.ModuleViewHolder>(
     ModuleItemDiffCallback()

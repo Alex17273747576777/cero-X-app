@@ -14,7 +14,7 @@ class ModeSwitcherFragment : Fragment() {
 
     private lateinit var binding: FragmentModeSwitcherBinding
     private lateinit var adapter: ModeAdapter
-    private lateinit var modeManager: ModeManagerModule
+    private var modeManager: ModeManagerModule? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,29 +29,36 @@ class ModeSwitcherFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val app = requireActivity().application as com.ceroX.app.core.CeroXApplication
-        modeManager = app.coreEngine.registry.getInstance("mode-manager") as ModeManagerModule
-
-        adapter = ModeAdapter(modeManager.listModes(), modeManager.getCurrentMode().id) { modeId ->
-            modeManager.setMode(modeId)
-            adapter.notifyDataSetChanged()
+        modeManager = com.ceroX.app.core.Pantallas.modulo(app, "mode-manager", ModeManagerModule::class.java) {
+            if (isAdded) pintar()
         }
 
         binding.modesRecycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.modesRecycler.adapter = adapter
+        pintar()
+    }
 
-        binding.currentModeText.text = "Modo actual: ${modeManager.getCurrentMode().name}"
+    /** Dibuja la lista y el modo actual. Se repite cuando el módulo termina de inicializarse. */
+    private fun pintar() {
+        if (!this::binding.isInitialized) return
+        val gestor = modeManager ?: return
+        val actual = gestor.getCurrentMode()
+        adapter = ModeAdapter(gestor.listModes(), actual?.id) { modeId ->
+            gestor.setMode(modeId)
+            adapter.notifyDataSetChanged()
+        }
+        binding.modesRecycler.adapter = adapter
+        binding.currentModeText.text = "Modo actual: ${actual?.name ?: "ninguno"}"
     }
 
     override fun onResume() {
         super.onResume()
-        binding.currentModeText.text = "Modo actual: ${modeManager.getCurrentMode().name}"
-        adapter.notifyDataSetChanged()
+        pintar()
     }
 }
 
 class ModeAdapter(
     private var modes: List<AppMode>,
-    private var currentModeId: String,
+    private var currentModeId: String?,
     private val onModeSelected: (String) -> Unit
 ) : androidx.recyclerview.widget.RecyclerView.Adapter<ModeAdapter.ViewHolder>() {
 
@@ -90,7 +97,7 @@ class ModeAdapter(
 
     override fun getItemCount(): Int = modes.size
 
-    fun updateCurrentMode(newId: String) {
+    fun updateCurrentMode(newId: String?) {
         currentModeId = newId
         notifyDataSetChanged()
     }

@@ -14,7 +14,7 @@ class BooruUIFragment : Fragment() {
 
     private lateinit var binding: FragmentBooruBinding
     private lateinit var adapter: BooruAdapter
-    private lateinit var booruModule: BooruModule
+    private var booruModule: BooruModule? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,19 +29,26 @@ class BooruUIFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val app = requireActivity().application as com.ceroX.app.core.CeroXApplication
-        booruModule = app.coreEngine.registry.getInstance("booru-viewer") as BooruModule
+        booruModule = com.ceroX.app.core.Pantallas.modulo(app, "booru-viewer", BooruModule::class.java) {
+            if (isAdded && this::adapter.isInitialized) adapter.submitList(booruModule?.listFavorites() ?: emptyList())
+        }
 
-        adapter = BooruAdapter(booruModule.listFavorites())
+        adapter = BooruAdapter(booruModule?.listFavorites() ?: emptyList())
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
 
         binding.searchButton.setOnClickListener {
-            val query = binding.searchInput.text.toString()
-            val site = binding.siteSelector.text.toString()
-            if (query.isNotEmpty() && site.isNotEmpty()) {
-                val result = booruModule.searchBooru(site, query)
-                // Placeholder: mostrar resultados
-            }
+            // La búsqueda no tiene dónde enseñarse y además no busca: searchBooru
+            // devuelve una lista vacía (no hay cliente de ningún booru en el
+            // proyecto) y devolvería BooruPost, mientras esta lista enseña
+            // BooruFavorite. Antes el listener llamaba a la búsqueda y tiraba el
+            // resultado con un "Placeholder: mostrar resultados" al lado, o sea que
+            // el botón parecía hacer algo. Ahora dice lo que hay.
+            android.widget.Toast.makeText(
+                requireContext(),
+                "La búsqueda en boorus no está implementada: esta lista sólo enseña favoritos guardados",
+                android.widget.Toast.LENGTH_LONG,
+            ).show()
         }
     }
 }

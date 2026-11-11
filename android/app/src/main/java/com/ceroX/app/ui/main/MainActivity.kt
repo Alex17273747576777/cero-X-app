@@ -1,6 +1,7 @@
 package com.ceroX.app.ui.main
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,10 +40,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import com.ceroX.app.R
+import com.ceroX.app.core.AplicaDiseno
 import com.ceroX.app.core.CeroXApplication
+import com.ceroX.app.core.Pantallas
 import com.ceroX.app.core.engine.ReglasArranque
 import com.ceroX.app.modules.mode.ModeSwitcherFragment
+import com.ceroX.app.modules.theme.ThemeEngineModule
 import com.ceroX.app.modules.theme.ThemeSwitcherFragment
+import com.ceroX.app.modules.theme.UIThemeManager
 import com.ceroX.app.ui.catalogo.CatalogoActivity
 import com.ceroX.app.ui.estado.EstadoSistemaActivity
 import com.ceroX.app.ui.theme.CeroXTheme
@@ -61,16 +67,26 @@ import com.ceroX.app.ui.theme.CeroXTheme
  * los perezosos), y cada otro destino monta su Fragment real en el contenedor.
  * Un destino sin pantalla no aparece en la barra.
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AplicaDiseno {
 
     private lateinit var app: CeroXApplication
+
+    /**
+     * El esquema de colores elegido, o null para el de siempre.
+     *
+     * Es estado de Compose fuera de la composición a propósito: lo escribe
+     * [aplicarTema], al que llama la pantalla de Diseño cuando el usuario elige una
+     * paleta, y en cuanto cambia se repinta todo lo que cuelga de `CeroXTheme`.
+     */
+    private val paleta = mutableStateOf<ColorScheme?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         app = application as CeroXApplication
+        aplicarTema(null)
 
         setContent {
-            CeroXTheme {
+            CeroXTheme(colorSchemeOverride = paleta.value) {
                 CeroXApp(
                     app = app,
                     onThemeClick = { showFragment(ThemeSwitcherFragment()) },
@@ -89,6 +105,23 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
+    }
+
+    /**
+     * Aplica la paleta `id`, o la que ya estuviera elegida si es null.
+     *
+     * Convierte el `AppTheme` del motor en un `ColorScheme` con `UIThemeManager` y lo
+     * guarda en [paleta]; Compose se repinta solo. Si el motor de temas no está
+     * registrado, no se toca nada y la app sigue con sus colores.
+     */
+    override fun aplicarTema(id: String?) {
+        if (!this::app.isInitialized) return
+        val motor = Pantallas.modulo(app, "theme-engine", ThemeEngineModule::class.java) ?: return
+        if (id != null) motor.setTheme(id)
+        val tema = motor.getCurrentTheme() ?: return
+        val noche = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        paleta.value = UIThemeManager(this).colorSchemeFor(tema, isDark = noche)
     }
 
     /** Reemplaza el contenido por un Fragment real dentro del contenedor de Compose. */

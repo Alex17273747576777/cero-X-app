@@ -1,6 +1,5 @@
 package com.ceroX.app.core
 
-import com.ceroX.app.core.engine.CoreEngine
 import com.ceroX.app.BuildConfig
 
 import android.app.Application
@@ -54,8 +53,6 @@ class CeroXApplication : Application() {
     lateinit var lifecycleManager: ModuleLifecycleManager
     lateinit var crashHandler: CrashHandler
     lateinit var memoryMonitor: MemoryMonitor
-
-    internal var coreEngineLegacy: CoreEngine? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -112,10 +109,18 @@ class CeroXApplication : Application() {
             Log.w(TAG, "No se pudieron registrar las fuentes de contenido: ${e.message}")
         }
 
-        Log.i(TAG, "cero-X App v1.0.0-beta-kisara-universal initialized — 30 modules fused")
-        Log.i(TAG, "Houbi (PineappleTwilight/houri) = Lector Base Principal")
-        Log.i(TAG, "Kisara (ifritraen/kisara) = Lector Manga con ONNX OCR + Neural Colorizer")
-        Log.i(TAG, "APK Universal: armeabi-v7a, arm64-v8a, x86, x86_64")
+        // Estos cinco logs eran tres mentiras. La versión estaba escrita a mano y
+        // se quedó atrás en cuanto se publicó la 1.0.1. El recuento de módulos era
+        // un número fijo que nadie comprobaba. Y «initialized» no era verdad en este
+        // punto: la inicialización ocurre en el hilo de arriba y todavía no ha
+        // empezado. El cuarto log prometía un APK universal de cuatro ABI cuando el
+        // publicado lleva una sola; las ABI del APK son un hecho del build que este
+        // proceso no conoce, y lo que sí puede decir es qué soporta el aparato, que
+        // es justo lo que hace falta para depurar en un teléfono concreto.
+        val registrados = lifecycleManager.getRegistry().listModules().size
+        Log.i(TAG, "cero-X $versionInstalada — $registrados módulos registrados (se inicializan en su hilo)")
+        Log.i(TAG, "Houri (PineappleTwilight/houri) = lector base · Kisara (ifritraen/kisara) = lector con OCR y colorizador")
+        Log.i(TAG, "Aparato: ${Build.MANUFACTURER} ${Build.MODEL} · ABI que soporta: ${Build.SUPPORTED_ABIS.joinToString()}")
         Log.i(TAG, "CrashHandler + MemoryMonitor + ModuleLifecycleManager activos")
         Log.i(TAG, "Android ${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})")
     }
@@ -274,11 +279,16 @@ class CeroXApplication : Application() {
     fun getAllHealth(): Map<String, com.ceroX.app.core.engine.ModuleHealth> =
         lifecycleManager.getAllHealth()
 
-    val coreEngine: CoreEngine
-        get() {
-            if (coreEngineLegacy == null) {
-                coreEngineLegacy = CoreEngine(applicationContext)
-            }
-            return coreEngineLegacy!!
+    /**
+     * La versión instalada, leída del sistema.
+     *
+     * Los logs de arranque la decían escrita a mano y se quedaron atrás en cuanto
+     * se publicó la 1.0.1.
+     */
+    val versionInstalada: String
+        get() = try {
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "desconocida"
+        } catch (e: Exception) {
+            "desconocida"
         }
 }
