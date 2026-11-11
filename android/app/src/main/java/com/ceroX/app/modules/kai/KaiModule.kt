@@ -120,8 +120,8 @@ class KaiModule : ModuleInterface() {
     /**
      * No se ejecuta nada: cero-X no lleva proot ni una rootfs.
      *
-     * Devolvía "Ejecutado en sandbox Linux" para cualquier comando, incluido uno
-     * que no existiera. Un resultado de ejecución que no se ejecutó es lo peor que
+     * Devolvía un mensaje de comando ejecutado en el sandbox para cualquiera,
+     * incluso para uno que no existiera. Un resultado de ejecución que no se ejecutó es lo peor que
      * puede enseñar una consola.
      */
     fun runLinuxCommand(command: String): LinuxCommandResult {

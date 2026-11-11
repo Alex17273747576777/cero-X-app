@@ -82,8 +82,8 @@ class DeepReverseEngineeringModule : ModuleInterface() {
     /**
      * No existe ningun arnes de evaluacion, y no se inventa la nota.
      *
-     * Devolvía `status = "evaluated"` con `score = 0.95`: un numero escrito a
-     * mano, sin cargar el modelo ni ejecutar el benchmark.
+     * Devolvía el estado «evaluado» con una nota de 0,95 escrita a mano, sin
+     * cargar el modelo ni ejecutar el benchmark.
      */
     fun evaluateAiModel(modelPath: String, benchmark: String): AiEvaluationResult {
         if (!_started || !deepseekHarnessEnabled) {
