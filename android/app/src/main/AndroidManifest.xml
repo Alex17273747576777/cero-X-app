@@ -7,6 +7,11 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
+    <!-- Audio: adjuntar efectos del sistema a la mezcla de salida (sesion 0).
+         Es un permiso normal, sin dialogo, y sin el solo se pueden adjuntar
+         a una sesion propia. -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
     <!-- Permisos de almacenamiento (Android 10+ usa scoped storage) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />

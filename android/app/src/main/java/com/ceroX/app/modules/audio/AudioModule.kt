@@ -128,6 +128,22 @@ class AudioModule : ModuleInterface() {
     fun resume() {
         mediaPlayer?.start()
     }
+
+    /**
+     * Id de la sesión de audio del reproductor, o `null` si no existe.
+     *
+     * Es lo que necesita el módulo `audio-eq` para adjuntar los efectos a la
+     * reproducción de verdad, en vez de a la mezcla de salida del dispositivo.
+     * `MediaPlayer` crea la sesión al construirse, pero `getAudioSessionId()`
+     * lanza `IllegalStateException` si el reproductor quedó en un estado inválido,
+     * así que se captura y se devuelve `null`: quien llama decide si prefiere la
+     * mezcla de salida.
+     */
+    fun audioSessionId(): Int? = try {
+        mediaPlayer?.audioSessionId
+    } catch (e: IllegalStateException) {
+        null
+    }
 }
 
 data class AudioTrack(
