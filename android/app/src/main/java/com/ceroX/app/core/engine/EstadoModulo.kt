@@ -3,8 +3,8 @@ package com.ceroX.app.core.engine
 /**
  * Los dos tipos que describen el estado de un módulo.
  *
- * Estaban declarados al final de `CoreEngine.kt`, el motor «legacy» que se borró en
- * el commit anterior porque no registraba nada y seis pantallas se cerraban al
+ * Estaban declarados al final de `CoreEngine.kt`, el motor «legacy» que está borrado
+ * desde el commit anterior porque no registraba nada y seis pantallas se cerraban al
  * pedirle su módulo. Al borrarlo se fueron con él dos tipos que usa media
  * aplicación —`ModuleInterface.healthCheck()`, `ModuleLifecycleManager`,
  * `ModuleRegistry.updateStatus()`, el panel de arranque— y el build se rompió con
