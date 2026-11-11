@@ -72,11 +72,21 @@ class ModuleLifecycleManager(private val context: Context) {
         Log.i(TAG, "Iniciando inicialización de ${order.size} módulos en orden: $order")
 
         for (name in order) {
+            if (ReglasArranque.esPesado(name)) {
+                // Pesado: runtime o modelos ONNX de cientos de megas. Intentarlo
+                // en el arranque era media causa del ANR. Se queda perezoso y el
+                // panel lo inicia cuando alguien lo pide de verdad.
+                moduleStatus[name] = ModuleStatus.UNLOADED
+                results[name] = false
+                Log.i(TAG, "Módulo pesado dejado perezoso: $name")
+                continue
+            }
             results[name] = initializeModuleWithRetry(name)
         }
 
-        // Segundo pase: módulos que fallaron por dependencias no resueltas
-        val failed = results.filter { !it.value }.keys.toList()
+        // Segundo pase: módulos que fallaron por dependencias no resueltas.
+        // Los pesados no: lo suyo no es un fallo, es una decisión.
+        val failed = results.filter { !it.value && !ReglasArranque.esPesado(it.key) }.keys.toList()
         if (failed.isNotEmpty()) {
             Log.w(TAG, "Reintentando módulos fallidos: $failed")
             for (name in failed) {
@@ -109,6 +119,39 @@ class ModuleLifecycleManager(private val context: Context) {
         eventBus.publish("module.error", name)
         return false
     }
+
+    /**
+     * El arranque completo, fuera del hilo principal.
+     *
+     * `initializeAll` y `startAll` son síncronos a propósito (se pueden probar y
+     * razonar), pero nadie debe llamarlos desde `onCreate`: este método es la
+     * puerta correcta. Devuelve el Future por si algún día hace falta esperarlo.
+     */
+    fun arranqueEnSegundoPlano(): java.util.concurrent.Future<*> = executor.submit {
+        val init = initializeAll()
+        Log.i(TAG, "Arranque en segundo plano: ${init.count { it.value }} de ${init.size} módulos listos")
+        startAll()
+    }
+
+    /** Inicia un módulo perezoso desde el panel, sin bloquear el toque que lo pidió. */
+    fun iniciarEnSegundoPlano(name: String): java.util.concurrent.Future<*> = executor.submit {
+        initializeModuleWithRetry(name)
+    }
+
+    /**
+     * El estado de cada módulo tal como lo enseña el panel: leído del gestor en
+     * el instante de la llamada, no escrito a mano en ninguna pantalla.
+     */
+    fun resumen(): List<ReglasArranque.ResumenModulo> =
+        registry.metadata.values.sortedBy { it.name }.map { meta ->
+            ReglasArranque.ResumenModulo(
+                nombre = meta.name,
+                version = meta.version,
+                estado = ReglasArranque.descripcionEstado(meta.status, ReglasArranque.esPesado(meta.name)),
+                reintentos = initRetries[meta.name] ?: 0,
+                pesado = ReglasArranque.esPesado(meta.name),
+            )
+        }
 
     private fun initializeModule(name: String): Boolean {
         val instance = moduleInstances[name] ?: return false

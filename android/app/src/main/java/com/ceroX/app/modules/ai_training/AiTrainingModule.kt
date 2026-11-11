@@ -14,7 +14,7 @@ class AiTrainingModule : ModuleInterface() {
     override val version = "0.1.0"
     override val dependencies: List<String> = emptyList()
 
-    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
 
     private var session: OrtSession? = null
     private var context: Context? = null

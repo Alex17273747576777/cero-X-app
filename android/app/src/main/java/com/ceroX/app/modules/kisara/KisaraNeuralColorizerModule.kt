@@ -28,7 +28,7 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
     override val version = "1.0.0-kisara"
     override val dependencies: List<String> = listOf("kisara-reader")
 
-    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
 
     private var session: OrtSession? = null
     private var isInitialized = false

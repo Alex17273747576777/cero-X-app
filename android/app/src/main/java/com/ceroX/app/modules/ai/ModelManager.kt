@@ -12,7 +12,7 @@ import java.io.File
  */
 class ModelManager(private val context: Context) {
 
-    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
 
     private var session: OrtSession? = null
     private val loadedModels = mutableMapOf<String, LoadedModel>()

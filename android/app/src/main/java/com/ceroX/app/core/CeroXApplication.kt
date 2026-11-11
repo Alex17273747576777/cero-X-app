@@ -78,11 +78,18 @@ class CeroXApplication : Application() {
         registerModules()
         validateDependencies()
 
-        val initResults = lifecycleManager.initializeAll()
-        logInitResults(initResults)
-
-        val startResults = lifecycleManager.startAll()
-        logStartResults(startResults)
+        // Arranque honesto (1.0.1). Inicializar 30 módulos en el hilo principal
+        // —varios cargan librerías nativas de ONNX al construirse— era el ANR de
+        // esta app: en cuanto un módulo fallaba, los reintentos con sleep sumaban
+        // más que el timeout del sistema y Android ofrecía cerrar la app. Ahora
+        // el arranque vive en su propio hilo; la interfaz enseña el estado real
+        // de cada módulo según se resuelve, y los pesados ni se intentan al abrir.
+        Thread({
+            val initResults = lifecycleManager.initializeAll()
+            logInitResults(initResults)
+            val startResults = lifecycleManager.startAll()
+            logStartResults(startResults)
+        }, "cerox-arranque-modulos").start()
 
         memoryMonitor = MemoryMonitor(applicationContext, lifecycleManager)
         memoryMonitor.start()

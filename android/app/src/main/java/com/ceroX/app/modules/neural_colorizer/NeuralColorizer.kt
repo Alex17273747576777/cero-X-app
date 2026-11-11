@@ -12,7 +12,7 @@ import java.io.File
  */
 class NeuralColorizer {
 
-    private val env: OrtEnvironment = OrtEnvironment.getEnvironment()
+    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
 
     private var session: OrtSession? = null
     private var isInitialized = false

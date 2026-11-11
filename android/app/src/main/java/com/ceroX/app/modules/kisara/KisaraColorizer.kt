@@ -90,7 +90,7 @@ class KisaraColorizer(
 
         return try {
             assets.abrir("colorize").use { sesion ->
-                val env = OrtEnvironment.getEnvironment()
+                private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
                 val tensor = OnnxTensor.createTensor(
                     env,
                     FloatBuffer.wrap(entrada),

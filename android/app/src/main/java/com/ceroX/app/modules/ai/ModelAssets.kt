@@ -102,7 +102,7 @@ class ModelAssets(private val context: Context) {
         )
 
         val bytes = leerDelApk(m.archivo)
-        val env = OrtEnvironment.getEnvironment()
+        private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
 
         val opciones = OrtSession.SessionOptions().apply {
             // El codificador es ViT y se beneficia de plegar operadores.

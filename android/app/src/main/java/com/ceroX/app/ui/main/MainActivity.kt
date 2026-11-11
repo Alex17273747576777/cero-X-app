@@ -1,62 +1,65 @@
 package com.ceroX.app.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import com.ceroX.app.R
 import com.ceroX.app.core.CeroXApplication
+import com.ceroX.app.core.engine.ReglasArranque
 import com.ceroX.app.modules.mode.ModeSwitcherFragment
 import com.ceroX.app.modules.theme.ThemeSwitcherFragment
-import com.ceroX.app.ui.theme.CeroXTheme
-import android.content.Intent
 import com.ceroX.app.ui.catalogo.CatalogoActivity
 import com.ceroX.app.ui.estado.EstadoSistemaActivity
+import com.ceroX.app.ui.theme.CeroXTheme
 
 /**
  * MainActivity — la pantalla que ve el usuario al abrir cero-X.
  *
- * QUÉ CAMBIÓ Y POR QUÉ
- * --------------------
- * Esta actividad tenía tres problemas que se sumaban en cascada:
+ * QUÉ CAMBIÓ EN LA 1.0.1 Y POR QUÉ
+ * --------------------------------
+ * La barra inferior cambiaba un estado de Compose (`seleccionado`) que **nadie
+ * leía**: el contenido era un `FragmentContainerView` nacido vacío, y por eso la
+ * pantalla se veía en blanco con seis botones que no hacían nada. Eso es peor
+ * que no tener barra: promete navegación y no la da.
  *
- *  1. La barra inferior declaraba 24 destinos, pero la app solo tiene 6
- *     Fragments. Veinticuatro botones que no llevan a ninguna parte es peor
- *     que cuatro que funcionan: el usuario toca «Novelas» y no pasa nada.
- *  2. `Icons.Default.Library_Books` no existe. En Compose el icono es
- *     `LibraryBooks`, y con guion bajo el compilador no encuentra nada — de
- *     ahí venían decenas de errores en este archivo.
- *  3. `showFragment` hacía `replace(R.id.fragment_container, ...)`, pero esta
- *     Activity usa Compose y no infla activity_main.xml: el contenedor no
- *     existía y cualquier navegación habría lanzado una excepción en tiempo
- *     de ejecución.
- *
- * Ahora la navegación es estado de Compose: cada destino muestra el Fragment
- * real que existe. Un destino sin pantalla no se muestra.
+ * Ahora `seleccionado` decide el contenido de verdad: «Panel» monta el panel de
+ * estado de los módulos (leído del gestor en el instante, con botón para iniciar
+ * los perezosos), y cada otro destino monta su Fragment real en el contenedor.
+ * Un destino sin pantalla no aparece en la barra.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -69,6 +72,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             CeroXTheme {
                 CeroXApp(
+                    app = app,
                     onThemeClick = { showFragment(ThemeSwitcherFragment()) },
                     onModeClick = { showFragment(ModeSwitcherFragment()) },
                     // Abrir el catálogo es lo que convierte «hay módulos» en
@@ -81,6 +85,7 @@ class MainActivity : AppCompatActivity() {
                     onEstadoClick = {
                         startActivity(Intent(this, EstadoSistemaActivity::class.java))
                     },
+                    onMostrarFragmento = { showFragment(it) },
                 )
             }
         }
@@ -117,10 +122,12 @@ private val DESTINOS = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CeroXApp(
+    app: CeroXApplication,
     onThemeClick: () -> Unit,
     onModeClick: () -> Unit,
     onReadClick: () -> Unit = {},
     onEstadoClick: () -> Unit = {},
+    onMostrarFragmento: (Fragment) -> Unit = {},
 ) {
     var seleccionado by remember { mutableStateOf(DESTINOS.first().id) }
 
@@ -130,16 +137,11 @@ fun CeroXApp(
                 title = { Text("cero-X") },
                 actions = {
                     IconButton(onClick = onReadClick) {
-                        // Icono de libro real: `MenuBook` existe en
-                        // material-icons-extended. Un `Refresh` para «leer»
-                        // sería un botón que no dice lo que hace.
                         Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Leer")
                     }
                     IconButton(onClick = onThemeClick) {
                         Icon(Icons.Default.Refresh, contentDescription = "Diseño")
                     }
-                    // Estado del sistema: privilegios, motor JS y fuentes. Antes
-                    // eran tres comprobaciones que existían y no se podían ver.
                     IconButton(onClick = onEstadoClick) {
                         Icon(Icons.Default.Settings, contentDescription = "Estado del sistema")
                     }
@@ -150,15 +152,12 @@ fun CeroXApp(
             NavigationBar {
                 DESTINOS.forEach { destino ->
                     NavigationBarItem(
-                        // Un destino sin icono propio usa el primero disponible:
-                        // mejor un icono genérico que un botón vacío.
                         icon = { Icon(Icons.Default.Refresh, contentDescription = null) },
                         label = { Text(destino.etiqueta) },
                         selected = seleccionado == destino.id,
                         onClick = { seleccionado = destino.id },
                     )
                 }
-                // Acceso directo a Modos desde la barra, además del botón del panel.
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Refresh, contentDescription = null) },
                     label = { Text("Ir a modos") },
@@ -168,28 +167,88 @@ fun CeroXApp(
             }
         },
     ) { paddingValues ->
-        // El contenedor donde viven los Fragments. Tiene que ser el mismo id
-        // que usa showFragment, o la navegación revienta en ejecución.
+        // El estado elegido decide el contenido. Antes decidía nada.
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            androidx.compose.ui.viewinterop.AndroidView(
-                factory = { contexto ->
-                    androidx.fragment.app.FragmentContainerView(contexto).apply {
-                        id = R.id.fragment_container
-                    }
-                },
-                modifier = Modifier.fillMaxSize(),
-            )
+            if (seleccionado == "panel") {
+                PanelDeModulos(app, Modifier.fillMaxSize())
+            } else {
+                androidx.compose.ui.viewinterop.AndroidView(
+                    factory = { contexto ->
+                        androidx.fragment.app.FragmentContainerView(contexto).apply {
+                            id = R.id.fragment_container
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+        }
+    }
+
+    LaunchedEffect(seleccionado) {
+        if (seleccionado != "panel") {
+            DESTINOS.firstOrNull { it.id == seleccionado }?.let { onMostrarFragmento(it.crear()) }
         }
     }
 }
 
-/** Panel de arranque: lo que el usuario ve antes de elegir un destino. */
+/**
+ * El panel de arranque honesto: el estado real de cada módulo, leído del gestor
+ * en el instante de abrir o de pulsar actualizar. Los perezosos tienen botón para
+ * iniciarse; los que fallaron dicen que fallaron y cuántas veces se reintentó.
+ */
 @Composable
-fun PanelDeArranque(app: CeroXApplication, modifier: Modifier = Modifier) {
-    val salud = remember { app.coreEngine.healthCheckAll() }
-    Column(modifier = modifier.padding(16.dp)) {
-        Text("cero-X")
-        Text("${salud.size} módulos registrados")
-        Text("Android 16 · API 36")
+fun PanelDeModulos(app: CeroXApplication, modifier: Modifier = Modifier) {
+    var resumen by remember { mutableStateOf(emptyList<ReglasArranque.ResumenModulo>()) }
+    LaunchedEffect(Unit) { resumen = app.lifecycleManager.resumen() }
+
+    val listos = resumen.count { it.estado == "listo" || it.estado == "funcionando" }
+    val fallidos = resumen.count { it.estado == "falló" }
+    val perezosos = resumen.count { it.pesado && it.estado.startsWith("pendiente") }
+
+    Column(modifier = modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Estado de los módulos",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(onClick = { resumen = app.lifecycleManager.resumen() }) {
+                Icon(Icons.Default.Refresh, contentDescription = "Actualizar estado")
+            }
+        }
+        Text(
+            "$listos de ${resumen.size} listos · $perezosos perezosos · $fallidos fallidos",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Text(
+            "Leído del gestor en este instante; nada de esto está escrito a mano.",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Spacer(Modifier.height(12.dp))
+        resumen.forEach { m ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(m.nombre, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "${m.version} · ${m.estado}" +
+                            if (m.reintentos > 0) " · reintentos: ${m.reintentos}" else "",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                if (m.pesado && m.estado.startsWith("pendiente")) {
+                    Button(onClick = {
+                        app.lifecycleManager.iniciarEnSegundoPlano(m.nombre)
+                        // El inicio vive en otro hilo: se vuelve a leer el estado
+                        // cuando ha tenido tiempo de resolverse, y el panel enseña
+                        // lo que haya, sea listo o sea falló.
+                        Thread({
+                            Thread.sleep(1500)
+                            resumen = app.lifecycleManager.resumen()
+                        }, "cerox-refresco-panel").start()
+                    }) { Text("Iniciar") }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+        }
     }
 }
