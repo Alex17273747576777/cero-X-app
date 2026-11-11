@@ -1,8 +1,15 @@
 cero-X
 Copyright 2026 La Bandita
 
+Licencia del proyecto: GNU General Public License v3.0 (GPL-3.0-only) desde el
+2026-11-11. El texto completo va en LICENSE y, copiado por el build, dentro del
+APK en assets/LICENSE.
+
 Este producto incluye software desarrollado por terceros. Las atribuciones van
-aquí porque Apache-2.0 las exige, no por cortesía.
+aquí porque las licencias de origen las exigen, no por cortesía: el linaje es
+Apache-2.0 y MIT, y esas partes conservan sus términos y sus avisos dentro de un
+conjunto que ahora es GPL-3.0 (Apache-2.0 y MIT son compatibles con GPLv3 en esa
+dirección; al revés no).
 
 ================================================================================
 Linaje del que sale cero-X
@@ -12,11 +19,16 @@ cero-X es un fork del ecosistema Mihon. La cadena es:
 
   Tachiyomi  →  TachiyomiSY  →  Mihon  →  Komikku  →  Houri  →  cero-X
 
-Licencias verificadas por la API de GitHub el 2026-11-08:
+Licencias verificadas por la API de GitHub el 2026-11-08 y re-verificadas el
+2026-11-11:
 
   mihonapp/mihon              Apache-2.0
   komikku-app/komikku         Apache-2.0
   PineappleTwilight/houri     Apache-2.0
+  Foxlations/Foxlations       Apache-2.0
+  ifritraen/kisara            Apache-2.0
+  unseensnick/Reikai          Apache-2.0
+  KotatsuApp/kotatsu          GPL-3.0    (referencia de formato, ver abajo)
   tachiyomiorg/tachiyomi      sin licencia declarada (el repositorio ya no la expone)
 
   Copyright 2015-2026 The Tachiyomi Open Source Project
@@ -27,29 +39,57 @@ Licencias verificadas por la API de GitHub el 2026-11-08:
 Contrato de extensiones
 ================================================================================
 
-El contrato `eu.kanade.tachiyomi.source` se reimplementa aquí por reflexión para
-poder cargar extensiones del ecosistema. No se distribuye código de Mihon: se
-implementa el mismo contrato para que las extensiones funcionen.
+El paquete `eu.kanade.tachiyomi.source` existe en este repositorio con seis
+ficheros (Source, CatalogueSource, SourceFactory, ExtensionSourceLoader,
+SeriePage, SerieNavegable) para que las extensiones del ecosistema encuentren el
+contrato que esperan. Mihon es Apache-2.0, así que reimplementar o reutilizar ese
+contrato está permitido conservando este aviso; lo que no se hace es afirmarlo
+sin comprobarlo. Quien reciba esta app recibe también el código de esos ficheros,
+que está en el repositorio.
+
+Kotatsu (GPL-3.0) se usó como referencia de FORMATO: este repo detecta backups
+SQLite por sus primeros bytes y los describe. No se copió código de Kotatsu; la
+mención en `BackupFormatDetector.kt` es eso, una atribución de formato. Con la
+app bajo GPL-3.0 esa distinción deja de ser crítica, pero se deja escrita porque
+era crítica cuando la app decía ser Apache-2.0.
 
 ================================================================================
-Modelos incluidos en el APK
+Modelos ONNX: ninguno viaja en el APK desde la 1.0.1
 ================================================================================
 
-Los cinco modelos ONNX que viajan dentro del APK y sus licencias:
+Medido el 2026-11-11 sobre el APK publicado (v1.0.1-beta-arranque-honesto,
+31.577.211 bytes): 884 entradas en el ZIP y **cero archivos .onnx**. En
+assets/models/ sólo van MANIFEST.json, README_MODELS.md y vocab.txt.
+
+Las licencias de los modelos quedan documentadas porque el día que se empaqueten
+o se descarguen siguen aplicando, y porque dos de ellos tienen problemas que no
+se resuelven ignorándolos:
 
   encoder_fp16.onnx            apache-2.0
   colorize.onnx                apache-2.0   (ifritraen/manga-colorization-v2-fp32)
   esrgan_x4.onnx               BSD-3-Clause (SceneWorks/real-esrgan-onnx)
   decoder_model_quantized.onnx apache-2.0
   anime4x.onnx                 licencia NO DECLARADA en origen
+  manga-ocr                    apache-2.0   (onnx-community/manga-ocr-base-ONNX)
 
   ATENCIÓN — anime4x.onnx: el repositorio de origen
-  (xiongjie/lightweight-real-ESRGAN-anime) **no declara licencia**. Se incluye
-  porque se obtuvo de una fuente pública, pero su situación legal es
-  indeterminada. Si el autor reclama, hay que quitarlo o pedir permiso. Queda
-  escrito aquí precisamente para que esto no se descubra tarde.
+  (xiongjie/lightweight-real-ESRGAN-anime) **no declara licencia**. Mientras no
+  haya permiso del autor, ese modelo no se distribuye con cero-X. Antes iba
+  dentro del APK de 475 MB; hoy no va ninguno, y esta es la razón por la que no
+  se vuelve a meter sin resolverlo.
 
-  manga-ocr (usado para OCR)   apache-2.0  (onnx-community/manga-ocr-base-ONNX)
+================================================================================
+Código que NO se usa: Namida
+================================================================================
+
+namidaco/namida no es software libre: su LICENSE es una EULA propietaria
+(«source available») que prohíbe redistribuir, sublicenciar, reempaquetar o
+rebautizar, y usar partes del código para cualquier cosa que no sea aprendizaje
+personal o contribuir a Namida. Ninguna licencia de cero-X arregla eso, ni
+GPL-3.0. Por tanto no se copia código de Namida, y las menciones que había en
+este repositorio («Basado en Namida», el tema «namida Music & Video») se están
+quitando: o eran una apropiación indebida o eran una afirmación falsa, y las dos
+se arreglan igual.
 
 ================================================================================
 Bibliotecas principales

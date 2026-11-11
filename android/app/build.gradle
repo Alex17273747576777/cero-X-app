@@ -182,10 +182,11 @@ android {
     }
 
     // ── Licencia dentro del APK ──────────────────────────────────────────────
-    // Apache-2.0 no pide publicar el código, pero SÍ exige que el aviso y el
-    // NOTICE lleguen a quien recibe la app. Un NOTICE en el repositorio no
-    // cumple: la obligación es sobre lo que se distribuye. Por eso se empaqueta
-    // en assets, y LicenseModule lo comprueba leyendo el asset, no el repo.
+    // La GPL-3.0 exige que el texto de la licencia acompañe a la obra, y el
+    // linaje Apache-2.0/MIT exige que el aviso y el NOTICE lleguen a quien
+    // recibe la app. Un NOTICE en el repositorio no cumple ninguna de las dos:
+    // la obligación es sobre lo que se distribuye. Por eso se empaquetan en
+    // assets, y LicenseModule lo comprueba leyendo el asset, no el repo.
     androidResources {
         noCompress += ["NOTICE", "LICENSE"]
     }
@@ -342,9 +343,11 @@ tasks.register("bundleLicenseAssets") {
                     java.nio.file.StandardCopyOption.REPLACE_EXISTING)
                 println("licencia empaquetada: " + nombre + " (" + src.length() + " B)")
             } else {
-                // Falla el build: distribuir sin NOTICE incumple Apache-2.0.
+                // Falla el build: distribuir sin estos textos incumple la GPL-3.0
+                // (la licencia debe acompañar a la obra) y el Apache-2.0 del linaje
+                // (el NOTICE debe llegar a quien recibe la app).
                 throw new GradleException("Falta " + nombre + " en la raiz del repositorio. " +
-                    "Apache-2.0 exige que el NOTICE llegue al usuario final.")
+                    "GPL-3.0 y el linaje Apache-2.0 exigen que llegue al usuario final.")
             }
         }
     }

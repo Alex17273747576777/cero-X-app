@@ -25,15 +25,19 @@ class LicenseModule(private val context: Context) : ModuleInterface() {
 
     private var compliance: LicenseCompliance? = null
 
-    /** Los cinco modelos que viajan en el APK, con su licencia real. */
-    private val modelos = listOf(
-        LicenseCompliance.BundledAsset("encoder_fp16", "apache-2.0", attributionInApp = true),
-        LicenseCompliance.BundledAsset("colorize", "apache-2.0", attributionInApp = true),
-        LicenseCompliance.BundledAsset("decoder_model_quantized", "apache-2.0", attributionInApp = true),
-        LicenseCompliance.BundledAsset("esrgan_x4", "BSD-3-Clause", attributionInApp = true),
-        // Sin licencia declarada en origen. Se marca igual y se acredita.
-        LicenseCompliance.BundledAsset("anime4x", "NO DECLARADA", attributionInApp = true),
-    )
+    /**
+     * Los modelos que viajan en el APK. Desde la 1.0.1 la lista está VACÍA y eso
+     * es un hecho medido, no una intención: el APK publicado
+     * (v1.0.1-beta-arranque-honesto, 31.577.211 bytes) tiene 884 entradas y cero
+     * archivos `.onnx`. Antes esta lista declaraba cinco modelos que el build ya
+     * no empaqueta, o sea que la app informaba de una obligación sobre unos bytes
+     * que no existen.
+     *
+     * El día que un build vuelva a llevar modelos, se declaran aquí con su
+     * licencia y su crédito visible. `anime4x` no puede volver sin permiso del
+     * autor: su repositorio de origen no declara licencia (ver NOTICE).
+     */
+    private val modelos: List<LicenseCompliance.BundledAsset> = emptyList()
 
     override fun initialize(config: Map<String, Any>): Boolean {
         compliance = build()
@@ -81,12 +85,13 @@ class LicenseModule(private val context: Context) : ModuleInterface() {
         val tieneLicense = runCatching { assets.open("LICENSE").use { it.read() > 0 } }.getOrDefault(false)
 
         return LicenseCompliance(
-            // Apache-2.0, medido contra el linaje real. Ver LicenseId.
-            license = LicenseId.APACHE2,
+            // GPL-3.0 desde el 2026-11-11; el linaje Apache-2.0 conserva sus
+            // avisos en NOTICE. Ver LicenseId y docs/LICENCIA.md.
+            license = LicenseId.GPL3,
             hasLicenseFile = tieneLicense,
             hasNoticeFile = tieneNotice,
-            // El repo es público: eso satisface el "source available" si algún día
-            // se cambia a una licencia que lo exija. Con Apache-2.0 no se pide.
+            // El repo es público: con la GPL-3.0 esto ya no es una hipótesis sino
+            // una obligación, y por eso se comprueba (obligation `source-available`).
             sourcePublished = true,
             bundledAssets = modelos,
         )
@@ -113,7 +118,7 @@ class LicenseModule(private val context: Context) : ModuleInterface() {
          */
         fun checkDir(assetsDir: File, modelos: List<LicenseCompliance.BundledAsset>): LicenseCompliance =
             LicenseCompliance(
-                license = LicenseId.APACHE2,
+                license = LicenseId.GPL3,
                 hasLicenseFile = File(assetsDir, "LICENSE").exists(),
                 hasNoticeFile = File(assetsDir, "NOTICE").exists(),
                 sourcePublished = true,

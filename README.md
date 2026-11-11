@@ -1,11 +1,11 @@
 # cero-X
 
-> **Estado de seguridad, 2026-11-10.** El APK de idiomas y el APK debug con clave pública están en cuarentena (release en borrador). El código actual incluye correcciones que todavía **no tienen un APK de publicación nuevo y seguro**: falta la clave privada legítima. Las extensiones se rechazan hasta configurar certificados aprobados; esto es contención, no compatibilidad terminada. Véanse [firma](SEGURIDAD-FIRMA.md), [extensiones](SEGURIDAD-EXTENSIONES.md) y [pendientes verificables](https://github.com/Alex17273747576777/cero-X-app/issues/6).
+> **Estado, 2026-11-11.** Las dos releases anteriores (475 MB y un ANR al abrir) se borraron. Hay un APK nuevo, firmado y verificado byte a byte: `v1.0.1-beta-arranque-honesto`, 31.577.211 bytes, arm64-v8a, cero modelos ONNX dentro, SHA-256 `2661a12ed97b7fec7325514b092e8363beb9fbe0976581c0de1f8be7bed009d0`. El certificado anterior se perdió, así que **hay que desinstalar la build vieja antes de instalar esta**. Lo que ese APK no demuestra: que la app funcione en un teléfono; eso sólo lo dice instalarlo y abrirlo. Véanse [arranque](docs/ARRANQUE-HONESTO.md), [firma](docs/FIRMA-NUEVA.md) y [licencia](docs/LICENCIA.md).
 
 
 ### Un lector de manga, novelas y anime que trae la IA dentro del APK.
 
-`Android 8.0 – 16` · `arm64 · armv7 · x86 · x86_64` · `453 MiB con 5 modelos` · `Apache-2.0`
+`Android 8.0 – 16` · `arm64 · armv7 · x86 · x86_64` · `APK publicado: 31.577.211 B (30,1 MiB), arm64-v8a, 0 modelos` · `GPL-3.0`
 
 ---
 
@@ -257,11 +257,19 @@ que se estudió y qué se tomó de cada una.
 | **Miyorare** `Noirero/Miyorare` | 20 | fallar con un motivo, no con «error inesperado» | `IncompatiblePluginException.kt` |
 | **DropSauce** `HuzaifaKhalid1311/DropSauce` | 233 | feed ligero y sugerencias sencillas sin base de datos pesada | `ui/` |
 
-**Nada de esto es código copiado.** Todos son Apache-2.0 o GPL-3.0; varios se
-podrían portar legalmente, pero arrastran su base de datos y su paquete
-`eu.kanade`. Se tomó la idea y se reescribió con las piezas que cero-X ya tiene.
+**Nada de esto es código copiado, con una excepción que se dice.** De los siete se
+tomó la idea y se reescribió con las piezas que cero-X ya tiene; portarlos enteros
+habría arrastrado su base de datos. La excepción es el contrato de extensiones: el
+paquete `eu.kanade.tachiyomi.source` **sí existe** en este repo (seis ficheros),
+porque sin esos nombres las extensiones del ecosistema no cargan. Mihon es
+Apache-2.0 y permite reimplementar o reutilizar ese contrato conservando el aviso,
+que está en [`NOTICE`](NOTICE).
+
 Cuando una idea vino de un GPL-3.0 (DropSauce, Miyorare) se tomó **solo el
-concepto**, nunca una línea: cero-X es Apache-2.0 y así se queda.
+concepto**, nunca una línea: mientras cero-X fue Apache-2.0 era lo único posible.
+Desde el 2026-11-11 cero-X es GPL-3.0, así que ese código ya se podría usar; sigue
+sin usarse porque no se ha hecho, no porque no se pueda. Los detalles en
+[`docs/LICENCIA.md`](docs/LICENCIA.md).
 
 ### Una corrección sobre «Houri, el reemplazo de Komikku»
 
@@ -471,13 +479,29 @@ cubierto por una prueba que falla si se rompe.
 
 ## Licencia
 
-Apache-2.0, igual que el linaje del que sale cero-X. Verificado por la API de
-GitHub el 2026-11-08: `mihonapp/mihon`, `komikku-app/komikku` y
-`PineappleTwilight/houri` son los tres Apache-2.0.
+**GPL-3.0 desde el 2026-11-11.** Antes este README declaraba Apache-2.0 «igual que
+el linaje» y presentaba esa licencia como definitiva. Cambió por decisión del autor,
+que es el único autor del repositorio (los cuatro identificadores que aparecen en la
+lista de contribuidores son suyos), y por una razón práctica: lo que se quiere
+fusionar a partir de ahora —RootlessViPER4Android, Echo-Music, N-Zik, cloudstream—
+es GPL-3.0, y el código GPL no entra en un proyecto Apache-2.0. La compatibilidad va
+en una dirección: Apache dentro de GPL sí, GPL dentro de Apache no.
 
-Apache-2.0 **no** obliga a publicar el código modificado —eso es la GPL— pero sí
-obliga a conservar el aviso y el `NOTICE`. Por eso existe
-[`NOTICE`](NOTICE), con la cadena completa y las licencias de los cinco modelos.
+Qué cambia de verdad:
+
+  · Quien distribuya esta app o una versión modificada **debe ofrecer el código
+    fuente correspondiente**. El repositorio es público, así que la obligación
+    está cumplida, y `LicenseCompliance` la comprueba en vez de darla por hecha.
+  · El linaje Apache-2.0 (Mihon, Komikku, Houri, Kisara, Reikai, Foxlations) y el
+    MIT (ONNX Runtime) **conservan sus términos y sus avisos**: por eso
+    [`NOTICE`](NOTICE) sigue existiendo y sigue empaquetado en el APK.
+  · Este cambio es de ida. La GPL no permite volver a algo más permisivo quitando
+    derechos a quien ya recibió el código bajo GPL.
+
+Lo que ninguna licencia arregla: **namidaco/namida no es software libre**, es una
+EULA propietaria que prohíbe redistribuir, reempaquetar y usar partes del código.
+No se copia nada de ahí. Los detalles, con la procedencia de los ocho repositorios
+de referencia comprobada uno a uno, están en [`docs/LICENCIA.md`](docs/LICENCIA.md).
 
 Un aviso que no es cosmético: **`anime4x.onnx` no tiene licencia declarada en su
 repositorio de origen**. Está escrito en el `NOTICE` porque descubrirlo después de

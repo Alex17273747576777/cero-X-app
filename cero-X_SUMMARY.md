@@ -1,17 +1,17 @@
-# cero-X App — Beta 1.0 Universal Estabilizada (v1.0.0-beta-kisara-universal)
+# cero-X App — 1.0.1-beta-arranque-honesto (versionCode 6)
 
 ## Resumen Ejecutivo
 
 cero-X es una aplicación Android todo-en-uno que fusiona **17+ ecosistemas** de código abierto de lectura, IA, audio, video, entornos de desarrollo, extensiones, catálogo de apps, booru, y asistentes de IA en una sola plataforma modular. **Houbi (PineappleTwilight/houri) es la base principal del lector**.
 
-**Versión**: 1.0.0-beta-kisara-universal  
-**Licencia**: Apache-2.0 (con excepción GPL-3.0 para módulos de Namida y AI Hub)  
+**Versión**: 1.0.1-beta-arranque-honesto (versionCode 6)  
+**Licencia**: GPL-3.0 desde el 2026-11-11. El linaje (Mihon, Komikku, Houri) es Apache-2.0 y conserva sus avisos en `NOTICE`. La «excepción GPL-3.0 para módulos de Namida» que se leía aquí no existía: Namida es una EULA propietaria y no se usa su código.  
 **Compatibilidad**: Android 8.0 (API 26) → Android 16 (API 36), Android TV, Huawei (HMS), Windows, Linux  
 **Arquitectura**: Núcleo modular inspirado en el kernel de Linux  
 **UI**: Jetpack Compose + Material3 + Liquid Glass (Kiroku/Kototoro/AniZen/namida)  
 **Target SDK**: 36 (Android 16, requerido por Google Play)  
-**APK**: Universal (armeabi-v7a + arm64-v8a + x86 + x86_64)  
-**Tamaño objetivo**: 200-750 MB (incluye ONNX Runtime + modelos IA + bibliotecas nativas)
+**APK publicado**: arm64-v8a sin modelos, 31.577.211 bytes (30,1 MiB), firmado con v2. El universal de cuatro ABI sigue siendo posible con el build sin `-PsoloAbi`.  
+**Tamaño**: los 475.523.392 bytes de la build borrada eran 378 MiB de modelos ONNX más tres ABI de sobra. Hoy los modelos no viajan en el APK; el flujo de CI lo comprueba contando los `.onnx` del ZIP
 
 **Repositorio:** https://github.com/Alex17273747576777/cero-X-app
 

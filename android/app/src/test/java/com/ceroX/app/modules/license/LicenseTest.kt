@@ -40,17 +40,26 @@ class LicenseTest {
     }
 
     @Test
-    fun `el spdx de cero-X es Apache-2-0`() {
+    fun `el spdx del linaje es Apache-2-0`() {
         // Medido por API contra mihonapp/mihon, komikku-app/komikku y
-        // PineappleTwilight/houri: los tres son Apache-2.0. El linaje no es GPL,
-        // y una suposición anterior de GPL en este repositorio era falsa.
+        // PineappleTwilight/houri: los tres son Apache-2.0. Ese hecho no cambia
+        // por el relicenciamiento: las partes Apache siguen siendo Apache dentro
+        // del conjunto GPL, y por eso el NOTICE sigue empaquetado en el APK.
         assertEquals("Apache-2.0", LicenseId.APACHE2.spdx)
     }
 
     @Test
-    fun `el linaje es apache, asi que no obliga a publicar el codigo`() {
+    fun `cero-X es GPL-3-0 y eso si obliga a publicar el codigo`() {
+        // Relicenciamiento del 2026-11-11, decisión del autor (único autor del
+        // repo) y requisito para fusionar código GPL: RootlessViPER4Android,
+        // Echo-Music, N-Zik, cloudstream. La compatibilidad va en una dirección.
+        assertEquals("GPL-3.0-only", LicenseId.GPL3.spdx)
+        assertTrue(
+            "al distribuir la APK hay que ofrecer el código correspondiente",
+            LicenseId.GPL3.requiresSourceOnDistribution,
+        )
         assertFalse(
-            "Apache-2.0 permite distribuir un fork cerrado; la GPL no",
+            "el linaje Apache no lo exigía; la diferencia es justo esta",
             LicenseId.APACHE2.requiresSourceOnDistribution,
         )
     }
@@ -76,8 +85,9 @@ class LicenseTest {
         notice: Boolean = true,
         source: Boolean = true,
         assets: List<LicenseCompliance.BundledAsset> = emptyList(),
+        id: LicenseId = LicenseId.APACHE2,
     ) = LicenseCompliance(
-        license = LicenseId.APACHE2,
+        license = id,
         hasLicenseFile = license,
         hasNoticeFile = notice,
         sourcePublished = source,

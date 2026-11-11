@@ -13,19 +13,30 @@ package com.ceroX.app.modules.license
  * tachiyomiorg/tachiyomi    -> NONE (el repositorio ya no declara licencia)
  * ```
  *
- * Es decir: **el linaje es Apache-2.0**, no GPL. Una suposición inicial de GPL
- * en este mismo archivo era falsa y se corrigió antes de publicarla.
+ * Es decir: **el linaje es Apache-2.0**, no GPL. Ese hecho sigue siendo verdad
+ * y es la razón de que exista [NOTICE] y de que el enum conserve `APACHE2`.
  *
- * Lo que impone Apache-2.0, sin letra pequeña:
+ * **Pero cero-X es GPL-3.0 desde el 2026-11-11**, por decisión del autor (único
+ * autor del repo) y por una razón práctica: lo que se va a fusionar a partir de
+ * ahora —RootlessViPER4Android, Echo-Music, N-Zik, cloudstream, ytdlnis— es
+ * GPL-3.0, y el código GPL no puede entrar en un proyecto Apache-2.0. La
+ * compatibilidad va en una dirección: Apache dentro de GPL sí; GPL dentro de
+ * Apache no.
  *
- *   • **No** obliga a publicar el código modificado. Se puede distribuir un fork
- *     cerrado; es la diferencia grande con la GPL.
- *   • Sí obliga a **conservar el aviso de copyright y el NOTICE**.
- *   • Sí obliga a indicar qué archivos se modificaron.
- *   • Concede una licencia de patentes que no se puede retirar.
+ * Lo que impone cada una, sin letra pequeña:
  *
- * El repositorio declara `Apache-2.0` en su `LICENSE`, y por coherencia cero-X
- * sigue esa misma licencia.
+ *   • GPL-3.0 **sí** obliga a ofrecer el código fuente correspondiente al
+ *     distribuir. El repo es público, así que se cumple, y `LicenseCompliance`
+ *     lo comprueba en vez de suponerlo.
+ *   • Apache-2.0 (el linaje) obliga a **conservar el aviso y el NOTICE**, a
+ *     indicar qué archivos se modificaron y concede una licencia de patentes que
+ *     no se puede retirar. Esas obligaciones no desaparecen al relicenciar: las
+ *     partes Apache siguen siendo Apache dentro del conjunto GPL.
+ *   • El cambio es de ida: `canRelicensePermissively` es `false` para GPL3 porque
+ *     quien ya recibió el código bajo GPL conserva esos derechos.
+ *
+ * Y un límite que ninguna licencia de este repo arregla: `namidaco/namida` es una
+ * EULA propietaria que prohíbe redistribuir y reempaquetar. No se usa su código.
  */
 enum class LicenseId(val id: String, val spdx: String, val displayName: String) {
     GPL3(
