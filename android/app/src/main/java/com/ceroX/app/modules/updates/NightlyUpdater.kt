@@ -7,13 +7,16 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 /**
- * NightlyUpdater — Canal de actualizaciones nightly/preview.
- * Basado en Anizen Preview, Echo-Nightly, Namida Beta.
+ * NightlyUpdater — estado del canal y descarga de un APK que ya exista.
+ *
+ * «Basado en Anizen Preview, Echo-Nightly, Namida Beta» no era cierto: no hay
+ * código de ninguno. `echo-nightly` y `namida-snapshots` son repositorios de builds
+ * publicadas, no de fuente utilizable, y Namida es una EULA propietaria.
  */
 class NightlyUpdater(private val context: Context) {
 
     private var currentChannel = UpdateChannel.PREVIEW
-    private var currentVersion = "0.2.0-beta-android16"
+    private var currentVersion: String = versionRealDeLaApp(context) ?: "desconocida"
 
     fun setChannel(channel: UpdateChannel) {
         currentChannel = channel
@@ -23,8 +26,11 @@ class NightlyUpdater(private val context: Context) {
 
     fun getCurrentVersion(): String = currentVersion
 
+    /**
+     * Igual que `UpdatesModule.checkForUpdates()`: no hay servidor al que preguntar,
+     * así que devuelve «no hay actualización» con la versión real instalada.
+     */
     fun checkForUpdates(): UpdateCheckResult {
-        // Placeholder: llamada real a servidor de actualizaciones
         return UpdateCheckResult(
             available = false,
             currentVersion = currentVersion,
@@ -90,3 +96,20 @@ class NightlyUpdater(private val context: Context) {
 // UpdateChannel y UpdateCheckResult ya están declarados en UpdatesModule.kt, en
 // este mismo paquete. Repetirlos aquí era una redeclaración. NightlyUpdater usa
 // los del módulo, que son los que consulta la interfaz.
+
+/**
+ * La versión que el sistema dice que está instalada, leída del PackageManager.
+ *
+ * Existe porque los dos módulos de actualizaciones tenían la suya escrita a mano, y
+ * distinta entre ellos, y la enseñaban en el healthCheck como si fuera la real. Null
+ * si no se puede leer: quien la recibe decide qué decir, y ninguno de los dos vuelve
+ * a inventar un número. Fuera de la clase porque la usan los dos ficheros del paquete.
+ */
+internal fun versionRealDeLaApp(ctx: Context?): String? = ctx?.let { c ->
+    try {
+        c.packageManager.getPackageInfo(c.packageName, 0).versionName
+    } catch (e: Exception) {
+        null
+    }
+}
+

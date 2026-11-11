@@ -43,14 +43,15 @@ class ConfigManager(private val context: Context) {
             "extensions_enabled" to true,
             "cache_size_mb" to 512
         ),
+        // Los defaults del audio y del vídeo nombraban backends que no están en el
+        // proyecto: el audio va con el MediaPlayer del framework y no hay ningún
+        // cliente del índice que se declaraba, y el vídeo no se decodifica aquí sino
+        // que se delega a otra app con un Intent, así que tampoco hay FFmpeg ni
+        // bandera de aceleración que valga. Un default que nombra una tecnología
+        // inexistente no configura nada, sólo lo afirma, y el healthCheck lo repetía.
         "audio" to mapOf(
-            "backend" to "wotaku",
             "sample_rate" to 44100,
             "buffer_size" to 4096
-        ),
-        "video" to mapOf(
-            "backend" to "ffmpeg",
-            "hw_accel" to false
         ),
         "reverse-engineering" to mapOf(
             "tools" to listOf("antigravity", "deepseek-harness"),

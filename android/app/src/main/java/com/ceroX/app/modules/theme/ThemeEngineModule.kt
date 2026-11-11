@@ -4,16 +4,33 @@ import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
 
 /**
- * ThemeEngineModule — Motor de personalización de UI super personalizable.
+ * ThemeEngineModule — cinco paletas de colores y dos preferencias de desenfoque.
  *
- * Inspirado en:
- *   • Kiroku (Nahiro18/Kiroku) — Liquid Glass UI, iOS 26 blur, navigation pills
- *   • Kototoro (Kototoro-app/Kototoro) — Compose-first, glass backdrop, reader panels
- *   • AniZen (salmanbappi/AniZen) — Island container design, haze glassmorphism, dynamic themes
- *   • namida-snapshots (namidaco/namida-snapshots) — Beautiful music/video UI, card sizes, dynamic palettes
+ * La cabecera lo llamaba «Motor de personalización de UI super personalizable» y
+ * lo decía «Inspirado en» Kiroku, Kototoro, AniZen y namida-snapshots, con
+ * efectos concretos (iOS 26 blur, haze glassmorphism, navigation pills, dynamic
+ * palettes). Lo que hay en realidad es un `AppTheme` por diseño: cuatro colores en
+ * hexadecimal y dos enums. Ni una línea de esos proyectos, y ninguno de esos
+ * efectos está implementado —no hay desenfoque, no hay navegación por islas, no
+ * hay paletas dinámicas sacadas del fondo de pantalla—.
  *
- * Permite al usuario alternar entre diseños predefinidos o crear diseños personalizados
- * a través de un sistema de temas dinámicos.
+ * Los nombres se conservan porque describen el aire que cada paleta imita, y se
+ * dice en cada `designSource` que la paleta es de cero-X. Se quita la cuarta
+ * atribución, a `namidaco/namida-snapshots`: ese repositorio son 4 KB con builds
+ * beta, no tiene UI que mirar, y el Namida real es una EULA propietaria que
+ * prohíbe usar su código. No había nada de lo que inspirarse ni nada que atribuir.
+ *
+ * Estado honesto de lo que guarda:
+ *
+ *   • Los colores **sí** se pueden convertir a un `ColorScheme` de Material 3
+ *     (`UIThemeManager.colorSchemeFor` ya lo hace), pero todavía nada los aplica:
+ *     `CeroXTheme` usa los colores fijos de `ui/theme/Color.kt`. Conectar las dos
+ *     piezas es el paso siguiente y está anotado en `docs/LIMPIEZA.md`.
+ *   • `liquidGlassEnabled` y `glassBlurRadius` se guardan y se leen desde la
+ *     pantalla de Diseño, y **ningún renderer los usa**: no hay desenfoque en la
+ *     app. El healthCheck lo dice con `desenfoque_aplicado = false`.
+ *   • Los enums `NavigationStyle` y `AnimationStyle` se guardan por tema y nada
+ *     los interpreta.
  */
 class ThemeEngineModule : ModuleInterface() {
 
@@ -56,7 +73,10 @@ class ThemeEngineModule : ModuleInterface() {
                 "liquid_glass" to liquidGlassEnabled,
                 "glass_blur_radius" to glassBlurRadius,
                 "custom_palette" to ((customPalette != null)),
-                "supported_designs" to listOf("kiroku", "kototoro", "anizen", "namida", "custom")
+                // Los ids reales de las paletas, no una lista de marcas. Y el
+                // hecho que faltaba: nada aplica el desenfoque.
+                "paletas" to availableThemes.map { it.id },
+                "desenfoque_aplicado" to false
             )
         )
     }
@@ -67,7 +87,7 @@ class ThemeEngineModule : ModuleInterface() {
                 id = "kiroku_liquid_glass",
                 name = "Kiroku Liquid Glass",
                 designSource = "Nahiro18/Kiroku (ReDantotsu)",
-                description = "Liquid Glass UI con iOS 26 blur, navigation pills, backdrop blur en tiempo real",
+                description = "Índigo y cian sobre azul muy oscuro. Imita el aire de Kiroku; la paleta es de cero-X y el desenfoque que sugiere el nombre no está implementado.",
                 primaryColor = "#6366F1",
                 accentColor = "#22D3EE",
                 backgroundColor = "#0F172A",
@@ -81,7 +101,7 @@ class ThemeEngineModule : ModuleInterface() {
                 id = "kototoro_compose_glass",
                 name = "Kototoro Compose Glass",
                 designSource = "Kototoro-app/Kototoro",
-                description = "Todo-Compose, glass backdrop layers, reader panels, animación fluida",
+                description = "Violeta sobre gris azulado. Imita el aire de Kototoro; la paleta es de cero-X, sin código copiado.",
                 primaryColor = "#8B5CF6",
                 accentColor = "#A855F7",
                 backgroundColor = "#111827",
@@ -95,7 +115,7 @@ class ThemeEngineModule : ModuleInterface() {
                 id = "anizen_island_glassmorphism",
                 name = "AniZen Island Glassmorphism",
                 designSource = "salmanbappi/AniZen",
-                description = "Island container design, haze glassmorphism, feed personalizable, drag-and-drop",
+                description = "Cian y verde agua sobre negro azulado. Imita el aire de AniZen; la paleta es de cero-X, sin código copiado.",
                 primaryColor = "#06B6D4",
                 accentColor = "#14B8A6",
                 backgroundColor = "#0B0F19",
@@ -106,10 +126,16 @@ class ThemeEngineModule : ModuleInterface() {
                 animationStyle = AnimationStyle.GLASSMORPHISM
             ),
             AppTheme(
-                id = "namida_music_video",
-                name = "namida Music & Video",
-                designSource = "namidaco/namida-snapshots",
-                description = "UI hermosa para música y video, tarjetas unificadas, paletas dinámicas, home widget",
+                id = "media_card_grid",
+                name = "Media en tarjetas",
+                designSource = "cero-X (paleta propia)",
+                // Antes esta paleta llevaba el nombre de la app de Namida y se
+                // atribuía a su repositorio de snapshots, con una descripción que
+                // prometía tarjetas unificadas, paletas dinámicas y un widget de
+                // inicio. Ese repositorio son 4 KB de builds beta y Namida es una
+                // EULA propietaria: no había fuente que atribuir. Los cuatro
+                // colores los eligió este proyecto.
+                description = "Rojo y ámbar sobre negro. Paleta propia de cero-X para música y vídeo en tarjetas.",
                 primaryColor = "#EF4444",
                 accentColor = "#F59E0B",
                 backgroundColor = "#09090B",
@@ -144,7 +170,16 @@ class ThemeEngineModule : ModuleInterface() {
 
     fun getTheme(themeId: String): AppTheme? = availableThemes.find { it.id == themeId }
 
-    fun getCurrentTheme(): AppTheme = availableThemes.find { it.id == currentThemeId }!!
+    /**
+     * El tema activo.
+     *
+     * Terminaba en `!!`: si `currentThemeId` no estaba en la lista, la pantalla de
+     * Diseño se cerraba con una excepción en vez de enseñar algo. Pasa al cambiar el
+     * id de una paleta —como acaba de pasar con la que se atribuía a Namida— y pasa
+     * con cualquier preferencia guardada de una versión anterior.
+     */
+    fun getCurrentTheme(): AppTheme =
+        availableThemes.find { it.id == currentThemeId } ?: availableThemes.first()
     fun listThemes(): List<AppTheme> = availableThemes.toList()
 
     fun setLiquidGlass(enabled: Boolean) {

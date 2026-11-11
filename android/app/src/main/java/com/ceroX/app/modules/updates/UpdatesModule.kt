@@ -4,12 +4,18 @@ import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
 
 /**
- * UpdatesModule — Fusión de Anizen Preview + Echo-Nightly + Namida Beta.
+ * UpdatesModule — canales de actualización e instalación de un APK descargado.
  *
- * Características fusionadas:
- * - Canal de actualizaciones nightly/preview integrado (Anizen, Echo-Nightly, Namida)
- * - Auto-updater de builds (Anizen)
- * - Version management para canales preview/stable
+ * La cabecera decía «Fusión de Anizen Preview + Echo-Nightly + Namida Beta» con
+ * «Auto-updater de builds». No hay código de ninguno de los tres (Namida es una
+ * EULA propietaria, ver `NOTICE`) y no hay auto-updater: lo que existe es un canal
+ * elegido en memoria, un historial de cambios de canal, y `installUpdate()`, que
+ * lanza el Intent del sistema sobre un APK que ya esté descargado.
+ *
+ * Lo que falta y no se finge: no hay extremo que consultar. `checkForUpdates()`
+ * devuelve «no hay nada» sin preguntar a ningún sitio, porque no hay servidor de
+ * actualizaciones; las releases se publican en GitHub y la instalación es manual
+ * (ver `docs/FIRMA-NUEVA.md`).
  */
 class UpdatesModule : ModuleInterface() {
 
@@ -18,13 +24,24 @@ class UpdatesModule : ModuleInterface() {
     override val dependencies: List<String> = emptyList()
 
     private var currentChannel = UpdateChannel.PREVIEW
-    private var currentVersion = "0.1.0-beta"
+
+    /**
+     * La versión instalada, leída del PackageManager en `initialize()`.
+     *
+     * Estaba escrita a mano, y `NightlyUpdater` tenía otra distinta, también
+     * inventada y con un número de Android que la interfaz ya había dejado de
+     * afirmar por falso. Un canal de actualizaciones que no sabe qué versión tiene
+     * instalada no puede comparar con nada, y el healthCheck enseñaba ese número
+     * como si fuera el real.
+     */
+    private var currentVersion = "desconocida"
     private val updateHistory = mutableListOf<UpdateRecord>()
 
     override fun initialize(config: Map<String, Any>): Boolean {
         // El instalador de actualizaciones necesita contexto para lanzar el Intent
         // del sistema. Antes no lo tenía porque el método no instalaba nada.
         appContext = config["context"] as? android.content.Context
+        currentVersion = versionRealDeLaApp(appContext) ?: "desconocida"
         val channelStr = config["channel"] as? String ?: "preview"
         currentChannel = when (channelStr.lowercase()) {
             "stable" -> UpdateChannel.STABLE
@@ -53,14 +70,24 @@ class UpdatesModule : ModuleInterface() {
             mapOf(
                 "channel" to currentChannel.name.lowercase(),
                 "version" to currentVersion,
-                "updates_available" to false, // Placeholder
-                "auto_update_enabled" to true
+                // Aquí había una clave a true que afirmaba una actualización
+                // automática inexistente: no hay comprobación periódica ni descarga.
+                // Y otra que decía «no hay actualizaciones» sin distinguir «pregunté
+                // y no hay nada» de «no pregunté a nadie», que es lo que pasa.
+                "servidor_de_actualizaciones" to "ninguno",
+                "instalador_de_apk_listo" to (appContext != null)
             )
         )
     }
 
+    /**
+     * No consulta nada porque no hay nada que consultar: cero-X no tiene servidor de
+     * actualizaciones. Devuelve `available = false` con la versión real instalada,
+     * que es lo único que se puede afirmar sin inventar. Cuando exista un extremo
+     * (las releases de GitHub ya lo son, de hecho) se compara aquí contra
+     * `currentVersion`, que ya no es un número escrito a mano.
+     */
     fun checkForUpdates(): UpdateCheckResult {
-        // Placeholder: consultar servidor de actualizaciones
         return UpdateCheckResult(
             available = false,
             currentVersion = currentVersion,

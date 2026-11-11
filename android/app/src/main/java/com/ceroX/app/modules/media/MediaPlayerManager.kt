@@ -5,8 +5,18 @@ import android.media.MediaPlayer
 import android.net.Uri
 
 /**
- * MediaPlayerManager — Reproductor multimedia integrado.
- * Basado en Namida reproductor música+video+YouTube.
+ * MediaPlayerManager — envoltorio fino sobre `android.media.MediaPlayer`.
+ *
+ * La cabecera decía «Basado en Namida reproductor música+video+YouTube». No hay una
+ * línea de Namida aquí (su licencia es una EULA propietaria que prohíbe usar su
+ * código, ver `NOTICE`) y este gestor no toca YouTube: reproduce un `Uri` local o una
+ * URL que le den. Es código propio y hace lo que se lee abajo.
+ *
+ * Límites reales del `MediaPlayer` del framework, para que nadie los descubra en
+ * producción: no reproduce HLS (.m3u8) con fiabilidad, no informa de bitrate ni de
+ * pistas de subtítulos, y `prepare()` bloquea el hilo que lo llame —si es el
+ * principal, eso es un ANR—. El reproductor de IPTV que viene usa media3/ExoPlayer
+ * por esas tres razones; este envoltorio se queda para archivos locales.
  */
 class MediaPlayerManager(private val context: Context) {
 
@@ -45,7 +55,9 @@ class MediaPlayerManager(private val context: Context) {
     }
 
     fun stop() {
-        mediaPlayer?.stop()
+        // stop() lanza IllegalStateException si el reproductor quedó en Idle o en
+        // Initialized (un play() que falló a medias lo deja ahí). release() vale
+        // desde cualquier estado, y es lo que de verdad libera el recurso.
         mediaPlayer?.release()
         mediaPlayer = null
         isPlaying = false

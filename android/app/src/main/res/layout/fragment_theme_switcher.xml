@@ -19,7 +19,7 @@
         android:id="@+id/theme_subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Elige el diseño de interfaz: Kiroku, Kototoro, AniZen, namida o Personalizado"
+        android:text="Elige la paleta: Kiroku, Kototoro, AniZen, Media o Personalizado. Se guarda, pero todavía no se aplica a la interfaz."
         android:textSize="14sp"
         android:paddingHorizontal="16dp"
         android:textColor="?attr/colorOnSurfaceVariant" />

@@ -171,7 +171,15 @@ class ModuleLifecycleManager(private val context: Context) {
         }
 
         try {
-            val configMap = config.getModuleConfig(name)
+            // Los módulos que lanzan Intents del sistema necesitan un Context y no
+            // lo tenían: el config sale de ConfigManager, que sólo guarda
+            // preferencias, así que `config["context"]` era siempre null y
+            // VideoModule.play() y UpdatesModule.installUpdate() devolvían false en
+            // el 100 % de los casos por más correcto que estuviera su código.
+            // Se añade aquí y no en ConfigManager porque este mapa se serializa con
+            // gson al guardarse, y un Context no se serializa.
+            val configMap = HashMap(config.getModuleConfig(name))
+            configMap["context"] = context.applicationContext
             val success = instance.initialize(configMap)
             if (success) {
                 moduleStatus[name] = ModuleStatus.INITIALIZED
