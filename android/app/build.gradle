@@ -114,12 +114,16 @@ android {
         compose true
         viewBinding true
         buildConfig true
-        // El AIDL de Shizuku (moe.shizuku.server) se genera aquí. Estas cuatro
-        // interfaces son el contrato REAL del servicio de Shizuku: sin ellas no
-        // hay forma de pedirle un proceso, porque `Shizuku.newProcess` es
-        // privado desde la 13. Los nombres de método y sus números de
-        // transacción están copiados del AIDL de OmniShizuku, que a su vez es el
-        // de Shizuku; no se inventa ninguno.
+        // El AIDL de Shizuku (moe.shizuku.server) NO se genera aquí: lo trae
+        // `dev.rikka.shizuku:aidl`, dependencia transitiva de
+        // `dev.rikka.shizuku:api`. Hubo cuatro .aidl copiados a mano en
+        // src/main/aidl/moe/shizuku/server y R8 se negó a minificar con la clase
+        // definida dos veces. Se compararon antes de quitarlos: mismos códigos de
+        // transacción y el artefacto es superconjunto (docs/SHIZUKU-AIDL.md).
+        // `Shizuku.newProcess` sigue siendo privado desde la 13, así que el
+        // binder se llama por AIDL de todas formas; lo que cambió es de dónde
+        // salen las interfaces. El `aidl true` de abajo se queda para el AIDL
+        // propio que pueda hacer falta; el de Shizuku ya viene compilado.
         aidl true
     }
 
