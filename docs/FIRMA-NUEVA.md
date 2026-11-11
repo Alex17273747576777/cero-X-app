@@ -37,7 +37,10 @@ Generado el 2026-11-11 con `keytool` (PKCS12, RSA 4096, válido hasta 2056-11-03
 1. Escribe el keystore desde el secreto en un temporal del runner.
 2. `:app:assembleRelease -PsinModelos -PsoloAbi=arm64-v8a` — release con R8, una
    arquitectura (la del V60 ThinQ 5G) y **sin modelos**: los cinco ONNX pesan
-   378 MiB y no van dentro del APK.
+   378 MiB y no van dentro del APK. El heap se sube a 6 GiB en la línea de
+   comandos: con los 2 GiB de `android/gradle.properties` (medidos en una máquina
+   pequeña) R8 murió de `OutOfMemoryError`. Ese fichero no se cambia; el que tiene
+   memoria de sobra es el runner.
 3. Verifica con el `apksigner` oficial, compara la huella con la del fichero y
    cuenta los `.onnx` del ZIP. Si la huella no coincide o hay un solo modelo
    dentro, el flujo falla en vez de publicar.

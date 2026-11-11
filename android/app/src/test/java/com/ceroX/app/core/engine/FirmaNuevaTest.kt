@@ -46,6 +46,22 @@ class FirmaNuevaTest {
     }
 
     @Test
+    fun elFlujoLeDaHeapSuficienteAR8SinTocarLaMaquinaPequena() {
+        val w = delRepo(".github/workflows/apk.yml")
+        assertTrue("falta el flujo del APK", w != null)
+        assertTrue(
+            "el flujo sube el heap: con 2 GiB R8 murió de OutOfMemoryError",
+            w!!.readText().contains("org.gradle.jvmargs"),
+        )
+        val g = delRepo("android/gradle.properties")
+        assertTrue("falta android/gradle.properties", g != null)
+        assertTrue(
+            "y conserva los 2048m medidos en la máquina pequeña",
+            g!!.readText().contains("-Xmx2048m"),
+        )
+    }
+
+    @Test
     fun elFlujoDelApkFirmaCompruebaYNuncaLlevaLaClaveDentro() {
         val f = delRepo(".github/workflows/apk.yml")
         assertTrue("falta el flujo del APK", f != null)

@@ -86,8 +86,16 @@ jobs:
         run: |
           ARGS="-PsinModelos"
           if [ "$ABI" != "universal" ]; then ARGS="$ARGS -PsoloAbi=$ABI"; fi
-          echo "Argumentos de Gradle: $ARGS"
-          bash ./gradlew :app:assembleRelease $ARGS --console=plain --stacktrace
+          # R8 se murió con OutOfMemoryError usando el -Xmx2048m de
+          # android/gradle.properties. Ese valor no es arbitrario: está medido en
+          # una máquina de 2 GiB donde -Xmx1024m revienta y -Xmx1400m se queda sin
+          # proceso. Este runner tiene 16 GiB, así que el heap se sube AQUÍ, en la
+          # línea de comandos, y el gradle.properties sigue valiendo para la
+          # máquina pequeña. Bajarlo convierte un fallo lento en uno silencioso;
+          # subirlo sólo aquí no le cuesta nada a nadie.
+          HEAP='-Dorg.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8'
+          echo "Argumentos de Gradle: $ARGS $HEAP"
+          bash ./gradlew :app:assembleRelease $ARGS "$HEAP" --console=plain --stacktrace
 
       - name: Verificar firma, huella y ausencia de modelos
         run: |
