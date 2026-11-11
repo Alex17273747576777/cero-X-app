@@ -96,7 +96,7 @@ class KisaraUpscaler(
         t0: Long,
     ): Resultado? = try {
         assets.abrir(id).use { sesion ->
-            private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
+            val env by lazy { OrtEnvironment.getEnvironment() }
             val tensor = OnnxTensor.createTensor(
                 env,
                 FloatBuffer.wrap(entrada),
