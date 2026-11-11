@@ -1,13 +1,16 @@
 name: pruebas
 
-# La app no tenía ninguna corrida de CI: 386 pruebas y nadie las ejecutaba salvo a mano.
+# La app no tenía ninguna corrida de CI: nadie ejecutaba las pruebas salvo a mano.
 #
 # Lo que este flujo demuestra y lo que no:
-#   · Compila y ejecuta las 386 pruebas en una máquina limpia, sin /opt/robolectric y
+#   · Compila y ejecuta las pruebas unitarias en una máquina limpia, sin /opt/robolectric y
 #     sin los modelos de 373 MiB. Robolectric baja su propio runtime y las tres pruebas
 #     que necesitan los modelos se SALTAN, no fallan: se distinguen los dos casos.
-#   · NO construye el APK: empaquetar 373 MiB de modelos y firmarlo pide claves que no
-#     están en el repositorio. Eso se hace a mano y está en entorno/COMPILAR-Y-FIRMAR.md.
+#   · NO construye el APK: eso vive en .github/workflows/apk.yml, que compila de
+#     release con R8, una sola arquitectura y SIN modelos, y firma con la clave de
+#     los secretos del repo. La huella aprobada está en entorno/HUELLA-CERTIFICADO.txt
+#     y el porqué en docs/FIRMA-NUEVA.md. El doc que se citaba aquí antes,
+#     entorno/COMPILAR-Y-FIRMAR.md, no existe en el repositorio.
 
 on:
   push:

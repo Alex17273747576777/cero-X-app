@@ -16,6 +16,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Huella aprobada, leída del repo
+        run: |
+          # La huella vive en entorno/HUELLA-CERTIFICADO.txt: el flujo que
+          # construye el APK y el que audita lo publicado leen el mismo fichero.
+          # Antes estaba escrita a mano aquí y valía la del certificado que se
+          # perdió, así que toda build nueva habría salido «no aprobada» sin que
+          # nadie se enterara de por qué.
+          echo "APPROVED_PUBLIC_CERTIFICATES=$(cat entorno/HUELLA-CERTIFICADO.txt)" >> "$GITHUB_ENV"
+
       - name: Herramienta oficial de Android
         run: |
           if [ ! -x "$ANDROID_HOME/build-tools/35.0.0/apksigner" ]; then
@@ -25,7 +34,6 @@ jobs:
       - name: Verificar bytes, sumas y firmas de todos los APK
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          APPROVED_PUBLIC_CERTIFICATES: "f03505ce861af5ddbf1a2c31fe308a5d7ae822c40689cf5893a8263b81232fb3"
           AUDIT_OUTPUT: ${{ runner.temp }}/auditoria-releases.json
         run: python .github/scripts/auditar_releases.py
       - name: Guardar resultados sin secretos

@@ -1,0 +1,174 @@
+name: apk
+
+# El APK firmado, construido por el repo y no a mano en una máquina.
+#
+# Por qué existe: la build 1.0.0-beta se firmó con un certificado que después no
+# apareció por ninguna parte (huella f03505ce…). Sin ese keystore no se puede
+# actualizar una instalación existente y nadie podía volver a construir el APK.
+# Este flujo lo hace reproducible: la clave vive en los secretos del repo
+# (CEROX_KEYSTORE_B64 y compañía) y su huella pública en
+# entorno/HUELLA-CERTIFICADO.txt, que es el mismo fichero que lee la auditoría.
+#
+# Lo que construye y lo que no:
+#   · Release con R8, UNA arquitectura (-PsoloAbi, por defecto arm64-v8a: la del
+#     V60 ThinQ 5G) y SIN modelos (-PsinModelos). Los ONNX pesan 378 MiB y no van
+#     dentro: eso es lo que convirtió el APK anterior en 475 MB. El flujo lo
+#     comprueba contando los .onnx del ZIP y falla si hay alguno.
+#   · Verifica la firma con el apksigner oficial y compara la huella con la del
+#     fichero. Si no coincide, falla en vez de publicar otra cosa.
+#   · NO prueba nada en un dispositivo: aquí no hay emulador. Que arranque en el
+#     V60 sigue sin confirmarse hasta que alguien lo instale y lo abra.
+
+on:
+  workflow_dispatch:
+    inputs:
+      abi:
+        description: "Arquitectura del APK"
+        type: choice
+        default: "arm64-v8a"
+        options: ["arm64-v8a", "armeabi-v7a", "x86_64", "x86"]
+      publicar:
+        description: "Crear la release con el APK y sus sumas"
+        type: boolean
+        default: true
+      etiqueta:
+        description: "Etiqueta de la release"
+        type: string
+        default: "v1.0.1-beta-arranque-honesto"
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Caché de Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-apk-${{ hashFiles('android/**/*.gradle', 'android/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Herramienta oficial de firma
+        run: |
+          BT="$(ls -d "$ANDROID_HOME"/build-tools/* 2>/dev/null | sort -V | tail -1)"
+          if [ -z "$BT" ] || [ ! -x "$BT/apksigner" ]; then
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;35.0.0" > /dev/null
+            BT="$ANDROID_HOME/build-tools/35.0.0"
+          fi
+          echo "APKSIGNER=$BT/apksigner" >> "$GITHUB_ENV"
+
+      - name: Escribir el keystore desde el secreto
+        env:
+          CEROX_KEYSTORE_B64: ${{ secrets.CEROX_KEYSTORE_B64 }}
+        run: |
+          echo "$CEROX_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/cerox.p12"
+          echo "CEROX_KEYSTORE=$RUNNER_TEMP/cerox.p12" >> "$GITHUB_ENV"
+
+      - name: Construir el APK de release, sin modelos
+        working-directory: android
+        env:
+          ABI: ${{ inputs.abi }}
+          CEROX_KEYSTORE_PASS: ${{ secrets.CEROX_KEYSTORE_PASS }}
+          CEROX_KEY_ALIAS: ${{ secrets.CEROX_KEY_ALIAS }}
+          CEROX_KEY_PASS: ${{ secrets.CEROX_KEY_PASS }}
+        run: |
+          ARGS="-PsinModelos"
+          if [ "$ABI" != "universal" ]; then ARGS="$ARGS -PsoloAbi=$ABI"; fi
+          echo "Argumentos de Gradle: $ARGS"
+          bash ./gradlew :app:assembleRelease $ARGS --console=plain --stacktrace
+
+      - name: Verificar firma, huella y ausencia de modelos
+        run: |
+          APK="$(ls android/app/build/outputs/apk/release/*.apk | head -1)"
+          echo "APK=$APK" >> "$GITHUB_ENV"
+          echo "-- apksigner verify --"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee firma.txt
+          ESPERADA="$(cat entorno/HUELLA-CERTIFICADO.txt)"
+          OBTENIDA="$(grep -oE 'certificate SHA-256 digest: [0-9a-fA-F]{64}' firma.txt | head -1 | awk '{print tolower($NF)}')"
+          echo "huella esperada: $ESPERADA"
+          echo "huella obtenida: $OBTENIDA"
+          if [ "$OBTENIDA" != "$ESPERADA" ]; then
+            echo "::error::El APK no está firmado con el certificado del repo"
+            exit 1
+          fi
+          ONNX="$(unzip -l "$APK" | grep -c '\.onnx$' || true)"
+          echo "modelos ONNX dentro del APK: $ONNX"
+          if [ "$ONNX" != "0" ]; then
+            echo "::error::El APK lleva modelos dentro; eso son los 475 MB de antes"
+            exit 1
+          fi
+          sha256sum "$APK" > sha256sums.txt
+          stat -c '%s bytes' "$APK"
+
+      - name: Guardar el APK como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-sin-modelos
+          path: |
+            android/app/build/outputs/apk/release/*.apk
+            sha256sums.txt
+            firma.txt
+          if-no-files-found: error
+
+      - name: Publicar la release
+        if: ${{ inputs.publicar }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ETIQUETA: ${{ inputs.etiqueta }}
+          ABI: ${{ inputs.abi }}
+        run: |
+          TAM="$(stat -c%s "$APK")"
+          MIB="$(python3 -c "print(f'{$TAM/1048576:.1f}')")"
+          SUMA="$(cut -d' ' -f1 sha256sums.txt)"
+          NOMBRE="$(basename "$APK")"
+          HUELLA_TXT="$(cat entorno/HUELLA-CERTIFICADO.txt)"
+          cat > notas.md <<NOTAS
+          Build de release construida por .github/workflows/apk.yml en el commit ${GITHUB_SHA}.
+
+          · Arquitectura: $ABI (una sola, no universal).
+          · Modelos ONNX dentro: 0. Los cinco módulos pesados se inician al
+            pedirlos; los ONNX no van empaquetados.
+          · Tamaño: $TAM bytes ($MIB MiB). La build anterior pesaba 475.523.392
+            bytes porque llevaba 378 MiB de modelos y cuatro arquitecturas.
+          · SHA-256: $SUMA
+          · Certificado: huella $HUELLA_TXT, generado el 2026-11-11. El
+            certificado anterior se perdió, así que esta firma no actualiza una
+            instalación vieja: hay que desinstalarla antes.
+
+          Lo que esta build NO demuestra: que la app funcione en un teléfono. El
+          flujo compila, firma y comprueba bytes; no hay emulador aquí. El arreglo
+          del arranque (1.0.1) está razonado sobre el código y cubierto por
+          pruebas de JVM, y queda por confirmarse instalándolo en el V60.
+          NOTAS
+          if gh release view "$ETIQUETA" > /dev/null 2>&1; then
+            gh release upload "$ETIQUETA" "$APK" sha256sums.txt --clobber
+          else
+            gh release create "$ETIQUETA" "$APK" sha256sums.txt \
+              --target main --title "cero-X 1.0.1-beta - arranque honesto ($ABI, sin modelos)" \
+              --notes-file notas.md
+          fi
+          echo "Release $ETIQUETA publicada con $NOMBRE ($TAM bytes)"
+
+      - name: Resumen con los hechos
+        if: always()
+        run: |
+          if [ -n "${APK:-}" ] && [ -f "$APK" ]; then
+            echo "APK: $APK"
+            echo "bytes: $(stat -c%s "$APK")"
+            echo "sha256: $(cut -d' ' -f1 sha256sums.txt)"
+            echo "huella: $(cat entorno/HUELLA-CERTIFICADO.txt)"
+          else
+            echo "No hay APK: la construccion fallo antes de empaquetar."
+          fi
