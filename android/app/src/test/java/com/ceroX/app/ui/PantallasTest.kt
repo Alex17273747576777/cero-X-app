@@ -102,6 +102,23 @@ class PantallasTest {
     }
 
     @Test
+    fun losTiposDeEstadoSobrevivieronAlMotorLegacy() {
+        // Al borrar CoreEngine.kt se fueron con él ModuleStatus y ModuleHealth, que
+        // estaban declarados al final de ese fichero, y el build se rompió. Estas
+        // tres comprobaciones son las que faltaron: que existan, que estén en el
+        // paquete donde todos los importan, y que no los declare nadie más.
+        val tipos = leer("core/engine/EstadoModulo.kt")
+        assertTrue("falta el enum de estados", tipos.contains("enum class ModuleStatus"))
+        assertTrue("y falta el resultado del healthCheck", tipos.contains("data class ModuleHealth"))
+        assertTrue("no están en el paquete que se importa", tipos.contains("package com.ceroX.app.core.engine"))
+
+        val duplicados = todosLosKotlin()
+            .filter { it.readText().contains("enum class ModuleStatus") }
+            .map { it.relativeTo(src).path.replace(File.separatorChar, '/') }
+        assertEquals("ModuleStatus declarado en más de un sitio", listOf("core/engine/EstadoModulo.kt"), duplicados)
+    }
+
+    @Test
     fun elPanelDeModulosLeeDelGestorReal() {
         val d = leer("ui/dashboard/ModuleDashboardFragment.kt")
         assertFalse("sigue con el healthCheckAll del motor vacío", d.contains("healthCheckAll"))
