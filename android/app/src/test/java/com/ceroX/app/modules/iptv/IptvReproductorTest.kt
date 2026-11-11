@@ -189,8 +189,18 @@ class IptvReproductorTest {
         )
         assertTrue(t.contains("No se inyectó el contexto"))
         assertTrue(
-            "las fuentes se guardan en el almacenamiento privado, no en el APK",
-            t.contains("File(c.filesDir"),
+            "las fuentes van a la carpeta propia de la app en el almacenamiento externo, " +
+                "que es lo que pide la regla de almacenamiento del proyecto",
+            t.contains("AlmacenExterno.archivo(c,"),
+        )
+        assertFalse(
+            "los datos no se escriben en el almacenamiento interno: ahí solo viven los " +
+                "tokens cifrados",
+            t.contains("filesDir"),
+        )
+        assertTrue(
+            "si no hay almacenamiento externo no se cae al interno, se dice por qué falló",
+            t.contains("No hay almacenamiento externo disponible"),
         )
         assertTrue("la huella tiene que comprobarse al cargar", t.contains("Verificador.comprobar"))
         assertTrue(

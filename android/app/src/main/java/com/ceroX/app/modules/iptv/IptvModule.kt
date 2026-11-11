@@ -2,6 +2,7 @@ package com.ceroX.app.modules.iptv
 
 import android.content.Context
 import android.view.SurfaceView
+import com.ceroX.app.core.AlmacenExterno
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
 import java.io.File
@@ -47,12 +48,23 @@ class IptvModule : ModuleInterface() {
     override fun initialize(config: Map<String, Any>): Boolean {
         val c = config["context"] as? Context
         if (c == null) {
-            ultimoMotivo = "No se inyectó el contexto: sin él no hay directorio privado " +
-                "donde guardar las fuentes que añada el usuario"
+            ultimoMotivo = "No se inyectó el contexto: sin él no hay forma de resolver " +
+                "dónde guardar las fuentes que añada el usuario"
             return false
         }
         contexto = c
-        almacen = AlmacenFuentes(File(c.filesDir, NOMBRE_ALMACEN))
+        // La regla de almacenamiento del proyecto (core/InventoryStorage, que vigila
+        // ReglaDeAlmacenamientoTest) prohíbe escribir datos en el almacenamiento
+        // interno salvo los tokens cifrados: lo que la app guarda va a su carpeta
+        // propia en el almacenamiento externo, que no pide ningún permiso. Y si esa
+        // carpeta no está disponible no se cae al interno, que es justo lo que la
+        // regla no admite: se devuelve el fallo con su motivo.
+        val destino: File = AlmacenExterno.archivo(c, NOMBRE_ALMACEN) ?: run {
+            ultimoMotivo = "No hay almacenamiento externo disponible para la app, así que no " +
+                "hay dónde guardar las fuentes que añada el usuario: " + AlmacenExterno.estado(c)
+            return false
+        }
+        almacen = AlmacenFuentes(destino)
         _initialized = true
         return true
     }

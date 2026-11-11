@@ -90,6 +90,17 @@ object InventoryStorage {
 
     val sitios: List<Sitio> = listOf(
         Sitio(
+            "modules/iptv/IptvModule.kt",
+            "lista de fuentes IPTV que añade el usuario",
+            Verdict.FUERA_DEL_INTERNO,
+            "Un JSON con las fuentes instaladas: nombre, URL y, si la fuente la declara, la " +
+                "huella SHA-256 con la que se comprueba lo descargado. Se resuelve con " +
+                "AlmacenExterno.archivo; si el almacenamiento externo no está disponible, " +
+                "initialize falla con su motivo en vez de caer al interno. Este archivo no " +
+                "lleva ninguna lista de canales ni ninguna guía dentro: las fuentes las pone " +
+                "el usuario, una por una, y se descargan en el momento de cargarlas.",
+        ),
+        Sitio(
             "core/AlmacenExterno.kt",
             "dónde van los datos que no son tokens",
             Verdict.FUERA_DEL_INTERNO,
