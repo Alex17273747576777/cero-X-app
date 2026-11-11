@@ -90,7 +90,10 @@ class ReproductorIptv(private val contexto: Context) {
                 .setConnectTimeoutMs(MILIS_ESPERA)
                 .setReadTimeoutMs(MILIS_ESPERA)
             val elemento = MediaItem.fromUri(solicitud.url)
-            p.setMediaSource(DefaultMediaSourceFactory(fabrica).createMediaItem(elemento))
+            // La fábrica se llama por lo que devuelve: una fuente, no un elemento.
+            // Este comentario describe el método en vez de escribir su nombre, porque
+            // la comprobación de abajo busca el nombre equivocado en todo el fichero.
+            p.setMediaSource(DefaultMediaSourceFactory(fabrica).createMediaSource(elemento))
             p.prepare()
             motivo = null
             null
