@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">Ngôn ngữ này chưa có văn bản dịch: hiển thị bằng tiếng Anh.</string>
     <string name="fuente_idioma">Ngôn ngữ nguồn</string>
     <string name="multiidioma">Đa ngôn ngữ</string>
+    <string name="iptv_estado_inicial">Hãy thêm nguồn, chọn nguồn rồi nhấn «Tải». cero-X không kèm danh sách kênh nào.</string>
+    <string name="iptv_nombre_fuente">Tên nguồn</string>
+    <string name="iptv_url_lista">URL danh sách (M3U hoặc XMLTV)</string>
+    <string name="iptv_huella_opcional">SHA-256 mong đợi (tùy chọn)</string>
+    <string name="iptv_tipo_lista">Danh sách kênh (M3U)</string>
+    <string name="iptv_tipo_guia">Lịch chương trình (XMLTV)</string>
+    <string name="iptv_anadir_fuente">Thêm nguồn</string>
+    <string name="iptv_quitar">Gỡ</string>
+    <string name="iptv_cargar">Tải</string>
+    <string name="iptv_buscar_canal">Tìm kênh</string>
+    <string name="iptv_reproducir">Phát</string>
+    <string name="iptv_pausa">Tạm dừng</string>
+    <string name="iptv_parar">Dừng</string>
+    <string name="iptv_modulo_no_disponible">Mô-đun IPTV hiện không khả dụng.</string>
+    <string name="iptv_sin_fuentes">Chưa có nguồn nào được cài đặt.</string>
+    <string name="iptv_canales_cargados">Đã tải %1$d kênh từ %2$s</string>
+    <string name="iptv_fuente_anadida">Đã thêm nguồn: %1$s</string>
+    <string name="iptv_fuente_quitada">Đã gỡ nguồn: %1$s</string>
+    <string name="iptv_reproduciendo">Đang phát: %1$s</string>
+    <string name="iptv_sin_reproduccion">Không phát gì</string>
+    <string name="iptv_elige_fuente">Trước tiên hãy chọn một nguồn trong danh sách.</string>
+    <string name="iptv_elige_canal">Hãy chọn một kênh trong danh sách.</string>
 </resources>

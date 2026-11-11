@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">Cette langue n\'a pas encore de textes traduits : affichés en anglais.</string>
     <string name="fuente_idioma">Langue de la source</string>
     <string name="multiidioma">Multilingue</string>
+    <string name="iptv_estado_inicial">Ajoutez une source, sélectionnez-la puis appuyez sur « Charger ». cero-X ne fournit aucune liste de chaînes.</string>
+    <string name="iptv_nombre_fuente">Nom de la source</string>
+    <string name="iptv_url_lista">URL de la liste (M3U ou XMLTV)</string>
+    <string name="iptv_huella_opcional">SHA-256 attendu (facultatif)</string>
+    <string name="iptv_tipo_lista">Liste de chaînes (M3U)</string>
+    <string name="iptv_tipo_guia">Guide des programmes (XMLTV)</string>
+    <string name="iptv_anadir_fuente">Ajouter une source</string>
+    <string name="iptv_quitar">Retirer</string>
+    <string name="iptv_cargar">Charger</string>
+    <string name="iptv_buscar_canal">Rechercher une chaîne</string>
+    <string name="iptv_reproducir">Lire</string>
+    <string name="iptv_pausa">Pause</string>
+    <string name="iptv_parar">Arrêter</string>
+    <string name="iptv_modulo_no_disponible">Le module IPTV nʼest pas disponible pour le moment.</string>
+    <string name="iptv_sin_fuentes">Aucune source installée.</string>
+    <string name="iptv_canales_cargados">%1$d chaînes chargées depuis %2$s</string>
+    <string name="iptv_fuente_anadida">Source ajoutée : %1$s</string>
+    <string name="iptv_fuente_quitada">Source retirée : %1$s</string>
+    <string name="iptv_reproduciendo">Lecture : %1$s</string>
+    <string name="iptv_sin_reproduccion">Aucune lecture</string>
+    <string name="iptv_elige_fuente">Sélectionnez dʼabord une source dans la liste.</string>
+    <string name="iptv_elige_canal">Sélectionnez une chaîne dans la liste.</string>
 </resources>

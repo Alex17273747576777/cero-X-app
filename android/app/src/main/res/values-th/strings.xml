@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">ภาษานี้ยังไม่มีข้อความแปล: แสดงเป็นภาษาอังกฤษ</string>
     <string name="fuente_idioma">ภาษาของแหล่ง</string>
     <string name="multiidioma">หลายภาษา</string>
+    <string name="iptv_estado_inicial">เพิ่มแหล่ง เลือก แล้วแตะ «โหลด» cero-X ไม่มีรายการช่องมาให้</string>
+    <string name="iptv_nombre_fuente">ชื่อแหล่ง</string>
+    <string name="iptv_url_lista">URL ของรายการ (M3U หรือ XMLTV)</string>
+    <string name="iptv_huella_opcional">SHA-256 ที่คาดไว้ (ไม่บังคับ)</string>
+    <string name="iptv_tipo_lista">รายการช่อง (M3U)</string>
+    <string name="iptv_tipo_guia">คู่มือรายการ (XMLTV)</string>
+    <string name="iptv_anadir_fuente">เพิ่มแหล่ง</string>
+    <string name="iptv_quitar">ลบ</string>
+    <string name="iptv_cargar">โหลด</string>
+    <string name="iptv_buscar_canal">ค้นหาช่อง</string>
+    <string name="iptv_reproducir">เล่น</string>
+    <string name="iptv_pausa">หยุดชั่วคราว</string>
+    <string name="iptv_parar">หยุด</string>
+    <string name="iptv_modulo_no_disponible">โมดูล IPTV ไม่พร้อมใช้งานในขณะนี้</string>
+    <string name="iptv_sin_fuentes">ยังไม่ได้ติดตั้งแหล่งใด</string>
+    <string name="iptv_canales_cargados">โหลด %1$d ช่องจาก %2$s</string>
+    <string name="iptv_fuente_anadida">เพิ่มแหล่งแล้ว: %1$s</string>
+    <string name="iptv_fuente_quitada">ลบแหล่งแล้ว: %1$s</string>
+    <string name="iptv_reproduciendo">กำลังเล่น: %1$s</string>
+    <string name="iptv_sin_reproduccion">ไม่มีการเล่น</string>
+    <string name="iptv_elige_fuente">เลือกแหล่งจากรายการก่อน</string>
+    <string name="iptv_elige_canal">เลือกช่องจากรายการ</string>
 </resources>

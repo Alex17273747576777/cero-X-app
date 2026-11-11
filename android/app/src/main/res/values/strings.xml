@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">Este idioma aún no tiene textos traducidos: se muestra en inglés.</string>
     <string name="fuente_idioma">Idioma de la fuente</string>
     <string name="multiidioma">Multiidioma</string>
+    <string name="iptv_estado_inicial">Añade una fuente, elígela y pulsa «Cargar». cero-X no trae ninguna lista de canales.</string>
+    <string name="iptv_nombre_fuente">Nombre de la fuente</string>
+    <string name="iptv_url_lista">URL de la lista (M3U o XMLTV)</string>
+    <string name="iptv_huella_opcional">SHA-256 esperado (opcional)</string>
+    <string name="iptv_tipo_lista">Lista de canales (M3U)</string>
+    <string name="iptv_tipo_guia">Guía de programas (XMLTV)</string>
+    <string name="iptv_anadir_fuente">Añadir fuente</string>
+    <string name="iptv_quitar">Quitar</string>
+    <string name="iptv_cargar">Cargar</string>
+    <string name="iptv_buscar_canal">Buscar canal</string>
+    <string name="iptv_reproducir">Reproducir</string>
+    <string name="iptv_pausa">Pausa</string>
+    <string name="iptv_parar">Parar</string>
+    <string name="iptv_modulo_no_disponible">El módulo IPTV no está disponible ahora mismo.</string>
+    <string name="iptv_sin_fuentes">No hay ninguna fuente instalada.</string>
+    <string name="iptv_canales_cargados">%1$d canales cargados de %2$s</string>
+    <string name="iptv_fuente_anadida">Fuente añadida: %1$s</string>
+    <string name="iptv_fuente_quitada">Fuente quitada: %1$s</string>
+    <string name="iptv_reproduciendo">Reproduciendo: %1$s</string>
+    <string name="iptv_sin_reproduccion">Sin reproducción</string>
+    <string name="iptv_elige_fuente">Elige primero una fuente de la lista.</string>
+    <string name="iptv_elige_canal">Elige un canal de la lista.</string>
 </resources>

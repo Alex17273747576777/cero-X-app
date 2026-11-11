@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">Для цієї мови ще немає перекладених текстів: показується англійська.</string>
     <string name="fuente_idioma">Мова джерела</string>
     <string name="multiidioma">Багатомовний</string>
+    <string name="iptv_estado_inicial">Додайте джерело, виберіть його та натисніть «Завантажити». cero-X не містить списків каналів.</string>
+    <string name="iptv_nombre_fuente">Назва джерела</string>
+    <string name="iptv_url_lista">URL списку (M3U або XMLTV)</string>
+    <string name="iptv_huella_opcional">Очікуваний SHA-256 (необовʼязково)</string>
+    <string name="iptv_tipo_lista">Список каналів (M3U)</string>
+    <string name="iptv_tipo_guia">Програма передач (XMLTV)</string>
+    <string name="iptv_anadir_fuente">Додати джерело</string>
+    <string name="iptv_quitar">Вилучити</string>
+    <string name="iptv_cargar">Завантажити</string>
+    <string name="iptv_buscar_canal">Пошук каналу</string>
+    <string name="iptv_reproducir">Відтворити</string>
+    <string name="iptv_pausa">Пауза</string>
+    <string name="iptv_parar">Зупинити</string>
+    <string name="iptv_modulo_no_disponible">Модуль IPTV зараз недоступний.</string>
+    <string name="iptv_sin_fuentes">Не встановлено жодного джерела.</string>
+    <string name="iptv_canales_cargados">Завантажено каналів: %1$d із %2$s</string>
+    <string name="iptv_fuente_anadida">Джерело додано: %1$s</string>
+    <string name="iptv_fuente_quitada">Джерело вилучено: %1$s</string>
+    <string name="iptv_reproduciendo">Відтворюється: %1$s</string>
+    <string name="iptv_sin_reproduccion">Нічого не відтворюється</string>
+    <string name="iptv_elige_fuente">Спершу виберіть джерело зі списку.</string>
+    <string name="iptv_elige_canal">Виберіть канал зі списку.</string>
 </resources>

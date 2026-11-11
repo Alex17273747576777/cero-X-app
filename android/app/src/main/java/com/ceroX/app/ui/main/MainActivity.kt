@@ -150,6 +150,10 @@ private val DESTINOS = listOf(
     Destino("modos", "Modos") { ModeSwitcherFragment() },
     Destino("booru", "Booru") { com.ceroX.app.modules.booru.BooruUIFragment() },
     Destino("catalogo", "Catálogo") { com.ceroX.app.modules.catalog.CatalogUIFragment() },
+    // Un destino es un Fragment que existe: esta entrada se añade con la pantalla
+    // hecha, no antes. Una barra con un botón que no lleva a ningún sitio es justo
+    // lo que hacía que esta app se viera en blanco.
+    Destino("iptv", "IPTV") { com.ceroX.app.modules.iptv.IptvUiFragment() },
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

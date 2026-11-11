@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">이 언어에는 아직 번역된 텍스트가 없습니다: 영어로 표시됩니다.</string>
     <string name="fuente_idioma">소스 언어</string>
     <string name="multiidioma">다국어</string>
+    <string name="iptv_estado_inicial">소스를 추가하고 선택한 뒤 «불러오기»를 누르세요. cero-X에는 채널 목록이 들어 있지 않습니다.</string>
+    <string name="iptv_nombre_fuente">소스 이름</string>
+    <string name="iptv_url_lista">목록 URL(M3U 또는 XMLTV)</string>
+    <string name="iptv_huella_opcional">예상 SHA-256(선택 사항)</string>
+    <string name="iptv_tipo_lista">채널 목록(M3U)</string>
+    <string name="iptv_tipo_guia">프로그램 가이드(XMLTV)</string>
+    <string name="iptv_anadir_fuente">소스 추가</string>
+    <string name="iptv_quitar">제거</string>
+    <string name="iptv_cargar">불러오기</string>
+    <string name="iptv_buscar_canal">채널 검색</string>
+    <string name="iptv_reproducir">재생</string>
+    <string name="iptv_pausa">일시중지</string>
+    <string name="iptv_parar">정지</string>
+    <string name="iptv_modulo_no_disponible">IPTV 모듈을 지금은 사용할 수 없습니다.</string>
+    <string name="iptv_sin_fuentes">설치된 소스가 없습니다.</string>
+    <string name="iptv_canales_cargados">%2$s에서 채널 %1$d개 불러옴</string>
+    <string name="iptv_fuente_anadida">소스 추가됨: %1$s</string>
+    <string name="iptv_fuente_quitada">소스 제거됨: %1$s</string>
+    <string name="iptv_reproduciendo">재생 중: %1$s</string>
+    <string name="iptv_sin_reproduccion">재생 중이지 않음</string>
+    <string name="iptv_elige_fuente">먼저 목록에서 소스를 선택하세요.</string>
+    <string name="iptv_elige_canal">목록에서 채널을 선택하세요.</string>
 </resources>

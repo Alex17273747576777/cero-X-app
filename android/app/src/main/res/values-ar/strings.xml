@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">لا توجد نصوص مترجمة لهذه اللغة بعد: تُعرض بالإنجليزية.</string>
     <string name="fuente_idioma">لغة المصدر</string>
     <string name="multiidioma">متعدد اللغات</string>
+    <string name="iptv_estado_inicial">أضف مصدرًا ثم حدده واضغط على «تحميل». لا يتضمن cero-X أي قائمة قنوات.</string>
+    <string name="iptv_nombre_fuente">اسم المصدر</string>
+    <string name="iptv_url_lista">رابط القائمة (M3U أو XMLTV)</string>
+    <string name="iptv_huella_opcional">بصمة SHA-256 المتوقعة (اختياري)</string>
+    <string name="iptv_tipo_lista">قائمة القنوات (M3U)</string>
+    <string name="iptv_tipo_guia">دليل البرامج (XMLTV)</string>
+    <string name="iptv_anadir_fuente">إضافة مصدر</string>
+    <string name="iptv_quitar">إزالة</string>
+    <string name="iptv_cargar">تحميل</string>
+    <string name="iptv_buscar_canal">البحث عن قناة</string>
+    <string name="iptv_reproducir">تشغيل</string>
+    <string name="iptv_pausa">إيقاف مؤقت</string>
+    <string name="iptv_parar">إيقاف</string>
+    <string name="iptv_modulo_no_disponible">وحدة IPTV غير متاحة في الوقت الحالي.</string>
+    <string name="iptv_sin_fuentes">لا يوجد أي مصدر مثبَّت.</string>
+    <string name="iptv_canales_cargados">تم تحميل %1$d قناة من %2$s</string>
+    <string name="iptv_fuente_anadida">تمت إضافة المصدر: %1$s</string>
+    <string name="iptv_fuente_quitada">تمت إزالة المصدر: %1$s</string>
+    <string name="iptv_reproduciendo">قيد التشغيل: %1$s</string>
+    <string name="iptv_sin_reproduccion">لا يوجد تشغيل</string>
+    <string name="iptv_elige_fuente">اختر أولًا مصدرًا من القائمة.</string>
+    <string name="iptv_elige_canal">اختر قناة من القائمة.</string>
 </resources>

@@ -247,9 +247,26 @@ class IptvModule : ModuleInterface() {
         reproductor?.pausar()
     }
 
+    /**
+     * Libera el reproductor si existe, **sin crearlo**, y dice si había algo que
+     * liberar.
+     *
+     * Existe porque la pantalla necesita soltar el decodificador al destruir su
+     * vista, y [reproductor] lo construiría sólo para eso: reservar hardware que
+     * nadie va a usar. Devolver el dato tampoco es adorno —quien llama puede saber
+     * si de verdad se liberó algo o si no había nada—.
+     */
+    fun liberarReproductor(): Boolean {
+        val r = reproductor ?: return false
+        r.liberar()
+        reproductor = null
+        return true
+    }
+
     companion object {
-        /** En el directorio privado de la app: no es contenido del usuario que haya
-         *  que exponer, y no viaja en el APK. */
+        /** En la carpeta propia de la app dentro del almacenamiento externo, que es
+         *  donde la regla de almacenamiento del proyecto manda poner los datos. No
+         *  viaja en el APK y no está en el almacenamiento interno. */
         const val NOMBRE_ALMACEN = "iptv-fuentes.json"
     }
 }

@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">この言語にはまだ翻訳テキストがありません: 英語で表示されます。</string>
     <string name="fuente_idioma">ソースの言語</string>
     <string name="multiidioma">多言語</string>
+    <string name="iptv_estado_inicial">ソースを追加して選び、「読み込む」を押してください。cero-Xにチャンネル一覧は同梱されていません。</string>
+    <string name="iptv_nombre_fuente">ソース名</string>
+    <string name="iptv_url_lista">リストのURL（M3UまたはXMLTV）</string>
+    <string name="iptv_huella_opcional">期待するSHA-256（任意）</string>
+    <string name="iptv_tipo_lista">チャンネルリスト（M3U）</string>
+    <string name="iptv_tipo_guia">番組表（XMLTV）</string>
+    <string name="iptv_anadir_fuente">ソースを追加</string>
+    <string name="iptv_quitar">削除</string>
+    <string name="iptv_cargar">読み込む</string>
+    <string name="iptv_buscar_canal">チャンネルを検索</string>
+    <string name="iptv_reproducir">再生</string>
+    <string name="iptv_pausa">一時停止</string>
+    <string name="iptv_parar">停止</string>
+    <string name="iptv_modulo_no_disponible">IPTVモジュールは現在利用できません。</string>
+    <string name="iptv_sin_fuentes">インストール済みのソースはありません。</string>
+    <string name="iptv_canales_cargados">%2$s から %1$d チャンネルを読み込みました</string>
+    <string name="iptv_fuente_anadida">ソースを追加しました：%1$s</string>
+    <string name="iptv_fuente_quitada">ソースを削除しました：%1$s</string>
+    <string name="iptv_reproduciendo">再生中：%1$s</string>
+    <string name="iptv_sin_reproduccion">再生していません</string>
+    <string name="iptv_elige_fuente">まず一覧からソースを選んでください。</string>
+    <string name="iptv_elige_canal">一覧からチャンネルを選んでください。</string>
 </resources>

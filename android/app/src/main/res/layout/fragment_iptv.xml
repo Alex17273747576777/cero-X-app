@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  La pantalla de IPTV, en tres bloques: las fuentes que instala el usuario, los
+  canales que trae la fuente elegida, y el reproductor.
+
+  Los textos vienen de @string/ y no escritos aquí a mano. El proyecto traduce a
+  catorce idiomas y TraduccionesPresentesTest vigila que no falte ninguno, así que
+  una cadena suelta en el layout sería texto que catorce idiomas no ven. Las otras
+  pantallas del proyecto sí las tienen sueltas; esta no las añade nuevas.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/estado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/fuente_nombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/iptv_nombre_fuente"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/fuente_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/iptv_url_lista"
+        android:inputType="textUri" />
+
+    <EditText
+        android:id="@+id/fuente_huella"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/iptv_huella_opcional"
+        android:inputType="text" />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/tipo_lista"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/iptv_tipo_lista" />
+
+        <!-- Sin id a propósito: el código lee la opción marcada por defecto y de
+             ahí deduce el tipo. Un id que nadie consulta es una vista muerta. -->
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/iptv_tipo_guia" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/boton_anadir_fuente"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/iptv_anadir_fuente" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/lista_fuentes"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/busqueda_canales"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/iptv_buscar_canal"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/boton_cargar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/iptv_cargar" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/lista_canales"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <SurfaceView
+        android:id="@+id/superficie_video"
+        android:layout_width="match_parent"
+        android:layout_height="200dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/boton_reproducir"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/iptv_reproducir" />
+
+        <Button
+            android:id="@+id/boton_pausa"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/iptv_pausa" />
+
+        <Button
+            android:id="@+id/boton_parar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/iptv_parar" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/reproduccion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:textSize="14sp" />
+
+</LinearLayout>

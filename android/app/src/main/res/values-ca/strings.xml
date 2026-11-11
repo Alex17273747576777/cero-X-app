@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">Aquest idioma encara no té textos traduïts: es mostra en anglès.</string>
     <string name="fuente_idioma">Idioma de la font</string>
     <string name="multiidioma">Multilingüe</string>
+    <string name="iptv_estado_inicial">Afegiu una font, trieu-la i premeu «Carrega». cero-X no inclou cap llista de canals.</string>
+    <string name="iptv_nombre_fuente">Nom de la font</string>
+    <string name="iptv_url_lista">URL de la llista (M3U o XMLTV)</string>
+    <string name="iptv_huella_opcional">SHA-256 esperat (opcional)</string>
+    <string name="iptv_tipo_lista">Llista de canals (M3U)</string>
+    <string name="iptv_tipo_guia">Guia de programes (XMLTV)</string>
+    <string name="iptv_anadir_fuente">Afegeix una font</string>
+    <string name="iptv_quitar">Elimina</string>
+    <string name="iptv_cargar">Carrega</string>
+    <string name="iptv_buscar_canal">Cerca canals</string>
+    <string name="iptv_reproducir">Reprodueix</string>
+    <string name="iptv_pausa">Pausa</string>
+    <string name="iptv_parar">Atura</string>
+    <string name="iptv_modulo_no_disponible">El mòdul IPTV no està disponible ara mateix.</string>
+    <string name="iptv_sin_fuentes">No hi ha cap font instal·lada.</string>
+    <string name="iptv_canales_cargados">%1$d canals carregats de %2$s</string>
+    <string name="iptv_fuente_anadida">Font afegida: %1$s</string>
+    <string name="iptv_fuente_quitada">Font eliminada: %1$s</string>
+    <string name="iptv_reproduciendo">Reproduint: %1$s</string>
+    <string name="iptv_sin_reproduccion">Sense reproducció</string>
+    <string name="iptv_elige_fuente">Trieu primer una font de la llista.</string>
+    <string name="iptv_elige_canal">Trieu un canal de la llista.</string>
 </resources>

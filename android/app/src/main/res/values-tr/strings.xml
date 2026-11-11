@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">Bu dilde henüz çevrilmiş metin yok: İngilizce gösteriliyor.</string>
     <string name="fuente_idioma">Kaynak dili</string>
     <string name="multiidioma">Çok dilli</string>
+    <string name="iptv_estado_inicial">Bir kaynak ekleyin, seçin ve «Yükle» düğmesine dokunun. cero-X hiçbir kanal listesi içermez.</string>
+    <string name="iptv_nombre_fuente">Kaynak adı</string>
+    <string name="iptv_url_lista">Liste adresi (M3U veya XMLTV)</string>
+    <string name="iptv_huella_opcional">Beklenen SHA-256 (isteğe bağlı)</string>
+    <string name="iptv_tipo_lista">Kanal listesi (M3U)</string>
+    <string name="iptv_tipo_guia">Yayın akışı rehberi (XMLTV)</string>
+    <string name="iptv_anadir_fuente">Kaynak ekle</string>
+    <string name="iptv_quitar">Kaldır</string>
+    <string name="iptv_cargar">Yükle</string>
+    <string name="iptv_buscar_canal">Kanal ara</string>
+    <string name="iptv_reproducir">Oynat</string>
+    <string name="iptv_pausa">Duraklat</string>
+    <string name="iptv_parar">Durdur</string>
+    <string name="iptv_modulo_no_disponible">IPTV modülü şu anda kullanılamıyor.</string>
+    <string name="iptv_sin_fuentes">Kurulu kaynak yok.</string>
+    <string name="iptv_canales_cargados">%2$s kaynağından %1$d kanal yüklendi</string>
+    <string name="iptv_fuente_anadida">Kaynak eklendi: %1$s</string>
+    <string name="iptv_fuente_quitada">Kaynak kaldırıldı: %1$s</string>
+    <string name="iptv_reproduciendo">Oynatılıyor: %1$s</string>
+    <string name="iptv_sin_reproduccion">Oynatma yok</string>
+    <string name="iptv_elige_fuente">Önce listeden bir kaynak seçin.</string>
+    <string name="iptv_elige_canal">Listeden bir kanal seçin.</string>
 </resources>

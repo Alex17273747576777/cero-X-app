@@ -55,4 +55,26 @@
     <string name="traduccion_sin_traduccion">Bahasa ini belum punya teks terjemahan: ditampilkan dalam bahasa Inggris.</string>
     <string name="fuente_idioma">Bahasa sumber</string>
     <string name="multiidioma">Multi-bahasa</string>
+    <string name="iptv_estado_inicial">Tambahkan sumber, pilih, lalu ketuk «Muat». cero-X tidak menyertakan daftar saluran apa pun.</string>
+    <string name="iptv_nombre_fuente">Nama sumber</string>
+    <string name="iptv_url_lista">URL daftar (M3U atau XMLTV)</string>
+    <string name="iptv_huella_opcional">SHA-256 yang diharapkan (opsional)</string>
+    <string name="iptv_tipo_lista">Daftar saluran (M3U)</string>
+    <string name="iptv_tipo_guia">Panduan acara (XMLTV)</string>
+    <string name="iptv_anadir_fuente">Tambah sumber</string>
+    <string name="iptv_quitar">Hapus</string>
+    <string name="iptv_cargar">Muat</string>
+    <string name="iptv_buscar_canal">Cari saluran</string>
+    <string name="iptv_reproducir">Putar</string>
+    <string name="iptv_pausa">Jeda</string>
+    <string name="iptv_parar">Hentikan</string>
+    <string name="iptv_modulo_no_disponible">Modul IPTV sedang tidak tersedia.</string>
+    <string name="iptv_sin_fuentes">Tidak ada sumber yang terpasang.</string>
+    <string name="iptv_canales_cargados">%1$d saluran dimuat dari %2$s</string>
+    <string name="iptv_fuente_anadida">Sumber ditambahkan: %1$s</string>
+    <string name="iptv_fuente_quitada">Sumber dihapus: %1$s</string>
+    <string name="iptv_reproduciendo">Memutar: %1$s</string>
+    <string name="iptv_sin_reproduccion">Tidak ada pemutaran</string>
+    <string name="iptv_elige_fuente">Pilih dulu satu sumber dari daftar.</string>
+    <string name="iptv_elige_canal">Pilih satu saluran dari daftar.</string>
 </resources>
