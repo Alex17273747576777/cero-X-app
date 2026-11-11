@@ -32,6 +32,15 @@ class LimpiezaTest {
 
     private val src: File get() = File(main, "java/com/ceroX/app")
 
+    /**
+     * Una comilla doble, construida como Char para no tener que escaparla.
+     *
+     * Varias aserciones de esta prueba buscan literales Kotlin dentro del fuente
+     * (`"ffmpeg"`, `config["context"]`) y escribirlas con barras invertidas dentro
+     * de una cadena es justo lo que rompió la primera versión de este fichero.
+     */
+    private val q: String = '"'.toString()
+
     private fun leer(rel: String): String {
         val f = File(src, rel)
         assertTrue("falta $rel", f.exists())
@@ -56,11 +65,11 @@ class LimpiezaTest {
         assertFalse("vuelve la bandera de aceleración", v.contains("hwAccel"))
         assertFalse("vuelve su clave de config", v.contains("hw_accel"))
         assertTrue("y no explica por qué no la tiene", v.contains("No tiene aceleración por hardware"))
-        assertTrue("el contexto tiene que llegar por el config", v.contains("config["context"]"))
+        assertTrue("el contexto tiene que llegar por el config", v.contains("config[" + q + "context" + q + "]"))
         val c = leer("core/ConfigManager.kt")
         assertFalse("el default sigue en ConfigManager", c.contains("hw_accel"))
-        assertFalse("y sigue declarando un backend de vídeo que no existe", c.contains(""ffmpeg""))
-        assertFalse("y un backend de audio que tampoco", c.contains(""wotaku""))
+        assertFalse("y sigue declarando un backend de vídeo que no existe", c.contains(q + "ffmpeg" + q))
+        assertFalse("y un backend de audio que tampoco", c.contains(q + "wotaku" + q))
     }
 
     @Test
@@ -106,7 +115,7 @@ class LimpiezaTest {
         val u = leer("modules/updates/UpdatesModule.kt")
         assertFalse("vuelve el auto-update que no existe", u.contains("auto_update_enabled"))
         assertTrue("y no admite que no hay servidor", u.contains("servidor_de_actualizaciones"))
-        assertFalse("la versión sigue escrita a mano", u.contains(""0.1.0-beta""))
+        assertFalse("la versión sigue escrita a mano", u.contains("0.1.0-beta"))
         val n = leer("modules/updates/NightlyUpdater.kt")
         assertFalse("y aquí también", n.contains("0.2.0-beta-android16"))
         assertTrue("ambos deben leer la versión de verdad", n.contains("versionRealDeLaApp"))
@@ -118,6 +127,6 @@ class LimpiezaTest {
         // leían config["context"] y ConfigManager sólo guarda preferencias.
         val g = leer("core/engine/ModuleLifecycleManager.kt")
         assertTrue("el gestor debe inyectar el contexto de la aplicación",
-            g.contains("configMap["context"] = context.applicationContext"))
+            g.contains("configMap[" + q + "context" + q + "] = context.applicationContext"))
     }
 }
