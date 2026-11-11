@@ -229,10 +229,20 @@ class EqTest {
                 "muerde al usuario con auriculares Bluetooth",
             t.contains("catch (e: Exception)"),
         )
+        // Ojo con lo que se busca aqui: la version anterior de esta prueba buscaba
+        // una frase que el salto de linea del KDoc partia en dos ("...una app no
+        // puede" terminaba una linea y "cambiarlo..." empezaba la siguiente), y por
+        // eso fallaba aunque el documento dijera exactamente lo que se exigia. Las
+        // dos cadenas de abajo viven cada una entera en su linea.
         assertTrue(
-            "el documento del fichero tiene que decir que cambiar el numero de pasos " +
-                "del sistema exige tocar el framework, y que aqui no se hace",
-            t.contains("no puede cambiarlo"),
+            "el documento del fichero tiene que decir que una app no puede cambiar " +
+                "los pasos del volumen del sistema",
+            t.contains("una app no puede"),
+        )
+        assertTrue(
+            "y tiene que decir que aqui no se reescribe el framework, que es lo " +
+                "unico que permitiria cambiarlos",
+            t.contains("no lleva nada que reescriba el framework"),
         )
     }
 }
