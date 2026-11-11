@@ -5,7 +5,7 @@
 Lo que se veía al instalar la 1.0.0-beta: diálogo «cero-X sigue sin funcionar» y,
 si se esperaba, una pantalla con seis botones abajo y nada en medio.
 
-## Causa 1 · treinta módulos en el hilo principal
+## Causa 1 · 36 módulos en el hilo principal
 
 `CeroXApplication.onCreate` llamaba a `initializeAll()` y `startAll()` en el hilo
 principal. Siete módulos cargan la librería nativa de ONNX **al construirse**
@@ -19,9 +19,11 @@ Arreglo:
 - El arranque completo vive en el hilo `cerox-arranque-modulos`.
 - Los siete `OrtEnvironment` pasan a `by lazy`: construir un módulo ya no carga
   nada nativo.
-- Seis módulos pesados (colorizador, OCR, upscaler, neural-ai, ai-hub,
-  ai-training) **no se intentan al abrir**: quedan perezosos y el panel los
-  inicia al pedirlos. La lista vive en `ReglasArranque.PESADOS`, pura y probada.
+- Cinco módulos pesados (colorizador, OCR, neural-ai, ai-hub, ai-training) **no
+  se intentan al abrir**: quedan perezosos y el panel los inicia al pedirlos. La
+  lista vive en `ReglasArranque.PESADOS`, pura y probada. `KisaraUpscaler` no está
+  ahí porque es una clase que usa el colorizador, no un módulo registrado; su
+  entorno ONNX también se volvió perezoso.
 
 ## Causa 2 · una barra que no navegaba
 

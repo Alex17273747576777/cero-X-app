@@ -21,11 +21,14 @@ object ReglasArranque {
      * pedirlos. Los nombres son los de `ModuleMetadata` en
      * `CeroXApplication.registerModules`; una prueba exige que sigan existiendo
      * ahí, para que esta lista no derive en silencio.
+     *
+     * Ojo con los nombres: `KisaraUpscaler` es una CLASE que usa el colorizador,
+     * no un módulo registrado, así que no aparece aquí aunque cargue ONNX. La
+     * app registra 36 módulos; cinco son pesados.
      */
     val PESADOS: Set<String> = setOf(
         "kisara-neural-colorizer",
         "kisara-ocr-translator",
-        "kisara-upscaler",
         "neural-ai",
         "ai-hub",
         "ai-training",
@@ -41,6 +44,7 @@ object ReglasArranque {
         ModuleStatus.UNLOADED -> if (pesado) "pendiente: se inicia al pedirlo" else "sin iniciar"
         ModuleStatus.INITIALIZED -> "listo"
         ModuleStatus.STARTED -> "funcionando"
+        ModuleStatus.STOPPED -> "parado"
         ModuleStatus.ERROR -> "falló"
         else -> status.name
     }

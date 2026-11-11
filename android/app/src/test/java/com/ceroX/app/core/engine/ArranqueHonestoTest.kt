@@ -30,11 +30,18 @@ class ArranqueHonestoTest {
     fun elArranqueNoInicializaModulosEnElHiloPrincipal() {
         val t = fuente("core/CeroXApplication.kt")!!.readText()
         val onCreate = t.substring(t.indexOf("override fun onCreate"), t.indexOf("override fun onTerminate"))
-        val hilo = onCreate.indexOf("\"cerox-arranque-modulos\"")
+        // El hilo se abre con `Thread({` y se cierra con su nombre: las dos
+        // llamadas tienen que quedar ENTRE las dos marcas. La primera versión de
+        // esta prueba miraba sólo el nombre y falló por eso: el nombre va después
+        // del cuerpo, no antes.
+        val abre = onCreate.indexOf("Thread({")
         val init = onCreate.indexOf("initializeAll()")
         val start = onCreate.indexOf("startAll()")
-        assertTrue("initializeAll debe vivir dentro del hilo de arranque", hilo in 0 until init)
-        assertTrue("startAll también, y después", hilo in 0 until start)
+        val cierra = onCreate.indexOf("cerox-arranque-modulos")
+        assertTrue("el arranque vive dentro de un Thread", abre >= 0)
+        assertTrue("initializeAll() va dentro del hilo de arranque", abre in 0 until init)
+        assertTrue("startAll() también", abre in 0 until start)
+        assertTrue("y el nombre del hilo cierra el bloque, después de las dos", cierra > init && cierra > start)
     }
 
     @Test
@@ -58,6 +65,7 @@ class ArranqueHonestoTest {
     @Test
     fun laPoliticaDePesadosCoincideConLosModulosRegistrados() {
         val app = fuente("core/CeroXApplication.kt")!!.readText()
+        assertEquals("son cinco los módulos pesados", 5, ReglasArranque.PESADOS.size)
         for (n in ReglasArranque.PESADOS) {
             assertTrue("el módulo pesado " + n + " sigue registrado en la app", app.contains("\"" + n + "\""))
         }
@@ -72,6 +80,7 @@ class ArranqueHonestoTest {
         assertEquals("listo", ReglasArranque.descripcionEstado(ModuleStatus.INITIALIZED, false))
         assertEquals("funcionando", ReglasArranque.descripcionEstado(ModuleStatus.STARTED, true))
         assertEquals("falló", ReglasArranque.descripcionEstado(ModuleStatus.ERROR, false))
+        assertEquals("parado", ReglasArranque.descripcionEstado(ModuleStatus.STOPPED, true))
     }
 
     @Test

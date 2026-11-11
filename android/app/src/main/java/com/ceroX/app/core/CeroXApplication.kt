@@ -78,7 +78,7 @@ class CeroXApplication : Application() {
         registerModules()
         validateDependencies()
 
-        // Arranque honesto (1.0.1). Inicializar 30 módulos en el hilo principal
+        // Arranque honesto (1.0.1). Inicializar 36 módulos en el hilo principal
         // —varios cargan librerías nativas de ONNX al construirse— era el ANR de
         // esta app: en cuanto un módulo fallaba, los reintentos con sleep sumaban
         // más que el timeout del sistema y Android ofrecía cerrar la app. Ahora
