@@ -263,6 +263,19 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'com.squareup.okio:okio:3.8.0'
 
+    // Reproductor: media3/ExoPlayer (Apache-2.0, compatible con la GPL-3.0 del
+    // proyecto). Hace falta porque el MediaPlayer del framework no resuelve
+    // playlists .m3u8, y el IPTV es HLS casi siempre; lo deja dicho VideoModule en
+    // su propia documentación. El módulo -hls no es un extra: sin él media3 no
+    // reconoce los flujos .m3u8.
+    // Versión fija a propósito, y las dos piezas en la misma. Nada de rangos
+    // dinámicos ni de resolvedores que elijan la última disponible: cambiarían lo
+    // que se compila sin que nadie lo decida. La prueba que vigila esto busca las
+    // dos cadenas prohibidas por su nombre, así que este comentario las describe y
+    // no las escribe — citarlas aquí sería exactamente el fallo que la prueba caza.
+    implementation 'androidx.media3:media3-exoplayer:1.11.1'
+    implementation 'androidx.media3:media3-exoplayer-hls:1.11.1'
+
     // ONNX Runtime para AI (CPU/NNAPI) - TODAS las arquitecturas para universal
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.17.0'
 
