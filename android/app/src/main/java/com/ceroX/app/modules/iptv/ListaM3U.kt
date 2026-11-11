@@ -22,8 +22,28 @@ package com.ceroX.app.modules.iptv
  */
 object ListaM3U {
 
-    /** Atributos tipo `tvg-id="..."` dentro de la cabecera de un #EXTINF. */
-    private val ATRIBUTOS = Regex("([A-Za-z0-9_.-]+)=\"([^\"]*)\"")
+    /**
+     * Atributos dentro de la cabecera de un #EXTINF.
+     *
+     * Con comillas y sin ellas: `tvg-id="la1.es"` es lo habitual, pero hay listas
+     * generadas a mano que escriben `tvg-id=la1.es`, y un lector que sólo entiende
+     * la forma entrecomillada se queda sin ese canal sin decir por qué. La rama
+     * entrecomillada va primero para que una URL con signos iguales dentro no se
+     * corte donde no debe.
+     */
+    private val ATRIBUTOS = Regex("([A-Za-z0-9_.-]+)=(\"[^\"]*\"|[^\\s,]+)")
+
+    /** Nombre y valor de cada atributo, sin las comillas si las traía. */
+    private fun atributos(cabecera: String): Map<String, String> =
+        ATRIBUTOS.findAll(cabecera).associate {
+            val crudo = it.groupValues[2]
+            val valor = if (crudo.length >= 2 && crudo.startsWith("\"") && crudo.endsWith("\"")) {
+                crudo.substring(1, crudo.length - 1)
+            } else {
+                crudo
+            }
+            it.groupValues[1].lowercase() to valor
+        }
 
     fun parsear(texto: String, origen: String = "lista"): ResultadoM3U {
         val lineas = texto.split("\n")
@@ -163,9 +183,7 @@ object ListaM3U {
             saltadas.add("linea $n: la duración '$duracionTexto' no es un entero, se toma -1 (directo)")
         }
 
-        val attrs = ATRIBUTOS.findAll(cabecera).associate {
-            it.groupValues[1].lowercase() to it.groupValues[2]
-        }
+        val attrs = atributos(cabecera)
 
         val titulo = when {
             tituloCrudo.isNotEmpty() -> tituloCrudo
@@ -182,7 +200,14 @@ object ListaM3U {
             tvgId = attrs["tvg-id"]?.takeIf { it.isNotBlank() },
             tvgNombre = attrs["tvg-name"]?.takeIf { it.isNotBlank() },
             logo = attrs["tvg-logo"]?.takeIf { it.isNotBlank() },
-            grupo = attrs["group-title"]?.takeIf { it.isNotBlank() } ?: grupoHeredado,
+            // Si group-title está presente manda, aunque venga vacío: un canal que
+            // dice explícitamente que no tiene grupo no debería heredar el del
+            // anterior. Sólo se hereda #EXTGRP cuando el atributo no aparece.
+            grupo = if (attrs.containsKey("group-title")) {
+                attrs["group-title"]?.takeIf { it.isNotBlank() }
+            } else {
+                grupoHeredado
+            },
             duracionSegundos = duracion ?: -1,
         )
     }

@@ -26,10 +26,10 @@ class IptvTest {
         #EXTINF:-1 tvg-id="la1.es" tvg-name="La 1" tvg-logo="https://ejemplo.invalid/la1.png" group-title="Nacional",La 1 HD
         #EXTVLCOPT:http-user-agent=Mozilla/5.0 (X11; Linux x86_64)
         https://ejemplo.invalid/la1/index.m3u8
-        #EXTINF:-1 tvg-id="24h.es",Canal 24 Horas
+        #EXTINF:-1 tvg-id=24h.es,Canal 24 Horas
         #KODIPROP:inputstream.adaptive.license_type=clearkey
         https://ejemplo.invalid/24h.m3u8
-        #EXTINF:0 tvg-logo="https://ejemplo.invalid/radio.png" group-title=,Radio Nacional
+        #EXTINF:0 tvg-logo="https://ejemplo.invalid/radio.png" group-title="",Radio Nacional
         https://ejemplo.invalid/rne.m3u8
     """.trimIndent()
 
@@ -53,8 +53,11 @@ class IptvTest {
         // El segundo no trae group-title y hereda el #EXTGRP anterior.
         assertEquals("General", r.canales[1].grupo)
         assertEquals("Canal 24 Horas", r.canales[1].titulo)
+        // Sin comillas, que es como lo escriben algunas listas generadas a mano.
+        assertEquals("24h.es", r.canales[1].tvgId)
 
-        // El tercero trae group-title vacío: no hereda, se queda sin grupo.
+        // El tercero trae group-title presente pero vacío: manda el atributo y no
+        // hereda el #EXTGRP anterior.
         assertNull(r.canales[2].grupo)
         assertEquals("Radio Nacional", r.canales[2].titulo)
 
@@ -111,7 +114,7 @@ class IptvTest {
             #EXTINF:-1 tvg-id="dos",Canal Dos
             https://ejemplo.invalid/dos.m3u8
             esto no es una url
-            #EXTINF:-1,Sin Título
+            #EXTINF:-1 tvg-id="tres",
         """.trimIndent()
         val r = ListaM3U.parsear(rota)
         assertEquals("sólo el segundo canal tiene URL detrás", 1, r.canales.size)
