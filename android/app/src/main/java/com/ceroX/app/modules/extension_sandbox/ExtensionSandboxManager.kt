@@ -59,5 +59,5 @@ class ExtensionSandboxManager {
      * forma de distinguir "no hay ninguna" de "no se ha mirado". Se mira.
      */
     fun getActiveExtensionsCount(): Int =
-        sandboxDir.listFiles { f -> f.isDirectory }?.size ?: 0
+        sandboxDir?.listFiles { f -> f.isDirectory }?.size ?: 0
 }

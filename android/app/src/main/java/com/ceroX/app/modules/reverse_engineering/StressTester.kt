@@ -47,7 +47,10 @@ class StressTester(private val termometro: (() -> Float?)? = null) {
 
         val results = futures.map { it.get() }
         val totalTime = System.currentTimeMillis() - startTime
-        val successCount = results.count { it }
+        // `it.get()` viene como Any!, no como Boolean: el executor resuelve el
+        // lambda a la variante que no conserva el tipo. Se compara con true, que
+        // es lo que hacía antes y lo que acepta Any.
+        val successCount = results.count { it == true }
 
         return DownloadStressResult(
             concurrentDownloads = concurrentDownloads,

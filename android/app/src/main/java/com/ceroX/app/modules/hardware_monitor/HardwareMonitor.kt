@@ -169,7 +169,15 @@ data class ScreenDimensions(
 )
 
 data class HardwareStats(
-    val cpuPercent: Float,
+    /**
+     * Porcentaje de CPU, o `null` cuando no se puede saber.
+     *
+     * Era `Float` no nulo y por eso `getCpuUsage()` devolvía 0.0f cuando no podía
+     * leer `/proc/stat`: con un Float a secas no hay forma de distinguir "la CPU
+     * está al 0 %" de "SELinux no me deja leer". Los dos campos que admiten no
+     * saber (este y `temperatureCelsius`) son nuleables.
+     */
+    val cpuPercent: Float?,
     val ramTotalBytes: Long,
     val ramAvailableBytes: Long,
     val ramLowMemory: Boolean,
