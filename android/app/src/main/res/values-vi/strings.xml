@@ -78,14 +78,14 @@
     <string name="iptv_elige_fuente">Trước tiên hãy chọn một nguồn trong danh sách.</string>
     <string name="iptv_elige_canal">Hãy chọn một kênh trong danh sách.</string>
     <string name="web_titulo">Web</string>
-    <string name="web_url_hint">Barra de direcciones</string>
-    <string name="web_bloqueo">Bloquear anuncios y rastreadores</string>
-    <string name="web_anti_muro">Ocultar carteles anti-bloqueador</string>
-    <string name="web_cookies">Política de cookies</string>
-    <string name="web_cookies_todo">Cookies: bloquear todas</string>
-    <string name="web_cookies_terceros">Cookies: sólo terceros</string>
-    <string name="web_cookies_permitir">Cookies: permitir todas</string>
-    <string name="web_atras">Atrás</string>
-    <string name="web_recargar">Recargar</string>
-    <string name="web_ir">Ir</string>
+    <string name="web_url_hint">Thanh địa chỉ</string>
+    <string name="web_bloqueo">Chặn quảng cáo và trình theo dõi</string>
+    <string name="web_anti_muro">Ẩn cảnh báo chống trình chặn</string>
+    <string name="web_cookies">Chính sách cookie</string>
+    <string name="web_cookies_todo">Cookie: chặn tất cả</string>
+    <string name="web_cookies_terceros">Cookie: chặn của bên thứ ba</string>
+    <string name="web_cookies_permitir">Cookie: cho phép tất cả</string>
+    <string name="web_atras">Quay lại</string>
+    <string name="web_recargar">Tải lại</string>
+    <string name="web_ir">Đi</string>
 </resources>

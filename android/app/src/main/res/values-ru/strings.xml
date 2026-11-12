@@ -78,14 +78,14 @@
     <string name="iptv_elige_fuente">Сначала выберите источник из списка.</string>
     <string name="iptv_elige_canal">Выберите канал из списка.</string>
     <string name="web_titulo">Web</string>
-    <string name="web_url_hint">Barra de direcciones</string>
-    <string name="web_bloqueo">Bloquear anuncios y rastreadores</string>
-    <string name="web_anti_muro">Ocultar carteles anti-bloqueador</string>
-    <string name="web_cookies">Política de cookies</string>
-    <string name="web_cookies_todo">Cookies: bloquear todas</string>
-    <string name="web_cookies_terceros">Cookies: sólo terceros</string>
-    <string name="web_cookies_permitir">Cookies: permitir todas</string>
-    <string name="web_atras">Atrás</string>
-    <string name="web_recargar">Recargar</string>
-    <string name="web_ir">Ir</string>
+    <string name="web_url_hint">Адресная строка</string>
+    <string name="web_bloqueo">Блокировать рекламу и трекеры</string>
+    <string name="web_anti_muro">Скрывать предупреждения о блокировщике</string>
+    <string name="web_cookies">Политика использования cookie</string>
+    <string name="web_cookies_todo">Cookie: блокировать все</string>
+    <string name="web_cookies_terceros">Cookie: блокировать сторонние</string>
+    <string name="web_cookies_permitir">Cookie: разрешить все</string>
+    <string name="web_atras">Назад</string>
+    <string name="web_recargar">Обновить</string>
+    <string name="web_ir">Перейти</string>
 </resources>

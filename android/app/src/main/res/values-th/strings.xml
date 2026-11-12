@@ -78,14 +78,14 @@
     <string name="iptv_elige_fuente">เลือกแหล่งจากรายการก่อน</string>
     <string name="iptv_elige_canal">เลือกช่องจากรายการ</string>
     <string name="web_titulo">Web</string>
-    <string name="web_url_hint">Barra de direcciones</string>
-    <string name="web_bloqueo">Bloquear anuncios y rastreadores</string>
-    <string name="web_anti_muro">Ocultar carteles anti-bloqueador</string>
-    <string name="web_cookies">Política de cookies</string>
-    <string name="web_cookies_todo">Cookies: bloquear todas</string>
-    <string name="web_cookies_terceros">Cookies: sólo terceros</string>
-    <string name="web_cookies_permitir">Cookies: permitir todas</string>
-    <string name="web_atras">Atrás</string>
-    <string name="web_recargar">Recargar</string>
-    <string name="web_ir">Ir</string>
+    <string name="web_url_hint">แถบที่อยู่</string>
+    <string name="web_bloqueo">บล็อกโฆษณาและตัวติดตาม</string>
+    <string name="web_anti_muro">ซ่อนคำเตือนต่อต้านตัวบล็อก</string>
+    <string name="web_cookies">นโยบายคุกกี้</string>
+    <string name="web_cookies_todo">คุกกี้: บล็อกทั้งหมด</string>
+    <string name="web_cookies_terceros">คุกกี้: บล็อกของบุคคลที่สาม</string>
+    <string name="web_cookies_permitir">คุกกี้: อนุญาตทั้งหมด</string>
+    <string name="web_atras">ย้อนกลับ</string>
+    <string name="web_recargar">โหลดซ้ำ</string>
+    <string name="web_ir">ไป</string>
 </resources>

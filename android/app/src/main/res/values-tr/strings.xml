@@ -78,14 +78,14 @@
     <string name="iptv_elige_fuente">Önce listeden bir kaynak seçin.</string>
     <string name="iptv_elige_canal">Listeden bir kanal seçin.</string>
     <string name="web_titulo">Web</string>
-    <string name="web_url_hint">Barra de direcciones</string>
-    <string name="web_bloqueo">Bloquear anuncios y rastreadores</string>
-    <string name="web_anti_muro">Ocultar carteles anti-bloqueador</string>
-    <string name="web_cookies">Política de cookies</string>
-    <string name="web_cookies_todo">Cookies: bloquear todas</string>
-    <string name="web_cookies_terceros">Cookies: sólo terceros</string>
-    <string name="web_cookies_permitir">Cookies: permitir todas</string>
-    <string name="web_atras">Atrás</string>
-    <string name="web_recargar">Recargar</string>
-    <string name="web_ir">Ir</string>
+    <string name="web_url_hint">Adres çubuğu</string>
+    <string name="web_bloqueo">Reklamları ve izleyicileri engelle</string>
+    <string name="web_anti_muro">Reklam engelleyici uyarılarını gizle</string>
+    <string name="web_cookies">Çerez politikası</string>
+    <string name="web_cookies_todo">Çerezler: tümünü engelle</string>
+    <string name="web_cookies_terceros">Çerezler: üçüncü tarafları engelle</string>
+    <string name="web_cookies_permitir">Çerezler: tümüne izin ver</string>
+    <string name="web_atras">Geri</string>
+    <string name="web_recargar">Yeniden yükle</string>
+    <string name="web_ir">Git</string>
 </resources>

@@ -78,14 +78,14 @@
     <string name="iptv_elige_fuente">اختر أولًا مصدرًا من القائمة.</string>
     <string name="iptv_elige_canal">اختر قناة من القائمة.</string>
     <string name="web_titulo">Web</string>
-    <string name="web_url_hint">Barra de direcciones</string>
-    <string name="web_bloqueo">Bloquear anuncios y rastreadores</string>
-    <string name="web_anti_muro">Ocultar carteles anti-bloqueador</string>
-    <string name="web_cookies">Política de cookies</string>
-    <string name="web_cookies_todo">Cookies: bloquear todas</string>
-    <string name="web_cookies_terceros">Cookies: sólo terceros</string>
-    <string name="web_cookies_permitir">Cookies: permitir todas</string>
-    <string name="web_atras">Atrás</string>
-    <string name="web_recargar">Recargar</string>
-    <string name="web_ir">Ir</string>
+    <string name="web_url_hint">شريط العناوين</string>
+    <string name="web_bloqueo">حظر الإعلانات وأدوات التتبع</string>
+    <string name="web_anti_muro">إخفاء تحذيرات مانع الإعلانات</string>
+    <string name="web_cookies">سياسة ملفات تعريف الارتباط</string>
+    <string name="web_cookies_todo">ملفات تعريف الارتباط: حظر الكل</string>
+    <string name="web_cookies_terceros">ملفات تعريف الارتباط: حظر الطرف الثالث</string>
+    <string name="web_cookies_permitir">ملفات تعريف الارتباط: السماح بالكل</string>
+    <string name="web_atras">رجوع</string>
+    <string name="web_recargar">إعادة التحميل</string>
+    <string name="web_ir">انتقال</string>
 </resources>

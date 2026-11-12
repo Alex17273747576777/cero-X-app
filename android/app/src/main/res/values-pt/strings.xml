@@ -78,14 +78,14 @@
     <string name="iptv_elige_fuente">Selecione primeiro uma fonte da lista.</string>
     <string name="iptv_elige_canal">Selecione um canal da lista.</string>
     <string name="web_titulo">Web</string>
-    <string name="web_url_hint">Barra de direcciones</string>
-    <string name="web_bloqueo">Bloquear anuncios y rastreadores</string>
-    <string name="web_anti_muro">Ocultar carteles anti-bloqueador</string>
+    <string name="web_url_hint">Barra de endereços</string>
+    <string name="web_bloqueo">Bloquear anúncios e rastreadores</string>
+    <string name="web_anti_muro">Ocultar avisos antibloqueador</string>
     <string name="web_cookies">Política de cookies</string>
     <string name="web_cookies_todo">Cookies: bloquear todas</string>
-    <string name="web_cookies_terceros">Cookies: sólo terceros</string>
+    <string name="web_cookies_terceros">Cookies: bloquear de terceiros</string>
     <string name="web_cookies_permitir">Cookies: permitir todas</string>
-    <string name="web_atras">Atrás</string>
-    <string name="web_recargar">Recargar</string>
+    <string name="web_atras">Voltar</string>
+    <string name="web_recargar">Recarregar</string>
     <string name="web_ir">Ir</string>
 </resources>
