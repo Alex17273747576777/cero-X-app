@@ -8,9 +8,9 @@ name: pruebas
 #     que necesitan los modelos se SALTAN, no fallan: se distinguen los dos casos.
 #   · NO construye el APK: eso vive en .github/workflows/apk.yml, que compila de
 #     release con R8, una sola arquitectura y SIN modelos, y firma con la clave de
-#     los secretos del repo. La huella aprobada está en entorno/HUELLA-CERTIFICADO.txt
-#     y el porqué en docs/FIRMA-NUEVA.md. El doc que se citaba aquí antes,
-#     entorno/COMPILAR-Y-FIRMAR.md, no existe en el repositorio.
+#     los secretos del repo. La huella aprobada está en entorno/HUELLA-CERTIFICADO.txt,
+#     el porqué del certificado nuevo en docs/FIRMA-NUEVA.md y cómo compilar y firmar
+#     en entorno/COMPILAR-Y-FIRMAR.md, que era un enlace roto y ya existe.
 
 on:
   push:

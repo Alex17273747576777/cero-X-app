@@ -17,9 +17,10 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
  * POR QUÉ media3 Y NO EL MediaPlayer DEL FRAMEWORK
  * ------------------------------------------------
  * El IPTV es HLS casi siempre, y el `MediaPlayer` del sistema no resuelve playlists
- * .m3u8: lo deja escrito `VideoModule` en su propia documentación. media3 es
- * Apache-2.0, que es compatible con la GPL-3.0 del proyecto, y trae el soporte de
- * HLS en un módulo aparte que hay que declarar.
+ * .m3u8. `VideoModule` delega en ese reproductor del sistema con un `ACTION_VIEW` y
+ * por eso no puede con el streaming; este módulo no delega: lleva media3 dentro.
+ * media3 es Apache-2.0, que es compatible con la GPL-3.0 del proyecto, y trae el
+ * soporte de HLS en un módulo aparte que hay que declarar.
  *
  * CÓMO FALLA
  * ----------

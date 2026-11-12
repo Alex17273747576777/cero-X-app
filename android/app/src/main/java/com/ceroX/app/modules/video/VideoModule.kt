@@ -16,11 +16,18 @@ import com.ceroX.app.core.engine.ModuleInterface
  *     repetida en el healthCheck que no tocaba la reproducción en ningún sitio, y no
  *     podía tocarla: si el vídeo lo abre otra app, quién acelera y cómo no es
  *     decisión de cero-X. Borrada aquí y en `ConfigManager`, con su default. Cuando
- *     el reproductor sea propio (media3), la aceleración se consulta de verdad con
- *     `MediaCodecInfo` y entonces se informa con datos medidos.
+ *     este módulo lleve un reproductor propio en vez de delegar en otra app, la
+ *     aceleración se consulta de verdad con `MediaCodecInfo` y entonces se informa
+ *     con datos medidos.
  *   • No escanea el almacenamiento: la biblioteca empieza vacía en cada proceso.
- *   • No reproduce en streaming. HLS/IPTV necesita media3, que no está en el
- *     proyecto: el `MediaPlayer` del framework no resuelve playlists .m3u8.
+ *   • No reproduce en streaming, y la razón ya no es la que decía este comentario:
+ *     media3 SÍ está en el proyecto, lo usa el módulo IPTV desde `917c3f06`
+ *     (`modules/iptv/ReproductorIptv.kt`, con las piezas `media3-exoplayer` y
+ *     `media3-exoplayer-hls`). Lo que no existe es la conexión entre ese
+ *     reproductor y este módulo, que sigue delegando en la app del sistema con un
+ *     `ACTION_VIEW`. Y por ahí no hay streaming posible: el `MediaPlayer` del
+ *     framework no resuelve playlists .m3u8. Hace falta enchufar media3 aquí, y no
+ *     se ha hecho.
  *
  * `play()` necesitaba un `Context` que nadie le daba. El campo `appContext` se
  * declaraba y nunca se asignaba, así que el método devolvía `false` siempre por más

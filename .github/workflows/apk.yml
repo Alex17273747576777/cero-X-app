@@ -32,9 +32,9 @@ on:
         type: boolean
         default: true
       etiqueta:
-        description: "Etiqueta de la release"
+        description: "Etiqueta de la release. Vacía = se deriva del versionName de android/app/build.gradle"
         type: string
-        default: "v1.0.1-beta-arranque-honesto"
+        default: ""
 
 permissions:
   contents: write
@@ -45,6 +45,12 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          # La nota de la release deriva sus cambios del historial. Con la
+          # profundidad por defecto no hay historial ni etiquetas, y la nota
+          # volvería a estar escrita a mano, que es como se pudrió la anterior.
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Java 21
         uses: actions/setup-java@v4
@@ -137,6 +143,26 @@ jobs:
           ETIQUETA: ${{ inputs.etiqueta }}
           ABI: ${{ inputs.abi }}
         run: |
+          if [ -z "$ETIQUETA" ]; then
+            # Derivada del versionName y no escrita a mano. El valor por defecto
+            # anterior se quedó viejo en cuanto se publicó la versión siguiente,
+            # y una release cuya etiqueta no coincide con lo que lleva dentro
+            # es peor que ninguna.
+            VERSION="$(sed -n 's/.*versionName "\([^"]*\)".*/\1/p' android/app/build.gradle | head -1)"
+            if [ -z "$VERSION" ]; then
+              echo "::error::no se pudo derivar la etiqueta: versionName no encontrado"
+              exit 1
+            fi
+            ETIQUETA="v$VERSION"
+            echo "Etiqueta derivada del versionName: $ETIQUETA"
+          fi
+          ANTERIOR="$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)"
+          if [ -n "$ANTERIOR" ]; then
+            CAMBIOS="Cambios desde $ANTERIOR:
+$(git log --oneline --no-decorate "$ANTERIOR"..HEAD | sed 's/^/            · /')"
+          else
+            CAMBIOS="(no hay una etiqueta anterior en el historial: ésta es la primera)"
+          fi
           TAM="$(stat -c%s "$APK")"
           MIB="$(python3 -c "print(f'{$TAM/1048576:.1f}')")"
           SUMA="$(cut -d' ' -f1 sha256sums.txt)"
@@ -152,15 +178,22 @@ jobs:
             primera build pesó 475.523.392 porque llevaba 378 MiB de modelos ONNX
             y cuatro arquitecturas dentro.
           · SHA-256: $SUMA
-          · Certificado: huella $HUELLA_TXT, generado el 2026-11-11. El
-            certificado anterior se perdió, así que esta firma no actualiza una
-            instalación vieja: hay que desinstalarla antes.
+          · Certificado: huella $HUELLA_TXT, generado el 2026-11-11. Esta firma
+            actualiza en el sitio cualquier instalación firmada con ese mismo
+            almacén de claves, o sea la 1.0.1-beta y las que vinieron después.
+            La única que NO actualiza es la 1.0.0-beta, cuyo certificado se
+            perdió: ésa hay que desinstalarla antes de instalar ésta.
 
-          Qué trae esta build respecto a la 1.0.1: el ecualizador (módulo 37, con
-          sus diez curvas ISO y los pasos de volumen del sistema) y el IPTV neutro
-          (módulo 38: las fuentes las instala el usuario, listas M3U, guía XMLTV y
-          reproductor media3), con su pantalla y su destino en la barra inferior.
-          No trae ninguna lista de canales ni ninguna fuente dentro del APK.
+          Qué trae esta build: los commits desde la etiqueta anterior, derivados del
+          historial y no escritos a mano. La nota anterior listaba el contenido de
+          una versión concreta y se quedó mintiendo en cuanto se publicó la
+          siguiente, que es exactamente lo que le acaba de pasar a la frase de la
+          instalación vieja.
+
+          $CAMBIOS
+
+          Lo que ninguna build de este flujo trae dentro: listas de canales ni
+          fuentes. Las fuentes las instala el usuario desde fuera del APK.
 
           Lo que esta build NO demuestra: que la app funcione en un teléfono. El
           flujo compila, firma y comprueba bytes; no hay emulador aquí. Ni el

@@ -13,7 +13,7 @@ Esto no es una promesa de lo que cero-X llegará a ser. Es lo que hace hoy,
 medido, con lo que todavía no hace escrito al lado sin adornos. Si algo de aquí
 no se puede comprobar con un comando, no está en este README.
 
-**[Descargar la beta](../../releases/tag/v1.0.0-beta)** · **[Cómo se construye](entorno/COMPILAR-Y-FIRMAR.md)** · **[Qué dicen los modelos](android/app/src/main/assets/models/README_MODELS.md)**
+**[Descargar la beta](../../releases/latest)** · **[Cómo se construye](entorno/COMPILAR-Y-FIRMAR.md)** · **[Qué dicen los modelos](android/app/src/main/assets/models/README_MODELS.md)**
 
 ---
 
