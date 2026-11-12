@@ -119,6 +119,8 @@ fun PantallaIa(context: Context) {
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        AsistenteChat(context)
+
         Text("Modelos en el teléfono", style = MaterialTheme.typography.headlineSmall)
         Text(
             "Se ejecutan aquí, en el dispositivo. Ninguna página, imagen o texto sale " +

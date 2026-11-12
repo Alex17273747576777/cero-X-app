@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material3.Button
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +51,7 @@ import com.ceroX.app.modules.theme.ThemeSwitcherFragment
 import com.ceroX.app.modules.theme.UIThemeManager
 import com.ceroX.app.ui.catalogo.CatalogoActivity
 import com.ceroX.app.ui.estado.EstadoSistemaActivity
+import com.ceroX.app.ui.ia.PantallaIaActivity
 import com.ceroX.app.ui.theme.CeroXTheme
 
 /**
@@ -100,6 +102,9 @@ class MainActivity : AppCompatActivity(), AplicaDiseno {
                     },
                     onEstadoClick = {
                         startActivity(Intent(this, EstadoSistemaActivity::class.java))
+                    },
+                    onIaClick = {
+                        startActivity(Intent(this, PantallaIaActivity::class.java))
                     },
                     onMostrarFragmento = { showFragment(it) },
                 )
@@ -165,6 +170,7 @@ fun CeroXApp(
     onModeClick: () -> Unit,
     onReadClick: () -> Unit = {},
     onEstadoClick: () -> Unit = {},
+    onIaClick: () -> Unit = {},
     onMostrarFragmento: (Fragment) -> Unit = {},
 ) {
     var seleccionado by remember { mutableStateOf(DESTINOS.first().id) }
@@ -174,6 +180,9 @@ fun CeroXApp(
             TopAppBar(
                 title = { Text("cero-X") },
                 actions = {
+                    IconButton(onClick = onIaClick) {
+                        Icon(Icons.Default.SmartToy, contentDescription = "IA")
+                    }
                     IconButton(onClick = onReadClick) {
                         Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Leer")
                     }

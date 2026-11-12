@@ -81,6 +81,18 @@ class NavegacionTest {
     }
 
     @Test
+    fun el_asistente_es_alcanzable_y_ejecuta_un_cliente_real() {
+        val main = fuente("ui/main/MainActivity.kt")
+        assertTrue("no hay camino del panel a IA", main.contains("PantallaIaActivity::class.java"))
+        assertTrue("falta la actividad de IA", manifiesto().contains(".ui.ia.PantallaIaActivity"))
+        val pantalla = fuente("ui/ia/AsistenteChat.kt")
+        assertTrue("el chat no usa el módulo", pantalla.contains("motor.conversar"))
+        assertTrue("la red bloquea la interfaz", pantalla.contains("Dispatchers.IO"))
+        val modulo = fuente("modules/aihub/AIHubModule.kt")
+        assertTrue("el módulo no llama al cliente", modulo.contains("cliente.conversar"))
+    }
+
+    @Test
     fun la_pantalla_de_lectura_no_es_un_esqueleto() {
         val lector = fuente("ui/reader/ReaderActivity.kt")
         // Lo que hace que sea un lector y no un visor vacío.

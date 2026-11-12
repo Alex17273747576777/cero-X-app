@@ -199,8 +199,8 @@
         <activity
             android:name=".ui.ia.PantallaIaActivity"
             android:exported="false"
-            android:label="Modelos de IA"
-            android:parentActivityName=".ui.reader.ReaderActivity"
+            android:label="IA y asistente"
+            android:parentActivityName=".ui.main.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density" />
         <activity
             android:name=".ui.StressTestActivity"
