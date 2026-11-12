@@ -154,6 +154,7 @@ private val DESTINOS = listOf(
     // hecha, no antes. Una barra con un botón que no lleva a ningún sitio es justo
     // lo que hacía que esta app se viera en blanco.
     Destino("iptv", "IPTV") { com.ceroX.app.modules.iptv.IptvUiFragment() },
+    Destino("web", "Web") { com.ceroX.app.modules.web.WebUiFragment() },
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
