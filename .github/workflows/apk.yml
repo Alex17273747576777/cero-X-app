@@ -158,8 +158,13 @@ jobs:
           fi
           ANTERIOR="$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)"
           if [ -n "$ANTERIOR" ]; then
+            # La línea de abajo lleva la sangría del bloque a propósito. En la columna
+            # 0 cierra el bloque literal y el flujo deja de ser YAML válido: GitHub lo
+            # reporta como un run fallido sin ningún job, que no dice nada útil. Con la
+            # sangría del bloque, el mandato la ve en su columna 0, que es lo que
+            # necesita la continuación de una cadena entrecomillada.
             CAMBIOS="Cambios desde $ANTERIOR:
-$(git log --oneline --no-decorate "$ANTERIOR"..HEAD | sed 's/^/            · /')"
+          $(git log --oneline --no-decorate "$ANTERIOR"..HEAD | sed 's/^/  · /')"
           else
             CAMBIOS="(no hay una etiqueta anterior en el historial: ésta es la primera)"
           fi
