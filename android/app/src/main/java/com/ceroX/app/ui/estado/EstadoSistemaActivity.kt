@@ -2,6 +2,7 @@ package com.ceroX.app.ui.estado
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.ceroX.app.modules.diagnostics.BancosAndroid
 import com.ceroX.app.modules.permissions.PrivilegeProbe
 import com.ceroX.app.modules.source_js.MotorJs
 import com.ceroX.app.modules.source_js.QuickJsEngine
@@ -128,6 +129,13 @@ class EstadoSistemaActivity : AppCompatActivity() {
         if ((resumen["fuentes"] as? Int ?: 0) == 0) {
             sb.appendLine("No hay ninguna fuente. El catálogo saldrá vacío y no es un fallo.")
         }
+
+        sb.appendLine()
+        sb.appendLine("── BANCO DE PRUEBAS ──")
+        // Qué banco es éste, medido: físico o emulado, CPU, RAM, KVM, banderas de
+        // virtualización y qué sandbox hay instalado alrededor. Sin esto, decir
+        // «probado» no significa nada.
+        BancosAndroid.lineas(this).forEach { sb.appendLine(it) }
 
         return sb.toString()
     }
