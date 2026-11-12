@@ -89,7 +89,10 @@ class ArranqueHonestoTest {
     fun laBarraInferiorNavegaDeVerdad() {
         val t = fuente("ui/main/MainActivity.kt")!!.readText()
         assertTrue("el estado elegido decide el contenido", t.contains("if (seleccionado == \"panel\")"))
-        assertTrue("y los demás destinos montan su Fragment", t.contains("onMostrarFragmento(it.crear())"))
+        assertTrue("y los destinos con Fragment lo montan", t.contains("crear?.let { onMostrarFragmento(it()) }"))
+        assertTrue("biblioteca conserva su acción", t.contains("\"biblioteca\" -> onReadClick()"))
+        assertTrue("fuentes conserva su acción", t.contains("\"fuentes\" -> onExtensionesClick()"))
+        assertTrue("IA conserva su acción", t.contains("\"ia\" -> onIaClick()"))
         assertFalse("la mentira del API fijo se fue", t.contains("Android 16 · API 36"))
     }
 
@@ -97,7 +100,7 @@ class ArranqueHonestoTest {
     fun elPanelNoAfirmaNadaEscritoAMano() {
         val t = fuente("ui/main/MainActivity.kt")!!.readText()
         assertTrue("el panel lee del gestor", t.contains("app.lifecycleManager.resumen()"))
-        assertTrue("y lo dice", t.contains("nada de esto está escrito a mano"))
+        assertTrue("y explica que vuelve a leerlo", t.contains("El estado se vuelve a leer después"))
         assertTrue("los perezosos se pueden iniciar desde el panel", t.contains("iniciarEnSegundoPlano"))
     }
 }

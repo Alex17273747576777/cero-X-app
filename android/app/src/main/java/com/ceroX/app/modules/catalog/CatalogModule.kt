@@ -859,14 +859,7 @@ class CatalogModule : ModuleInterface() {
         return apps.filter { it.status == CatalogStatus.DISCONTINUED }
     }
 
-    fun searchApps(query: String): List<CatalogApp> {
-        val q = query.lowercase()
-        return apps.filter {
-            it.name.lowercase().contains(q) ||
-                it.description.lowercase().contains(q) ||
-                it.category.lowercase().contains(q)
-        }
-    }
+    fun searchApps(query: String): List<CatalogApp> = filtrarCatalogo(apps, query, null)
 
     fun getPrimaryReader(): CatalogApp? {
         return apps.firstOrNull { it.isPrimaryReader }
@@ -889,4 +882,20 @@ data class CatalogApp(
 
 enum class CatalogStatus {
     ACTIVE, DISCONTINUED, ARCHIVED, BETA
+}
+
+/** Filtro puro compartido por la pantalla y las pruebas; categoría y texto se acumulan. */
+fun filtrarCatalogo(
+    apps: List<CatalogApp>,
+    consulta: String,
+    categoria: String?,
+): List<CatalogApp> {
+    val q = consulta.trim().lowercase()
+    return apps.filter { app ->
+        (categoria.isNullOrBlank() || app.category == categoria) &&
+            (q.isEmpty() || listOf(
+                app.name, app.description, app.category, app.platform,
+                app.repository.orEmpty(), app.bestFeatures.joinToString(" "),
+            ).any { it.contains(q, ignoreCase = true) })
+    }
 }

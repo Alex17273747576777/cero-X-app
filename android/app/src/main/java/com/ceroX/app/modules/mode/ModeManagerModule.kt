@@ -181,6 +181,7 @@ class ModeManagerModule : ModuleInterface() {
     }
 
     fun setMode(modeId: String): Boolean {
+        if (modeId !in MODOS_NAVEGABLES) return false
         val mode = availableModes.find { it.id == modeId } ?: return false
         if (currentModeId != modeId) {
             modeHistory.add(currentModeId)
@@ -195,9 +196,12 @@ class ModeManagerModule : ModuleInterface() {
     /** Null si todavía no hay modos registrados, en vez de una excepción. */
     fun getCurrentMode(): AppMode? =
         availableModes.find { it.id == currentModeId } ?: availableModes.firstOrNull()
-    fun listModes(): List<AppMode> = availableModes.toList()
-    fun listModesByCategory(category: ModeCategory): List<AppMode> = availableModes.filter { it.category == category }
-    fun listModesForPlatform(platform: String): List<AppMode> = availableModes.filter { it.compatiblePlatforms.contains(platform) }
+    /** Sólo modos con un recorrido Android real; el resto no se vende como opción. */
+    fun listModes(): List<AppMode> = availableModes.filter { it.id in MODOS_NAVEGABLES }
+    fun listModesByCategory(category: ModeCategory): List<AppMode> =
+        listModes().filter { it.category == category }
+    fun listModesForPlatform(platform: String): List<AppMode> =
+        listModes().filter { it.compatiblePlatforms.contains(platform) }
 
     fun getHistory(): List<String> = modeHistory.toList()
 
@@ -207,6 +211,12 @@ class ModeManagerModule : ModuleInterface() {
 
     fun removeCustomMode(modeId: String) {
         availableModes.removeAll { it.id == modeId && it.category == ModeCategory.CUSTOM }
+    }
+
+    companion object {
+        val MODOS_NAVEGABLES = setOf(
+            "dashboard", "manga_comics", "novel", "catalog", "sanbox_extensions", "ai_assistant",
+        )
     }
 }
 

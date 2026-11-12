@@ -22,15 +22,26 @@ Actualizado: 2026-11-12. Este archivo registra trabajo pendiente y evidencia; no
 - Cierre JVM/build completado: 528/0/0/8 y ambos APK. El APK debug tiene 56.883.812 bytes y SHA-256 `c41eba66a7e469f46ffd6a41e7dd49fa263d15c6d4470eed2836d8119b10ccad` (build de validación 03; el binario quedó en caché excluida).
 - El siguiente commit cierra esta base. La ejecución en LG V60/dispositivo permanece en la fase física y no se afirma.
 
-## Fases siguientes
+## Fase 2 — Navegación y cascarones visibles (completada)
 
-Orden deliberado; cada una necesita inventario y criterio de salida propio.
+- Commit base: `2ad5309`.
+- Barra de cinco destinos, estado guardado, Ajustes y host de fragments; catálogo con filtros/enlaces; modos navegables; blur no funcional retirado.
+- Inventario completo y deuda explícita: `docs/INVENTARIO-CASCARONES.md`.
+- Pruebas dirigidas verdes en `work/ci/navegacion-fase-01.log` y `navegacion-fase-02.log`.
+- Cierre completo: `work/ci/navegacion-cierre-02.log.gz`, BUILD SUCCESSFUL, 535 pruebas/0 fallos/0 errores/9 omitidas, `assembleDebug` y `assembleDebugAndroidTest`.
+- La primera corrida detectó tres expectativas antiguas de barra; se actualizaron para exigir los nuevos recorridos, sin borrar guardas.
+- Commit de cierre: se registra en Git al terminar esta fase.
+- No se afirma rediseño visual completo de todas las Views ni validación física.
 
-1. **Cascarones:** inventario de cada destino, botón y módulo visible; clasificar funcional, parcial, sin recorrido o no compatible. Convertir primero los recorridos visibles, con pruebas.
-2. **Navegación y rediseño:** cinco destinos como máximo, acceso coherente a biblioteca, explorar, web, IA y ajustes; conservar estado, rotación, accesibilidad y acciones reales. No usar siete iconos iguales ni una barra desbordada.
-3. **Directorios:** Brave/FMHY existentes y JustIndex, Miyomi, Wotaku, EverythingMoe y AniPirate como orígenes independientes. Auditar URLs, licencias, formato real, categorías, NSFW y reseñas antes de parser. Appteka Rebuild, FMHY Android y Komi Store se investigan aparte: no se ejecutan APKs ni se aceptan afirmaciones de terceros sin verificar.
-4. **Motor adaptativo:** perfiles por sesión/categoría, señales locales, recomendaciones explicables, deshacer/restablecer y bloqueo de cambios durante lectura/escritura. No llamarlo IA generativa si son reglas/heurísticas; proveedor externo sólo con credencial y consentimiento.
-5. **Pendientes físicos y externos:** Kotatsu (sin confundir índice/JAR con ejecución Mihon), LG V60, pruebas visuales y proveedor IA autenticado. Declarar bloqueo si no hay aparato/credencial; no marcarlos completados por compilar.
+## Fase 3 — Directorios y búsqueda (siguiente)
+
+Brave/FMHY existentes y JustIndex, Miyomi, Wotaku, EverythingMoe y AniPirate como orígenes independientes. Auditar URLs, licencias, formato real, categorías, NSFW y reseñas antes de parser. Appteka Rebuild, FMHY Android y Komi Store se investigan aparte: no se ejecutan APKs ni se aceptan afirmaciones de terceros sin verificar.
+
+## Fases posteriores
+
+1. **Motor adaptativo:** perfiles por sesión/categoría, señales locales, recomendaciones explicables, deshacer/restablecer y bloqueo de cambios durante lectura/escritura. No llamarlo IA generativa si son reglas/heurísticas.
+2. **Rediseño Views y Booru:** terminar lenguaje visual/accesibilidad y construir un cliente real antes de devolver Booru a navegación.
+3. **Pendientes físicos y externos:** Kotatsu, LG V60, pruebas visuales y proveedor IA autenticado. Declarar bloqueo si no hay aparato/credencial.
 
 ## Regla aprendida en esta fase
 

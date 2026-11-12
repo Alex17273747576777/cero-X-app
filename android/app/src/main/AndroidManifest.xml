@@ -191,6 +191,17 @@
             android:label="Estado del sistema"
             android:parentActivityName=".ui.main.MainActivity" />
 
+        <activity
+            android:name=".ui.ajustes.AjustesActivity"
+            android:exported="false"
+            android:label="Ajustes y herramientas"
+            android:parentActivityName=".ui.main.MainActivity" />
+        <activity
+            android:name=".ui.ajustes.FragmentHostActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.ajustes.AjustesActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density" />
+
         <!-- Catálogos auditados, instalación confirmada por Android y biblioteca local. -->
         <activity
             android:name=".ui.extensiones.IntegracionesActivity"

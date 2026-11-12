@@ -6,4 +6,5 @@
       venir de un layout: se declara aquí para que exista en R.id.
     -->
     <item name="fragment_container" type="id" />
+    <item name="fragment_host_container" type="id" />
 </resources>

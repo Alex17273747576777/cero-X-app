@@ -135,13 +135,11 @@ class IptvPantallaTest {
     }
 
     @Test
-    fun `el destino de la barra inferior lleva a la pantalla`() {
-        val main = leer(File(fuentes, "ui/main/MainActivity.kt"))
-        assertTrue(
-            "IPTV no está en la barra inferior: la pantalla existiría y no se podría llegar",
-            main.contains("Destino(\"iptv\""),
-        )
-        assertTrue("el destino no crea el fragmento", main.contains("IptvUiFragment()"))
+    fun `el destino de ajustes lleva a la pantalla`() {
+        val ajustes = leer(File(fuentes, "ui/ajustes/AjustesActivity.kt"))
+        val host = leer(File(fuentes, "ui/ajustes/FragmentHostActivity.kt"))
+        assertTrue("IPTV no tiene acción en Ajustes", ajustes.contains("FragmentHostActivity.IPTV"))
+        assertTrue("el host no crea el fragmento", host.contains("IPTV -> IptvUiFragment()"))
     }
 
     @Test

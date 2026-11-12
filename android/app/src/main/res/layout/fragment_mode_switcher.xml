@@ -28,7 +28,7 @@
         android:id="@+id/mode_subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Audio • Novela/EPUB • Manga/Cómics • Video/Imagen • Personalizado"
+        android:text="Cada opción abre un recorrido disponible. Los modos sin pantalla real no se muestran."
         android:textSize="12sp"
         android:paddingHorizontal="16dp"
         android:textColor="?attr/colorOnSurfaceVariant" />
