@@ -77,4 +77,15 @@
     <string name="iptv_sin_reproduccion">Ничего не воспроизводится</string>
     <string name="iptv_elige_fuente">Сначала выберите источник из списка.</string>
     <string name="iptv_elige_canal">Выберите канал из списка.</string>
+    <string name="web_titulo">Web</string>
+    <string name="web_url_hint">Barra de direcciones</string>
+    <string name="web_bloqueo">Bloquear anuncios y rastreadores</string>
+    <string name="web_anti_muro">Ocultar carteles anti-bloqueador</string>
+    <string name="web_cookies">Política de cookies</string>
+    <string name="web_cookies_todo">Cookies: bloquear todas</string>
+    <string name="web_cookies_terceros">Cookies: sólo terceros</string>
+    <string name="web_cookies_permitir">Cookies: permitir todas</string>
+    <string name="web_atras">Atrás</string>
+    <string name="web_recargar">Recargar</string>
+    <string name="web_ir">Ir</string>
 </resources>

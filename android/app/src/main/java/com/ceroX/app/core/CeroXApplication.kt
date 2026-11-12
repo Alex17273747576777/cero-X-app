@@ -194,6 +194,7 @@ class CeroXApplication : Application() {
             ModuleMetadata("audio", "0.1.0", emptyList()),
             ModuleMetadata("audio-eq", "0.1.0", emptyList()),
             ModuleMetadata("iptv", "0.1.0", emptyList()),
+            ModuleMetadata("web", "0.1.0", emptyList()),
         )
 
         val moduleClasses: Map<String, Class<out com.ceroX.app.core.engine.ModuleInterface>> = mapOf(
@@ -235,6 +236,7 @@ class CeroXApplication : Application() {
             "audio" to com.ceroX.app.modules.audio.AudioModule::class.java,
             "audio-eq" to com.ceroX.app.modules.audio_eq.EcualizadorModule::class.java,
             "iptv" to com.ceroX.app.modules.iptv.IptvModule::class.java,
+            "web" to com.ceroX.app.modules.web.WebModule::class.java,
         )
 
         for (meta in modules) {
