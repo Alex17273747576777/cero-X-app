@@ -62,7 +62,7 @@ object Bancos {
      * ningún emulador x86 va a arrancar ahí.
      */
     fun banderasDeVirtualizacion(cpuinfo: String): Int =
-        Regex("""(vmx|svm)""").findAll(cpuinfo.lowercase()).count()
+        Regex("""\b(vmx|svm)\b""").findAll(cpuinfo.lowercase()).count()
 
     /** KVM existe sólo si la ruta medida está en la lista de las que existen. */
     fun kvmPresente(rutasQueExisten: List<String>): Boolean = "/dev/kvm" in rutasQueExisten
