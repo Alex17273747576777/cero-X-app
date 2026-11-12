@@ -148,23 +148,34 @@ jobs:
           · Arquitectura: $ABI (una sola, no universal).
           · Modelos ONNX dentro: 0. Los cinco módulos pesados se inician al
             pedirlos; los ONNX no van empaquetados.
-          · Tamaño: $TAM bytes ($MIB MiB). La build anterior pesaba 475.523.392
-            bytes porque llevaba 378 MiB de modelos y cuatro arquitecturas.
+          · Tamaño: $TAM bytes ($MIB MiB). La 1.0.1 pesó 31.577.211 bytes, y la
+            primera build pesó 475.523.392 porque llevaba 378 MiB de modelos ONNX
+            y cuatro arquitecturas dentro.
           · SHA-256: $SUMA
           · Certificado: huella $HUELLA_TXT, generado el 2026-11-11. El
             certificado anterior se perdió, así que esta firma no actualiza una
             instalación vieja: hay que desinstalarla antes.
 
+          Qué trae esta build respecto a la 1.0.1: el ecualizador (módulo 37, con
+          sus diez curvas ISO y los pasos de volumen del sistema) y el IPTV neutro
+          (módulo 38: las fuentes las instala el usuario, listas M3U, guía XMLTV y
+          reproductor media3), con su pantalla y su destino en la barra inferior.
+          No trae ninguna lista de canales ni ninguna fuente dentro del APK.
+
           Lo que esta build NO demuestra: que la app funcione en un teléfono. El
-          flujo compila, firma y comprueba bytes; no hay emulador aquí. El arreglo
-          del arranque (1.0.1) está razonado sobre el código y cubierto por
-          pruebas de JVM, y queda por confirmarse instalándolo en el V60.
+          flujo compila, firma y comprueba bytes; no hay emulador aquí. Ni el
+          ecualizador ni la reproducción se han probado en un dispositivo: las
+          pruebas que los cubren son de JVM, y una prueba de JVM no abre un DSP ni
+          un decodificador de vídeo. Queda por confirmarse instalándolo en el V60.
           NOTAS
           if gh release view "$ETIQUETA" > /dev/null 2>&1; then
             gh release upload "$ETIQUETA" "$APK" sha256sums.txt --clobber
           else
+            # El título sale de la etiqueta y no está escrito a mano: con la
+            # versión anterior aquí ponía «1.0.1-beta» y cualquier etiqueta nueva
+            # habría publicado una release que se contradice con su propio nombre.
             gh release create "$ETIQUETA" "$APK" sha256sums.txt \
-              --target main --title "cero-X 1.0.1-beta - arranque honesto ($ABI, sin modelos)" \
+              --target main --title "cero-X ${ETIQUETA#v} ($ABI, sin modelos)" \
               --notes-file notas.md
           fi
           echo "Release $ETIQUETA publicada con $NOMBRE ($TAM bytes)"
