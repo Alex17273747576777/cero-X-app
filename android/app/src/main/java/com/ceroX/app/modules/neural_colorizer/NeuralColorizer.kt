@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.OrtSession.SessionOptions
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.core.MotorOnnx
 import android.graphics.Color
 import ai.onnxruntime.OnnxTensor
 import com.ceroX.app.modules.ai.SalidaTensor
@@ -16,7 +17,7 @@ import java.nio.FloatBuffer
  */
 class NeuralColorizer {
 
-    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
+    private val env: OrtEnvironment by lazy { MotorOnnx.entorno() }
 
     private var session: OrtSession? = null
     private var isInitialized = false

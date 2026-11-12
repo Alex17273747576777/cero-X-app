@@ -6,6 +6,7 @@ import com.ceroX.app.core.engine.ModuleInterface
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.OrtSession.SessionOptions
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.core.MotorOnnx
 import java.io.File
 
 class AiTrainingModule : ModuleInterface() {
@@ -14,7 +15,7 @@ class AiTrainingModule : ModuleInterface() {
     override val version = "0.1.0"
     override val dependencies: List<String> = emptyList()
 
-    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
+    private val env: OrtEnvironment by lazy { MotorOnnx.entorno() }
 
     private var session: OrtSession? = null
     private var context: Context? = null
@@ -58,7 +59,8 @@ class AiTrainingModule : ModuleInterface() {
         return ModuleHealth(
             name, version,
             if (_started) "healthy" else "stopped",
-            mapOf("backend" to "onnx", "models_loaded" to models.size)
+            mapOf(
+                "motor_onnx" to (MotorOnnx.estado() ?: "nativo presente"),"backend" to "onnx", "models_loaded" to models.size)
         )
     }
 

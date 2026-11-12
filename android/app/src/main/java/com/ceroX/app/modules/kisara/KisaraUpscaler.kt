@@ -3,6 +3,7 @@ package com.ceroX.app.modules.kisara
 import android.graphics.Bitmap
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.core.MotorOnnx
 import com.ceroX.app.modules.ai.SalidaTensor
 import java.nio.FloatBuffer
 
@@ -96,7 +97,7 @@ class KisaraUpscaler(
         t0: Long,
     ): Resultado? = try {
         assets.abrir(id).use { sesion ->
-            val env by lazy { OrtEnvironment.getEnvironment() }
+            val env by lazy { MotorOnnx.entorno() }
             val tensor = OnnxTensor.createTensor(
                 env,
                 FloatBuffer.wrap(entrada),

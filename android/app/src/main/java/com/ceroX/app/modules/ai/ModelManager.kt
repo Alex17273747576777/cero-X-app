@@ -4,6 +4,7 @@ import android.content.Context
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.OrtSession.SessionOptions
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.core.MotorOnnx
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.TensorInfo
 import java.io.File
@@ -15,7 +16,7 @@ import java.nio.FloatBuffer
  */
 class ModelManager(private val context: Context) {
 
-    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
+    private val env: OrtEnvironment by lazy { MotorOnnx.entorno() }
 
     private var session: OrtSession? = null
     private val loadedModels = mutableMapOf<String, LoadedModel>()

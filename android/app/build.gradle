@@ -16,8 +16,8 @@ android {
         applicationId "com.ceroX.app"
         minSdk 26
         targetSdk 36
-        versionCode 8
-        versionName "1.0.3-beta-notas"
+        versionCode 9
+        versionName "1.0.4-beta-dos-apks"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -159,6 +159,20 @@ android {
         }
         // No excluir .so files - necesitamos todas las arquitecturas para universal
         pickFirsts = []
+    }
+
+    // Variante universal sin el motor ONNX: las clases de onnxruntime4j se
+    // quedan (pesan kilobytes y son las que dejan que MotorOnnx detecte la
+    // ausencia y la diga); los .so, 15,7 MB por arquitectura con cero modelos
+    // dentro, no viajan. Se activa con -PsinOnnxNative, que añade el flujo
+    // cuando la arquitectura pedida es universal.
+    if (project.hasProperty('sinOnnxNative')) {
+        packagingOptions {
+            jniLibs {
+                excludes += '**/libonnxruntime.so'
+                excludes += '**/libonnxruntime4j_jni.so'
+            }
+        }
     }
 
     // Splits deshabilitados para APK universal (un solo APK para todas las arquitecturas)

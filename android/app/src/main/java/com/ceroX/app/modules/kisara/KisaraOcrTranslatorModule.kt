@@ -6,6 +6,7 @@ import com.ceroX.app.core.engine.ModuleInterface
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.OrtSession.SessionOptions
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.core.MotorOnnx
 import java.io.File
 
 /**
@@ -33,7 +34,7 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
 
     // `env` se usaba en loadOcrModel sin estar declarado: es el entorno de
     // ONNX Runtime, que hay que crear una vez y reutilizar.
-    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
+    private val env: OrtEnvironment by lazy { MotorOnnx.entorno() }
     private var translationEnabled = true
     private var ocrEnabled = true
     private var useMlKitFallback = true
@@ -89,6 +90,7 @@ class KisaraOcrTranslatorModule : ModuleInterface() {
             name, version,
             if (_started) "healthy" else "stopped",
             mapOf<String, Any?>(
+                "motor_onnx" to (MotorOnnx.estado() ?: "nativo presente"),
                 "ocr_enabled" to ocrEnabled,
                 "translation_enabled" to translationEnabled,
                 "ml_kit_fallback" to useMlKitFallback,

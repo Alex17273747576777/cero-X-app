@@ -2,6 +2,7 @@ package com.ceroX.app.modules.ai
 
 import android.content.Context
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.core.MotorOnnx
 import ai.onnxruntime.OrtSession
 import org.json.JSONObject
 
@@ -102,7 +103,7 @@ class ModelAssets(private val context: Context) {
         )
 
         val bytes = leerDelApk(m.archivo)
-        val env by lazy { OrtEnvironment.getEnvironment() }
+        val env by lazy { MotorOnnx.entorno() }
 
         val opciones = OrtSession.SessionOptions().apply {
             // El codificador es ViT y se beneficia de plegar operadores.

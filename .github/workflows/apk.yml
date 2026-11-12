@@ -92,6 +92,10 @@ jobs:
         run: |
           ARGS="-PsinModelos"
           if [ "$ABI" != "universal" ]; then ARGS="$ARGS -PsoloAbi=$ABI"; fi
+          # El universal viaja sin el motor ONNX y con los nativos comprimidos:
+          # 15,7 MB por arquitectura con cero modelos dentro no se le suben a
+          # nadie. El de arm64 conserva el motor para cuando haya modelos.
+          if [ "$ABI" = "universal" ]; then ARGS="$ARGS -PsinOnnxNative"; fi
           # R8 se murió con OutOfMemoryError usando el -Xmx2048m de
           # android/gradle.properties. Ese valor no es arbitrario: está medido en
           # una máquina de 2 GiB donde -Xmx1024m revienta y -Xmx1400m se queda sin
@@ -171,12 +175,17 @@ jobs:
           TAM="$(stat -c%s "$APK")"
           MIB="$(python3 -c "print(f'{$TAM/1048576:.1f}')")"
           SUMA="$(cut -d' ' -f1 sha256sums.txt)"
-          NOMBRE="$(basename "$APK")"
+          NOMBRE="app-$ABI.apk"
+          cp "$APK" "$NOMBRE"
+          cp sha256sums.txt "sha256sums-$ABI.txt"
           HUELLA_TXT="$(cat entorno/HUELLA-CERTIFICADO.txt)"
           cat > notas.md <<NOTAS
           Build de release construida por .github/workflows/apk.yml en el commit ${GITHUB_SHA}.
 
-          · Arquitectura: $ABI (una sola, no universal).
+          · Arquitectura de este run: $ABI. Esta release acumula un APK por
+            arquitectura: cada dispatch con publicar=true sube el suyo con su
+            nombre (app-<abi>.apk) y su suma, y no pisa los de los demás runs.
+            El universal va sin el motor ONNX; el de arm64 lo conserva.
           · Modelos ONNX dentro: 0. Los cinco módulos pesados se inician al
             pedirlos; los ONNX no van empaquetados.
           · Tamaño: $TAM bytes ($MIB MiB). La 1.0.1 pesó 31.577.211 bytes, y la
@@ -207,12 +216,12 @@ jobs:
           un decodificador de vídeo. Queda por confirmarse instalándolo en el V60.
           NOTAS
           if gh release view "$ETIQUETA" > /dev/null 2>&1; then
-            gh release upload "$ETIQUETA" "$APK" sha256sums.txt --clobber
+            gh release upload "$ETIQUETA" "$NOMBRE" "sha256sums-$ABI.txt" --clobber
           else
             # El título sale de la etiqueta y no está escrito a mano: con la
             # versión anterior aquí ponía «1.0.1-beta» y cualquier etiqueta nueva
             # habría publicado una release que se contradice con su propio nombre.
-            gh release create "$ETIQUETA" "$APK" sha256sums.txt \
+            gh release create "$ETIQUETA" "$NOMBRE" "sha256sums-$ABI.txt" \
               --target main --title "cero-X ${ETIQUETA#v} ($ABI, sin modelos)" \
               --notes-file notas.md
           fi

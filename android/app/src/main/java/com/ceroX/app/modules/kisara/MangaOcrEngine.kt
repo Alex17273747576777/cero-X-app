@@ -2,6 +2,7 @@ package com.ceroX.app.modules.kisara
 
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.core.MotorOnnx
 import ai.onnxruntime.OrtSession
 import android.graphics.Bitmap
 import java.io.File
@@ -66,7 +67,7 @@ class MangaOcrEngine(
         val msTotal: Long get() = msCodificador + msDecodificador
     }
 
-    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
+    private val env: OrtEnvironment by lazy { MotorOnnx.entorno() }
 
     private var codificador: OrtSession? = null
     private var decodificador: OrtSession? = null

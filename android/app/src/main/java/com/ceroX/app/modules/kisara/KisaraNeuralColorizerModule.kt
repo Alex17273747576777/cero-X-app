@@ -6,6 +6,7 @@ import com.ceroX.app.core.engine.ModuleInterface
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.OrtSession.SessionOptions
 import ai.onnxruntime.OrtEnvironment
+import com.ceroX.app.core.MotorOnnx
 import ai.onnxruntime.OnnxTensor
 import android.graphics.Color
 import com.ceroX.app.modules.ai.SalidaTensor
@@ -32,7 +33,7 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
     override val version = "1.0.0-kisara"
     override val dependencies: List<String> = listOf("kisara-reader")
 
-    private val env: OrtEnvironment by lazy { OrtEnvironment.getEnvironment() }
+    private val env: OrtEnvironment by lazy { MotorOnnx.entorno() }
 
     private var session: OrtSession? = null
     private var isInitialized = false
@@ -74,6 +75,7 @@ class KisaraNeuralColorizerModule : ModuleInterface() {
             name, version,
             if (_started) "healthy" else "stopped",
             mapOf<String, Any?>(
+                "motor_onnx" to (MotorOnnx.estado() ?: "nativo presente"),
                 "model_loaded" to (session != null),
                 "nnapi_enabled" to nnapiEnabled,
                 "cpu_fallback" to cpuFallback,
