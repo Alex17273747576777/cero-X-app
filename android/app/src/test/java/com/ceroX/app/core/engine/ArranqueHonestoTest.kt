@@ -45,7 +45,7 @@ class ArranqueHonestoTest {
     }
 
     @Test
-    fun losSieteEntornosOnnxSonPerezosos() {
+    fun losSieteEntornosOnnxSonPerezososYPasanPorLaPuerta() {
         val siete = listOf(
             "modules/ai/ModelAssets.kt",
             "modules/ai/ModelManager.kt",
@@ -56,9 +56,11 @@ class ArranqueHonestoTest {
             "modules/neural_colorizer/NeuralColorizer.kt",
         )
         for (rel in siete) {
-            val lineas = fuente(rel)!!.readText().lines().filter { it.contains("OrtEnvironment.getEnvironment()") }
-            assertTrue("$rel carga el entorno ONNX", lineas.isNotEmpty())
+            val lineas = fuente(rel)!!.readText().lines().filter { it.contains("MotorOnnx.entorno()") }
+            assertTrue("$rel crea el entorno por la puerta MotorOnnx", lineas.isNotEmpty())
             assertTrue("$rel lo carga con by lazy, no al construirse", lineas.all { it.contains("by lazy") })
+            assertTrue("$rel ya no crea el entorno a pelo, fuera de la puerta",
+                fuente(rel)!!.readText().lines().none { it.contains("OrtEnvironment.get" + "Environment()") })
         }
     }
 
