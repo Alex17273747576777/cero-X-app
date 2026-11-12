@@ -88,4 +88,11 @@
     <string name="web_atras">Geri</string>
     <string name="web_recargar">Yeniden yükle</string>
     <string name="web_ir">Git</string>
+    <string name="web_searx_hint">Özel SearXNG: https://…</string>
+    <string name="web_limpiar">Çerezleri ve verileri temizle</string>
+    <string name="web_datos_borrados">Tarayıcı çerezleri ve verileri temizlendi</string>
+    <string name="web_reglas">Engelleme kuralları</string>
+    <string name="web_descarga_iniciada">İndirme başlatıldı</string>
+    <string name="web_descarga_error">İndirme başlatılamadı</string>
+    <string name="web_destino_invalido">Geçerli bir HTTPS URL’si veya arama girin</string>
 </resources>

@@ -88,4 +88,11 @@
     <string name="web_atras">Назад</string>
     <string name="web_recargar">Обновить</string>
     <string name="web_ir">Перейти</string>
+    <string name="web_searx_hint">Свой SearXNG: https://…</string>
+    <string name="web_limpiar">Удалить cookie и данные</string>
+    <string name="web_datos_borrados">Cookie и данные браузера удалены</string>
+    <string name="web_reglas">Правила блокировки</string>
+    <string name="web_descarga_iniciada">Загрузка началась</string>
+    <string name="web_descarga_error">Не удалось начать загрузку</string>
+    <string name="web_destino_invalido">Введите действительный URL HTTPS или поисковый запрос</string>
 </resources>

@@ -65,6 +65,18 @@ class WebPantallaTest {
         }
     }
 
+    @Test
+    fun `los controles tienen efecto y el WebView se destruye`() {
+        val modulo = File(fuentes, "modules/web/WebModule.kt").readText()
+        assertTrue("el motor no se puede cambiar", pantalla.contains("MotorBusqueda.siguiente"))
+        assertTrue("la lista propia no se lee", modulo.contains("AlmacenExterno.archivo"))
+        assertTrue("la ruta de la lista no es la esperada", modulo.contains("web/bloqueo.txt"))
+        assertTrue("no se borran las cookies", pantalla.contains("removeAllCookies"))
+        assertTrue("no se borra el almacenamiento web", pantalla.contains("WebStorage"))
+        assertTrue("las descargas no pasan por el sistema", pantalla.contains("DownloadManager"))
+        assertTrue("el WebView no se destruye", pantalla.contains("destroy()"))
+    }
+
     private fun aSnake(nombre: String): String = buildString {
         for (c in nombre) {
             if (c.isUpperCase()) append('_').append(c.lowercaseChar()) else append(c)

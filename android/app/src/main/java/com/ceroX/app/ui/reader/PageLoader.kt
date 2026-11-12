@@ -44,6 +44,7 @@ class PageLoader(
      */
     private val descargador: DescargadorDeBytes = DescargadorDeBytes(maxBytesPorPagina),
 ) {
+    val limiteBytes: Long get() = maxBytesPorPagina
 
     /** Lo que se pintó, o por qué no se pudo. */
     data class Cargada(
@@ -65,7 +66,11 @@ class PageLoader(
      * `PageCache.clave(...)` para que no dependa de la URL exacta (algunas
      * fuentes añaden un token distinto en cada petición y eso rompería el caché).
      */
-    suspend fun cargar(clave: String, origen: String): Cargada {
+    suspend fun cargar(
+        clave: String,
+        origen: String,
+        descargarFuente: (suspend () -> ByteArray?)? = null,
+    ): Cargada {
         cache.obtener(clave)?.let {
             return Cargada(it, desdeCache = true, ms = 0, bytes = it.allocationByteCount.toLong())
         }
@@ -79,17 +84,21 @@ class PageLoader(
             cache.obtener(clave)?.let {
                 return Cargada(it, desdeCache = true, ms = 0, bytes = it.allocationByteCount.toLong())
             }
-            return withContext(Dispatchers.IO) { bajarYDecodificar(clave, origen) }
+            return withContext(Dispatchers.IO) { bajarYDecodificar(clave, origen, descargarFuente) }
         } finally {
             mutex.unlock()
             enVuelo.remove(clave, mutex)
         }
     }
 
-    private fun bajarYDecodificar(clave: String, origen: String): Cargada {
+    private suspend fun bajarYDecodificar(
+        clave: String,
+        origen: String,
+        descargarFuente: (suspend () -> ByteArray?)?,
+    ): Cargada {
         val t0 = System.currentTimeMillis()
         val bytes: ByteArray = try {
-            leerBytes(origen)
+            descargarFuente?.invoke() ?: leerBytes(origen)
         } catch (e: Throwable) {
             return Cargada(null, false, System.currentTimeMillis() - t0, motivo = describir(e))
         }

@@ -88,4 +88,11 @@
     <string name="web_atras">Back</string>
     <string name="web_recargar">Reload</string>
     <string name="web_ir">Go</string>
+    <string name="web_searx_hint">Custom SearXNG: https://…</string>
+    <string name="web_limpiar">Clear cookies and data</string>
+    <string name="web_datos_borrados">Browser cookies and data cleared</string>
+    <string name="web_reglas">Blocking rules</string>
+    <string name="web_descarga_iniciada">Download started</string>
+    <string name="web_descarga_error">Could not start the download</string>
+    <string name="web_destino_invalido">Enter a valid HTTPS URL or search</string>
 </resources>

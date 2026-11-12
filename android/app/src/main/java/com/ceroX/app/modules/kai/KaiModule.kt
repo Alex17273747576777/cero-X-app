@@ -4,42 +4,15 @@ import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
 
 /**
- * KaiModule — Integración de SimonSchubert/Kai en cero-X.
- *
- * Kai es un asistente de IA de código abierto con memoria persistente que
- * ejecuta en Android, iOS, Windows, Mac, Linux y Web.
- *
- * Características integradas:
- * - Memoria persistente — Kai recuerda detalles importantes entre conversaciones
- * - Alma personalizable — Define la personalidad y comportamiento del IA
- * - Fallback multi-servicio — 30 proveedores LLM con fallo automático
- * - Inferencia on-device — Ejecuta modelos localmente en Android con LiteRT, sin internet
- * - Ejecución de herramientas — Búsqueda web, notificaciones, eventos de calendario, comandos shell
- * - Soporte MCP server — Conecta a servidores de herramientas remotos vía Modelo Context Protocol
- * - Latido autónomo — Auto-revisiones periódicas que surfacen lo que necesita atención
- * - Exportación/importación de configuración — Backup y restauración de ajustes como JSON
- * - Almacenamiento cifrado — Conversaciones almacenadas localmente con cifrado
- * - Texto a voz — Escucha las respuestas del IA
- * - Linux Sandbox (Android) — Entorno Linux integrado (~3 MB vía proot, sin root)
- * - Adjuntos de imagen — Adjunta imágenes a cualquier conversación
+ * Entrada histórica conservada para no romper inventarios antiguos.
+ * El asistente utilizable vive en `AIHubModule`; aquí no hay inferencia, memoria,
+ * cifrado, MCP ni proveedores que fingir. No es una integración del proyecto Kai.
  */
 class KaiModule : ModuleInterface() {
-
     override val name = "kai-assistant"
-    override val version = "1.0.0-fusion"
-    override val dependencies: List<String> = emptyList()
-
-    private val llmProviders = mutableListOf<KaiLLMProvider>()
-    private val conversations = mutableListOf<KaiConversation>()
-    private var onDeviceInferenceEnabled = false
-    private var linuxSandboxEnabled = false
-    private var memoryPersistent = true
+    override val version = "2.0.0-inventario-honesto"
 
     override fun initialize(config: Map<String, Any>): Boolean {
-        onDeviceInferenceEnabled = config["on_device_inference"] as? Boolean ?: false
-        linuxSandboxEnabled = config["linux_sandbox"] as? Boolean ?: false
-        memoryPersistent = config["memory_persistent"] as? Boolean ?: true
-        registerDefaultProviders()
         _initialized = true
         return true
     }
@@ -55,108 +28,25 @@ class KaiModule : ModuleInterface() {
         return true
     }
 
-    override fun healthCheck(): ModuleHealth {
-        return ModuleHealth(
-            name, version,
-            if (_started) "healthy" else "stopped",
-            mapOf(
-                "llm_providers" to llmProviders.size,
-                "conversations" to conversations.size,
-                "on_device_inference" to onDeviceInferenceEnabled,
-                "linux_sandbox" to linuxSandboxEnabled,
-                "memory_persistent" to memoryPersistent,
-                "mcp_support" to true,
-                "tool_execution" to true,
-                "encrypted_storage" to true,
-                "text_to_speech" to true,
-                "platforms" to listOf("Android", "iOS", "Windows", "Mac", "Linux", "Web")
-            )
-        )
-    }
+    override fun healthCheck() = ModuleHealth(
+        name, version,
+        if (_started) "entrada histórica; usa ai-hub para conversar" else "stopped",
+        mapOf(
+            "asistente_real" to "ai-hub",
+            "proveedores_propios" to 0,
+            "mcp" to false,
+            "tool_execution" to false,
+            "encrypted_storage" to false,
+            "text_to_speech" to false,
+            "linux_sandbox" to false,
+        ),
+    )
 
-    private fun registerDefaultProviders() {
-        llmProviders.addAll(listOf(
-            KaiLLMProvider("anthropic", "Anthropic", true),
-            KaiLLMProvider("openai", "OpenAI", true),
-            KaiLLMProvider("google", "Google Gemini", true),
-            KaiLLMProvider("deepseek", "DeepSeek", true),
-            KaiLLMProvider("mistral", "Mistral", true),
-            KaiLLMProvider("xai", "xAI", true),
-            KaiLLMProvider("openrouter", "OpenRouter", true),
-            KaiLLMProvider("groq", "Groq", true),
-            KaiLLMProvider("litert", "LiteRT On-Device", true),
-            KaiLLMProvider("ollama", "Ollama Cloud", true)
-        ))
-    }
-
-    fun addProvider(provider: KaiLLMProvider) {
-        llmProviders.add(provider)
-    }
-
-    fun listProviders(): List<KaiLLMProvider> = llmProviders.toList()
-
-    fun createConversation(systemPrompt: String): KaiConversation {
-        val conversation = KaiConversation(
-            id = "conv_${System.currentTimeMillis()}",
-            systemPrompt = systemPrompt,
-            messages = mutableListOf(),
-            createdAt = System.currentTimeMillis(),
-            lastActive = System.currentTimeMillis()
-        )
-        conversations.add(conversation)
-        return conversation
-    }
-
-    fun listConversations(): List<KaiConversation> = conversations.toList()
-
-    fun toggleOnDeviceInference(enabled: Boolean) {
-        onDeviceInferenceEnabled = enabled
-    }
-
-    fun toggleLinuxSandbox(enabled: Boolean) {
-        linuxSandboxEnabled = enabled
-    }
-
-    /**
-     * No se ejecuta nada: cero-X no lleva proot ni una rootfs.
-     *
-     * Devolvía un mensaje de comando ejecutado en el sandbox para cualquiera,
-     * incluso para uno que no existiera. Un resultado de ejecución que no se ejecutó es lo peor que
-     * puede enseñar una consola.
-     */
-    fun runLinuxCommand(command: String): LinuxCommandResult {
-        if (!linuxSandboxEnabled) {
-            return LinuxCommandResult(command, false, "Linux Sandbox no habilitado")
-        }
-        return LinuxCommandResult(command, false,
-            "No hay entorno Linux en cero-X: no se lleva proot ni rootfs, asi que no se ejecuto nada")
-    }
+    /** Nunca afirma ejecutar un entorno que no está empaquetado. */
+    fun runLinuxCommand(command: String) = LinuxCommandResult(
+        command, false,
+        "No hay entorno Linux en cero-X: no se lleva proot ni rootfs, así que no se ejecutó nada",
+    )
 }
 
-data class KaiLLMProvider(
-    val id: String,
-    val name: String,
-    val enabled: Boolean
-)
-
-data class KaiConversation(
-    val id: String,
-    val systemPrompt: String,
-    val messages: MutableList<KaiMessage>,
-    val createdAt: Long,
-    val lastActive: Long
-)
-
-data class KaiMessage(
-    val id: String,
-    val role: String, // user | assistant | system
-    val content: String,
-    val timestamp: Long,
-    val modelUsed: String? = null
-)
-
-data class LinuxCommandResult(
-    val command: String,
-    val success: Boolean,
-    val output: String
-)
+data class LinuxCommandResult(val command: String, val success: Boolean, val output: String)

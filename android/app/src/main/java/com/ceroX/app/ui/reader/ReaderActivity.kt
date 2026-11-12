@@ -147,9 +147,10 @@ class ReaderActivity : AppCompatActivity() {
                     LectorScreen(
                         titulo = if (capitulo.isBlank()) obra else "$obra — $capitulo",
                         cargarPaginas = {
-                            com.ceroX.app.sources.RepositorioGlobal.obtener()
-                                .paginas(fuenteId, urlCapitulo)
-                                .map { it.imagenUrl ?: it.url }
+                            val resultado = com.ceroX.app.sources.RepositorioGlobal.obtener()
+                                .paginasDetallado(fuenteId, urlCapitulo)
+                            resultado.error?.let { throw IllegalStateException(it) }
+                            resultado.paginas
                         },
                         cargador = cargador,
                         ia = ia,
@@ -219,7 +220,7 @@ class ReaderActivity : AppCompatActivity() {
 @Composable
 fun LectorScreen(
     titulo: String,
-    cargarPaginas: suspend () -> List<String>,
+    cargarPaginas: suspend () -> List<com.ceroX.app.sources.ContentRepository.PaginaLista>,
     cargador: PageLoader,
     clave: (Int) -> String,
     ia: IaDePagina,
@@ -229,7 +230,9 @@ fun LectorScreen(
     alSalir: () -> Unit,
     alAbrirModelos: () -> Unit,
 ) {
-    var urls by remember { mutableStateOf<List<String>>(emptyList()) }
+    var urls by remember {
+        mutableStateOf<List<com.ceroX.app.sources.ContentRepository.PaginaLista>>(emptyList())
+    }
     var errorGlobal by remember { mutableStateOf<String?>(null) }
     var cargando by remember { mutableStateOf(true) }
     var mostrarBarra by remember { mutableStateOf(true) }
@@ -271,9 +274,14 @@ fun LectorScreen(
         if (urls.isEmpty()) return@LaunchedEffect
         val desde = listaState.firstVisibleItemIndex
         val hasta = minOf(urls.size - 1, desde + 2)
+        if (desde + 1 > hasta) return@LaunchedEffect
         for (i in (desde + 1)..hasta) {
             if (paginas[i]?.exito == true || paginas[i] != null) continue
-            val r = cargador.cargar(clave(i), urls[i])
+            val pagina = urls[i]
+            val r = cargador.cargar(clave(i), pagina.imagenUrl ?: pagina.url) {
+                com.ceroX.app.sources.RepositorioGlobal.obtener()
+                    .bytesDeImagen(pagina, cargador.limiteBytes)
+            }
             paginas[i] = r
         }
     }
@@ -359,7 +367,13 @@ fun LectorScreen(
                                 estado = paginas[indice],
                                 cargar = {
                                     alcance.launch {
-                                        val cruda = cargador.cargar(clave(indice), urls[indice])
+                                        val pagina = urls[indice]
+                                        val cruda = cargador.cargar(
+                                            clave(indice), pagina.imagenUrl ?: pagina.url,
+                                        ) {
+                                            com.ceroX.app.sources.RepositorioGlobal.obtener()
+                                                .bytesDeImagen(pagina, cargador.limiteBytes)
+                                        }
                                         // Si hay modelos encendidos y la página se
                                         // decodificó, se procesa antes de pintarla.
                                         // Si falla, vuelve la misma: nunca null.

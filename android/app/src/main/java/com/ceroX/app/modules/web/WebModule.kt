@@ -1,26 +1,56 @@
 package com.ceroX.app.modules.web
 
+import android.content.Context
+import com.ceroX.app.core.AlmacenExterno
 import com.ceroX.app.core.engine.ModuleHealth
 import com.ceroX.app.core.engine.ModuleInterface
 
-/**
- * El módulo web privado, registrado para que el panel lo liste.
- *
- * No inicia nada pesado: no hay motor que cargar ni lista que bajar. Su
- * healthCheck dice lo que hay —el motor por defecto y las reglas incluidas— y
- * nada más.
- */
+/** Estado del módulo web y lectura de sus reglas externas. */
 class WebModule : ModuleInterface() {
     override val name = "web"
-    override val version = "0.1.0"
+    override val version = "0.2.0"
     override val dependencies: List<String> = emptyList()
 
-    /** El motor con el que abre la pantalla. Brave por defecto; Google no está. */
     var motor: String = MotorBusqueda.POR_DEFECTO
+    var baseSearx: String = ""
+
+    @Volatile
+    var reglasExtra: List<String> = emptyList()
+        private set
+
+    @Volatile
+    var motivoReglas: String = "todavía no se ha leído la lista del usuario"
+        private set
 
     override fun initialize(config: Map<String, Any>): Boolean {
+        (config["context"] as? Context)?.let { recargarReglas(it) }
         _initialized = true
         return true
+    }
+
+    /**
+     * Lee `web/bloqueo.txt` del almacenamiento externo aprobado. Si no existe,
+     * crea una plantilla comentada; nunca cae al almacenamiento interno.
+     */
+    fun recargarReglas(contexto: Context): Int {
+        val archivo = AlmacenExterno.archivo(contexto, "web/bloqueo.txt")
+        if (archivo == null) {
+            reglasExtra = emptyList()
+            motivoReglas = AlmacenExterno.estado(contexto)
+            return 0
+        }
+        return runCatching {
+            if (!archivo.isFile) {
+                archivo.writeText("# Un dominio por línea. Ejemplo: anuncios.example\n")
+            }
+            reglasExtra = Bloqueador.analizarLista(archivo.readText())
+            motivoReglas = "${reglasExtra.size} reglas propias en ${archivo.absolutePath}"
+            reglasExtra.size
+        }.getOrElse {
+            reglasExtra = emptyList()
+            motivoReglas = "No se pudo leer la lista propia: ${it.javaClass.simpleName}"
+            0
+        }
     }
 
     override fun start(): Boolean {
@@ -39,6 +69,8 @@ class WebModule : ModuleInterface() {
         mapOf<String, Any?>(
             "motor" to motor,
             "reglas_incluidas" to Bloqueador.INCLUIDAS.size,
+            "reglas_usuario" to reglasExtra.size,
+            "estado_lista" to motivoReglas,
             "politica_cookies" to Privacidad.POR_DEFECTO.name,
             "anti_muro" to "opcional, apagado por defecto",
         ),

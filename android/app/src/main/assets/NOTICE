@@ -39,19 +39,38 @@ Licencias verificadas por la API de GitHub el 2026-11-08 y re-verificadas el
 Contrato de extensiones
 ================================================================================
 
-El paquete `eu.kanade.tachiyomi.source` existe en este repositorio con seis
-ficheros (Source, CatalogueSource, SourceFactory, ExtensionSourceLoader,
-SeriePage, SerieNavegable) para que las extensiones del ecosistema encuentren el
-contrato que esperan. Mihon es Apache-2.0, así que reimplementar o reutilizar ese
-contrato está permitido conservando este aviso; lo que no se hace es afirmarlo
-sin comprobarlo. Quien reciba esta app recibe también el código de esos ficheros,
-que está en el repositorio.
+El paquete `eu.kanade.tachiyomi.source` contiene una adaptación parcial histórica
+(Source, CatalogueSource, SourceFactory, ExtensionSourceLoader, SeriePage y
+SerieNavegable). La auditoría de MangaDex 1.6.5 demostró que NO equivale al
+contrato extensions-lib 1.6 actual: faltan modelos y métodos, y el cargador no
+lee `tachiyomi.extension.class`. Por tanto no se afirma compatibilidad de
+ejecución con Mihon. El instalador de Project Nox se etiqueta para Mihon/Aniyomi;
+la migración del host de cero-X sigue documentada como pendiente.
 
 Kotatsu (GPL-3.0) se usó como referencia de FORMATO: este repo detecta backups
 SQLite por sus primeros bytes y los describe. No se copió código de Kotatsu; la
 mención en `BackupFormatDetector.kt` es eso, una atribución de formato. Con la
 app bajo GPL-3.0 esa distinción deja de ser crítica, pero se deja escrita porque
 era crítica cuando la app decía ser Apache-2.0.
+
+================================================================================
+Project Nox / Awerkori: metadatos de releases
+================================================================================
+
+Se conserva atribución y procedencia de `Awerkori/manga-extensoes`, commit
+55b9127ee947795cb76944e3e55f019066c72cba. Las contribuciones del catálogo se
+ofrecen bajo AGPL-3.0-only; los componentes upstream mantienen sus licencias.
+La correspondencia factual de nombres de APK y URLs públicas de GitHub Releases
+se consulta bajo demanda y se cachea fuera del APK en almacenamiento externo
+propio; puede auditarse con `tools/auditar_project_nox.py`. No contiene código de
+extensiones ni se empaqueta como catálogo. Los APK se descargan bajo demanda,
+no viajan dentro de cero-X. Copyright de las
+contribuciones Project Nox: 2026 Project Nox Contributors & Awerkori;
+Copyright upstream: Keiyoushi/Tachiyomi/Felipe GFA según su NOTICE.
+
+`Shebyyy/kotatsu-multi-parsers` se consulta como índice de metadatos en un commit
+fijado. Su raíz no declara una licencia general: no se copia código ni se
+redistribuyen sus JAR.
 
 ================================================================================
 Modelos ONNX: ninguno viaja en el APK desde la 1.0.1

@@ -4,7 +4,9 @@ import com.ceroX.app.BuildConfig
 
 import android.app.Application
 import android.content.ComponentCallbacks2
+import android.content.SharedPreferences
 import android.os.Build
+import java.io.File
 import android.util.Log
 import com.ceroX.app.core.engine.ModuleLifecycleManager
 import com.ceroX.app.core.engine.ModuleMetadata
@@ -53,6 +55,19 @@ class CeroXApplication : Application() {
     lateinit var lifecycleManager: ModuleLifecycleManager
     lateinit var crashHandler: CrashHandler
     lateinit var memoryMonitor: MemoryMonitor
+
+    /**
+     * El ABI 1.6 pide SharedPreferences. Sólo las claves de fuentes se
+     * redirigen al JSON externo; el resto conserva el comportamiento Android.
+     */
+    override fun getSharedPreferences(name: String, mode: Int): SharedPreferences =
+        if (name.startsWith("source_")) PreferenciasExtensiones.obtener(this, name)
+        else super.getSharedPreferences(name, mode)
+
+    /** KeiSource guarda sus filtros bajo cacheDir/source_id: también fuera del interno. */
+    override fun getCacheDir(): File = requireNotNull(
+        AlmacenExterno.directorio(this)?.let { File(it, "cache").apply { mkdirs() } },
+    ) { "No hay caché externa disponible para los filtros de extensiones" }
 
     override fun onCreate() {
         super.onCreate()
@@ -166,8 +181,8 @@ class CeroXApplication : Application() {
             ModuleMetadata("download-tools", "1.0.0-beta", emptyList()),
             ModuleMetadata("booru-viewer", "1.0.0-beta", emptyList()),
             ModuleMetadata("prisma-client", "4.2.1-fusion", emptyList()),
-            ModuleMetadata("ai-hub", "3.0.1-fusion", emptyList()),
-            ModuleMetadata("kai-assistant", "1.0.0-fusion", emptyList()),
+            ModuleMetadata("ai-hub", "4.0.0-cliente-real", emptyList()),
+            ModuleMetadata("kai-assistant", "2.0.0-inventario-honesto", emptyList()),
             ModuleMetadata("kisara-reader", "2.3.9-kisara-stable", emptyList()),
             ModuleMetadata("kisara-reader-engine", "2.3.9-kisara-stable", listOf("kisara-reader")),
             ModuleMetadata("kisara-library", "2.3.9-kisara-stable", listOf("kisara-reader")),

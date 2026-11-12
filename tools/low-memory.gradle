@@ -1,0 +1,12 @@
+// Límites para la VM de 2 GiB; no cambia el bytecode ni el APK.
+allprojects {
+    tasks.withType(Test).configureEach {
+        minHeapSize = '128m'
+        maxHeapSize = '384m'
+        // systemProp de gradle.properties no llega al worker de Robolectric.
+        // Fuera de este entorno se conserva el ~/.m2 normal del desarrollador.
+        if (System.getenv('CEROX_M2_REPO')) {
+            systemProperty 'maven.repo.local', System.getenv('CEROX_M2_REPO')
+        }
+    }
+}

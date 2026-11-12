@@ -64,7 +64,11 @@ class ReglaDeAlmacenamientoTest {
             val c = codigo(f)
             if (!c.contains("getSharedPreferences")) return@filter false
             val esLaMigracion = ruta(f) == "core/Prefs.kt" && c.contains(".edit().clear()")
-            !esLaMigracion
+            val esContrato16 = ruta(f) ==
+                "modules/source_api/eu/kanade/tachiyomi/source/ConfigurableSource.kt"
+            val esRedireccionExterna = ruta(f) == "core/CeroXApplication.kt" &&
+                c.contains("PreferenciasExtensiones.obtener(this, name)")
+            !esLaMigracion && !esContrato16 && !esRedireccionExterna
         }.map { ruta(it) }
 
         assertTrue(
@@ -74,6 +78,17 @@ class ReglaDeAlmacenamientoTest {
                 "Prefs.migrarDesdeSharedPreferences, que además borra lo migrado.",
             infractores.isEmpty(),
         )
+    }
+
+    @Test
+    fun el_abi_16_no_escribe_shared_prefs_internos() {
+        val app = codigo(File(base, "core/CeroXApplication.kt"))
+        assertTrue(app.contains("name.startsWith(\"source_\")"))
+        assertTrue(app.contains("PreferenciasExtensiones.obtener(this, name)"))
+        val externo = codigo(File(base, "core/PreferenciasExtensiones.kt"))
+        assertTrue(externo.contains("AlmacenExterno.directorio"))
+        assertTrue(externo.contains("host-extensiones/preferencias"))
+        assertFalse(externo.contains("getSharedPreferences("))
     }
 
     @Test

@@ -10,7 +10,8 @@ import org.junit.Test
  *
  * Los dos casos reales que importan: el LG V60 ThinQ 5G (físico, sin KVM, y aun
  * así banco válido porque no hace falta virtualizarlo) y la máquina de trabajo
- * (0 banderas, sin /dev/kvm, 1.982 MB), donde un emulador no arranca.
+ * (0 banderas, sin /dev/kvm, 1.982 MB), donde un emulador TCG no equivale a un
+ * banco completo y el fallo real se informa sin convertirlo en una ley general.
  */
 class BancosTest {
 
@@ -58,9 +59,10 @@ class BancosTest {
     }
 
     @Test
-    fun un_emulador_sin_kvm_no_es_un_banco() {
+    fun un_emulador_sin_kvm_no_es_un_banco_completo() {
         val v = Bancos.veredicto(emulador = true, kvm = false, banderas = 0)
-        assertTrue("el veredicto no lo niega: $v", v.contains("no es un banco"))
+        assertTrue("el veredicto no avisa de la limitación: $v", v.contains("no es un banco completo"))
+        assertTrue("no explica TCG: $v", v.contains("TCG"))
         val valido = Bancos.veredicto(emulador = true, kvm = true, banderas = 2)
         assertTrue("con KVM y banderas debería valer: $valido", valido.contains("banco válido"))
     }

@@ -1,11 +1,12 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.plugin.compose' version '2.0.21'
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.4.10'
+    id 'org.jetbrains.kotlin.plugin.serialization'
     // Room procesa sus anotaciones con KSP, no con kapt.
     // kapt no soporta Kotlin 2.0 (avisa: "Falling back to 1.9") y ademas es
     // 2-3x mas lento porque genera stubs de Java que luego hay que compilar.
-    id 'com.google.devtools.ksp' version '2.0.21-1.0.28'
+    id 'com.google.devtools.ksp' version '2.3.13'
 }
 
 android {
@@ -16,8 +17,8 @@ android {
         applicationId "com.ceroX.app"
         minSdk 26
         targetSdk 36
-        versionCode 10
-        versionName "1.0.5-beta-web-privado"
+        versionCode 13
+        versionName "1.0.8-beta-fuentes-verificadas"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -90,7 +91,8 @@ android {
         freeCompilerArgs = [
             '-opt-in=kotlin.RequiresOptIn',
             '-opt-in=androidx.compose.material.ExperimentalMaterialApi',
-            '-opt-in=androidx.compose.foundation.ExperimentalFoundationApi'
+            '-opt-in=androidx.compose.foundation.ExperimentalFoundationApi',
+            '-Xcontext-parameters'
         ]
     }
 
@@ -193,6 +195,11 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
+        // PackageParser de Android 14 verifica APK mediante DirectByteBuffer;
+        // JDK 21 exige abrirlo al arnés Robolectric (no afecta al APK distribuido).
+        unitTests.all {
+            jvmArgs '--add-opens=java.base/java.nio=ALL-UNNAMED'
+        }
     }
 
     // ── Licencia dentro del APK ──────────────────────────────────────────────
@@ -211,7 +218,7 @@ android {
 
 dependencies {
     // Mismo verificador de firmas que usa la herramienta oficial apksigner.
-    implementation 'com.android.tools.build:apksig:8.9.1'
+    implementation 'com.android.tools.build:apksig:8.12.0'
     // AndroidX Core
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
@@ -266,16 +273,25 @@ dependencies {
     // WorkManager
     implementation 'androidx.work:work-runtime-ktx:2.10.0'
 
-    // Kotlin coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0'
+    // Runtime alineado con Project Nox/extensions-lib 1.6. MangaDex 1.6.5
+    // referencia kotlin.time.Instant, coroutines 1.11 y OkHttp 5: mantener aquí
+    // versiones viejas producía un APK que cargaba clases pero fallaba al buscar.
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json-okio:1.11.0'
+    implementation 'uy.kohesive.injekt:injekt-core:1.16.1'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'org.jsoup:jsoup:1.22.2'
 
     // Gson
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    // OkHttp
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'com.squareup.okio:okio:3.8.0'
+    // OkHttp 5 y las compression interceptors que KeiSource instala de verdad.
+    implementation 'com.squareup.okhttp3:okhttp:5.4.0'
+    implementation 'com.squareup.okhttp3:okhttp-brotli:5.4.0'
+    implementation 'com.squareup.okhttp3:okhttp-zstd:5.4.0'
+    implementation 'com.squareup.okio:okio:3.16.4'
 
     // Reproductor: media3/ExoPlayer (Apache-2.0, compatible con la GPL-3.0 del
     // proyecto). Hace falta porque el MediaPlayer del framework no resuelve
@@ -311,6 +327,8 @@ dependencies {
     // Es `testImplementation` y no `implementation`: no viaja en el APK.
     testImplementation 'com.microsoft.onnxruntime:onnxruntime:1.17.0'
     testImplementation 'androidx.test:core:1.6.1'
+    androidTestImplementation 'androidx.test:core:1.6.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 

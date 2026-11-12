@@ -49,7 +49,17 @@ class QuickJsEngine(
 
     val estaContaminado: Boolean get() = contaminado
 
-    override fun eval(script: String, timeoutMs: Long): String? {
+    override fun eval(script: String, timeoutMs: Long): String? =
+        when (val valor = evalAny(script, timeoutMs)) {
+            null -> null
+            is String -> valor
+            // El contrato JS histórico devuelve texto; JavaScriptEngine 1.6 usa
+            // evalAny para conservar números, booleanos, arrays y objetos.
+            else -> valor.toString()
+        }
+
+    /** Evalúa sin convertir el resultado: lo exige `network.JavaScriptEngine`. */
+    fun evalAny(script: String, timeoutMs: Long = this.timeoutMs): Any? {
         if (contaminado) {
             throw JsEvaluationException(
                 "este motor se abandonó tras agotarse un plazo; se crea uno nuevo"
@@ -57,18 +67,9 @@ class QuickJsEngine(
         }
         val limite = if (timeoutMs > 0) timeoutMs else this.timeoutMs
 
-        val tarea = ejecutor.submit<String?> {
+        val tarea = ejecutor.submit<Any?> {
             val qjs = motor ?: crear().also { motor = it }
-            val resultado = qjs.evaluate(script, "extension.js")
-            when (resultado) {
-                null -> null
-                is String -> resultado
-                // QuickJS devuelve Object[] para arrays y Map para objetos. Aquí
-                // no se adivina: se serializa a JSON cuando se puede y, si no,
-                // se devuelve la representación, que es lo que el llamador
-                // espera de un `eval`.
-                else -> resultado.toString()
-            }
+            qjs.evaluate(script, "extension.js")
         }
 
         return try {

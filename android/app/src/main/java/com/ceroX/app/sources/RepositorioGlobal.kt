@@ -27,6 +27,7 @@ import eu.kanade.tachiyomi.source.Source
 object RepositorioGlobal {
 
     private val fuentes = java.util.concurrent.CopyOnWriteArrayList<Source>()
+    private val propietarios = java.util.concurrent.ConcurrentHashMap<Long, String>()
 
     @Volatile
     private var repositorio: ContentRepository? = null
@@ -45,8 +46,39 @@ object RepositorioGlobal {
         return n
     }
 
+    /** Sustituye una versión del mismo APK sin dejar fuentes viejas mezcladas. */
+    @Synchronized
+    fun registrarExtension(paquete: String, nuevas: List<Source>): Int {
+        require(nuevas.isNotEmpty()) { "La extensión no produjo fuentes" }
+        val idsNuevos = nuevas.map { it.id }
+        require(idsNuevos.toSet().size == idsNuevos.size) { "IDs duplicados dentro de $paquete" }
+        val colision = nuevas.firstOrNull { candidata ->
+            fuentes.any { it.id == candidata.id && propietarios[it.id] != paquete }
+        }
+        require(colision == null) { "La fuente ${colision?.id} ya pertenece a otra extensión o a cero-X" }
+        val antiguas = fuentes.filter { propietarios[it.id] == paquete }
+        fuentes.removeAll(antiguas.toSet())
+        antiguas.forEach { propietarios.remove(it.id) }
+        nuevas.forEach {
+            fuentes.add(it)
+            propietarios[it.id] = paquete
+        }
+        repositorio = null
+        return nuevas.size
+    }
+
+    @Synchronized
+    fun bajaExtension(paquete: String): Int {
+        val quitadas = fuentes.filter { propietarios[it.id] == paquete }
+        fuentes.removeAll(quitadas.toSet())
+        quitadas.forEach { propietarios.remove(it.id) }
+        if (quitadas.isNotEmpty()) repositorio = null
+        return quitadas.size
+    }
+
     fun baja(fuenteId: Long): Boolean {
         val quitada = fuentes.removeIf { it.id == fuenteId }
+        propietarios.remove(fuenteId)
         if (quitada) repositorio = null
         return quitada
     }
@@ -61,9 +93,15 @@ object RepositorioGlobal {
      */
     fun resumen(): Map<String, Any?> = mapOf(
         "fuentes" to fuentes.size,
-        "navegables" to fuentes.count { it is eu.kanade.tachiyomi.source.CatalogueSource },
+        "navegables" to fuentes.size,
+        "extensiones_nox" to propietarios.values.distinct().size,
         "fuente_local" to fuentes.any { it is LocalFolderSource },
-        "detalle" to fuentes.map { mapOf("id" to it.id, "nombre" to it.name, "lang" to it.lang) },
+        "detalle" to fuentes.map {
+            mapOf(
+                "id" to it.id, "nombre" to it.name, "lang" to it.lang,
+                "paquete" to propietarios[it.id],
+            )
+        },
     )
 
     fun obtener(): ContentRepository = repositorio ?: synchronized(this) {
@@ -88,11 +126,19 @@ object RepositorioGlobal {
                 ?.let { add(java.io.File(it, "lector")) }
         }
         candidatas.firstOrNull { it.isDirectory }?.let { registrar(LocalFolderSource(raiz = it)) }
+        // Sólo se restauran APK que el usuario autorizó antes con «Ejecutar en
+        // cero-X». Descargar o instalar para Mihon nunca basta para ejecutarlos.
+        val app = context.applicationContext as? android.app.Application
+        if (app != null) {
+            eu.kanade.tachiyomi.HostExtensiones.inicializar(app)
+            Thread({ RegistroNox.restaurar(app) }, "cerox-restaurar-nox").start()
+        }
     }
 
     /** Solo para pruebas: deja el objeto como recién creado. */
     fun limpiar() {
         fuentes.clear()
+        propietarios.clear()
         repositorio = null
     }
 }

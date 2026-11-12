@@ -191,6 +191,19 @@
             android:label="Estado del sistema"
             android:parentActivityName=".ui.main.MainActivity" />
 
+        <!-- Catálogos auditados, instalación confirmada por Android y biblioteca local. -->
+        <activity
+            android:name=".ui.extensiones.IntegracionesActivity"
+            android:exported="false"
+            android:label="Fuentes y extensiones"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density" />
+        <activity
+            android:name=".ui.extensiones.KisaraActivity"
+            android:exported="false"
+            android:label="Biblioteca Kisara"
+            android:parentActivityName=".ui.extensiones.IntegracionesActivity" />
+
         <!-- Actividad de pruebas de estrés -->
         <!-- Pantalla de modelos de IA. El lector la abre desde su menú
              (ReaderActivity). Estuvo sin declarar: la prueba de Robolectric la
@@ -199,8 +212,8 @@
         <activity
             android:name=".ui.ia.PantallaIaActivity"
             android:exported="false"
-            android:label="Modelos de IA"
-            android:parentActivityName=".ui.reader.ReaderActivity"
+            android:label="IA y asistente"
+            android:parentActivityName=".ui.main.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density" />
         <activity
             android:name=".ui.StressTestActivity"

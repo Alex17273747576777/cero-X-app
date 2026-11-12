@@ -152,6 +152,14 @@ object InventoryStorage {
                 "cuando quiera. No es un recurso del usuario.",
         ),
         Sitio(
+            "modules/source_api/eu/kanade/tachiyomi/source/ConfigurableSource.kt",
+            "preferencias independientes de cada fuente 1.6",
+            Verdict.FUERA_DEL_INTERNO,
+            "El contrato usa el API Android de preferencias por compatibilidad binaria, pero " +
+                "CeroXApplication redirige source_* a PreferenciasExtensiones, un JSON atómico " +
+                "bajo AlmacenExterno/host-extensiones/preferencias; no se crea shared_prefs interno.",
+        ),
+        Sitio(
             "ui/reader/ReadingProgress.kt",
             "marcapáginas de lectura",
             Verdict.FUERA_DEL_INTERNO,

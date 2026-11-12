@@ -81,6 +81,36 @@ class NavegacionTest {
     }
 
     @Test
+    fun el_asistente_es_alcanzable_y_ejecuta_un_cliente_real() {
+        val main = fuente("ui/main/MainActivity.kt")
+        assertTrue("no hay camino del panel a IA", main.contains("PantallaIaActivity::class.java"))
+        assertTrue("falta la actividad de IA", manifiesto().contains(".ui.ia.PantallaIaActivity"))
+        val pantalla = fuente("ui/ia/AsistenteChat.kt")
+        assertTrue("el chat no usa el módulo", pantalla.contains("motor.conversar"))
+        assertTrue("la red bloquea la interfaz", pantalla.contains("Dispatchers.IO"))
+        val modulo = fuente("modules/aihub/AIHubModule.kt")
+        assertTrue("el módulo no llama al cliente", modulo.contains("cliente.conversar"))
+    }
+
+    @Test
+    fun extensiones_y_biblioteca_son_alcanzables_sin_prometer_parsers_cargados() {
+        val main = fuente("ui/main/MainActivity.kt")
+        assertTrue(main.contains("IntegracionesActivity::class.java"))
+        assertTrue(manifiesto().contains(".ui.extensiones.IntegracionesActivity"))
+        assertTrue(manifiesto().contains(".ui.extensiones.KisaraActivity"))
+        val pantalla = fuente("ui/extensiones/IntegracionesActivity.kt")
+        assertTrue(pantalla.contains("InstaladorProjectNox"))
+        assertTrue(pantalla.contains("KisaraActivity::class.java"))
+        assertTrue("Kotatsu no debe confundirse con Nox ejecutándose", pantalla.contains("Explorador, no ejecución de parsers"))
+        assertTrue("debe existir la acción interna explícita", pantalla.contains("InstaladorInternoNox"))
+        assertTrue("debe distinguir ejecución de instalación Android", pantalla.contains("Son acciones distintas"))
+        val repositorio = fuente("sources/ContentRepository.kt")
+        assertTrue(repositorio.contains("getSearchManga"))
+        assertTrue(repositorio.contains("getMangaUpdate"))
+        assertTrue(repositorio.contains("getPageList"))
+    }
+
+    @Test
     fun la_pantalla_de_lectura_no_es_un_esqueleto() {
         val lector = fuente("ui/reader/ReaderActivity.kt")
         // Lo que hace que sea un lector y no un visor vacío.
