@@ -138,6 +138,32 @@ class ModuleLifecycleManager(private val context: Context) {
         initializeModuleWithRetry(name)
     }
 
+    /** Acción completa para el dashboard: inicializar y activar, con resultado legible. */
+    fun iniciarYActivarEnSegundoPlano(name: String): java.util.concurrent.Future<ResultadoAccionModulo> =
+        executor.submit(java.util.concurrent.Callable {
+            if (registry.getMetadata(name) == null) return@Callable ResultadoAccionModulo(false, "Módulo desconocido")
+            if (isModuleStarted(name)) return@Callable ResultadoAccionModulo(true, "Ya estaba en marcha")
+            val listo = if (getStatus(name) == ModuleStatus.INITIALIZED) true else initializeModuleWithRetry(name)
+            if (!listo) return@Callable ResultadoAccionModulo(false, "No se pudo inicializar; revisa el estado y las dependencias")
+            if (startModule(name)) ResultadoAccionModulo(true, "Módulo iniciado y activado")
+            else ResultadoAccionModulo(false, "Inicializado, pero no activado: alguna dependencia no está lista")
+        })
+
+    /** No deja parada una dependencia que otro módulo activo sigue utilizando. */
+    fun detenerEnSegundoPlano(name: String): java.util.concurrent.Future<ResultadoAccionModulo> =
+        executor.submit(java.util.concurrent.Callable {
+            if (registry.getMetadata(name) == null) return@Callable ResultadoAccionModulo(false, "Módulo desconocido")
+            val dependientes = registry.metadata.values.filter {
+                it.name != name && name in it.dependencies && isModuleStarted(it.name)
+            }.map { it.name }.sorted()
+            if (dependientes.isNotEmpty()) {
+                return@Callable ResultadoAccionModulo(false, "Antes detén: ${dependientes.joinToString()}")
+            }
+            if (!isModuleStarted(name)) return@Callable ResultadoAccionModulo(true, "Ya estaba detenido")
+            if (stopModule(name)) ResultadoAccionModulo(true, "Módulo detenido")
+            else ResultadoAccionModulo(false, "El módulo no confirmó la detención")
+        })
+
     /**
      * El estado de cada módulo tal como lo enseña el panel: leído del gestor en
      * el instante de la llamada, no escrito a mano en ninguna pantalla.
@@ -370,6 +396,8 @@ class ModuleLifecycleManager(private val context: Context) {
 
     fun getModuleInstance(name: String): ModuleInterface? = moduleInstances[name]
 }
+
+data class ResultadoAccionModulo(val exito: Boolean, val mensaje: String)
 
 /** Módulo que quiere recibir notificaciones de baja memoria */
 interface LowMemoryAware {

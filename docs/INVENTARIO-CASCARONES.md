@@ -9,14 +9,15 @@ Corte: fase de navegación, 2026-11-12. «Retirado» significa que ya no se prom
 | Barra principal | Siete destinos, iconos repetidos y «Ir a modos» duplicado | Inicio, Biblioteca, Fuentes, Web e IA; cinco iconos y acciones concretas |
 | Estado de pestaña | Estado no guardado y fragments apilados | `rememberSaveable`; destinos principales sin apilar copias |
 | Inicio | Panel genérico | Accesos a leer/fuentes/IA, diagnóstico e inicio real de módulos diferidos |
-| Ajustes | Funciones dispersas o inalcanzables | Diseño, Modos, IPTV, apps, idiomas y estado abren pantallas declaradas |
+| Ajustes | Funciones dispersas o inalcanzables | Diseño, Modos, IPTV, apps, idiomas, módulos y estado abren pantallas declaradas |
 | Catálogo de apps | «Filtro no implementado» | Texto+categoría combinados, contador, vacío y apertura HTTPS del repositorio |
 | Diseño | Switch/slider de blur que no renderizaban | Sólo selección de paleta; se aplica en Compose al elegir o volver |
 | Modos | Cambiar una cadena para 14 modos, muchos sin pantalla | Seis modos navegables con Intent real; los demás no se ofrecen |
 | Panel diferido | `Thread.sleep` para refrescar | Corrutina y nueva lectura del gestor |
 | Booru | Botón que sólo explicaba la ausencia de cliente | Safebooru real: búsqueda safe, páginas, miniaturas, ficha/original y favoritos externos; acceso en Ajustes |
+| Dashboard de módulos | Búsqueda desconectada y fila que sólo escribía Log | Ajustes→Módulos: salud real, filtro, versión/dependencias/detalle y ciclo iniciar/detener con protección de dependencias |
 
-Pruebas: `CatalogoFiltroTest`, `ModosNavegablesTest`, `NavegacionPrincipalTest`, más las guardas previas `PantallasTest`, `NavegacionTest` y `WebPantallaTest`.
+Pruebas: `CatalogoFiltroTest`, `ModosNavegablesTest`, `NavegacionPrincipalTest`, `AccionesModulosTest`, `DashboardAndroidTest`, `AjustesModulosTest`, más las guardas previas `PantallasTest`, `NavegacionTest` y `WebPantallaTest`.
 
 ## Pendientes visibles o previamente visibles
 
@@ -30,7 +31,6 @@ Pruebas: `CatalogoFiltroTest`, `ModosNavegablesTest`, `NavegacionPrincipalTest`,
 
 ## Código no expuesto como opción
 
-- `ModuleDashboardFragment` conserva una búsqueda sin listener y un click que sólo registra Log. Ya no es un destino de la navegación nueva. Debe repararse antes de volver a enlazarse o retirarse en una limpieza posterior.
 - Módulos de fábrica de extensiones, entornos, servidores, audio genérico, herramientas de descarga e ingeniería inversa no tienen un recorrido Android completo. No aparecen como modos seleccionables.
 - Los métodos que devuelven fallo con motivo no se consideran por sí solos cascarones: el problema es una interfaz que prometa lo contrario.
 - Las pantallas Views heredadas (`CatalogoActivity`, IPTV, Kisara y catálogo) mantienen el tema del sistema. Su rediseño visual y accesibilidad completa sigue pendiente; esta fase rediseña la navegación y las acciones, no certifica un rediseño visual de toda la app.

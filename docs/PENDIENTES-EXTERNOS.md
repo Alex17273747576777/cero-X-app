@@ -17,7 +17,7 @@ Cuando haya un dispositivo:
 ```
 
 4. Comprobar DEX→búsqueda→detalle/capítulos→páginas→imagen y conservar resultado del dispositivo.
-5. Recorrer visualmente Inicio, Biblioteca, Fuentes→Directorios, Web, IA, Ajustes, Safebooru, Diseño claro/oscuro y rotación. Las pruebas JVM no validan Coil, foco, contraste renderizado ni lector de pantalla.
+5. Recorrer visualmente Inicio, Biblioteca, Fuentes→Directorios, Web, IA, Ajustes, Safebooru, Diseño claro/oscuro y rotación. En Ajustes→Módulos del sistema, comprobar búsqueda, detalle, resultado de iniciar/detener y bloqueo de una dependencia con dependientes activos. Las pruebas JVM/Robolectric no validan Coil, foco físico, contraste renderizado, lector de pantalla ni efectos reales de detener cada módulo en el aparato.
 
 ## Kotatsu
 

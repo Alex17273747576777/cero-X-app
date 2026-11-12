@@ -12,6 +12,15 @@
         android:queryHint="Buscar módulos..."
         android:iconifiedByDefault="false" />
 
+    <TextView
+        android:id="@+id/dashboard_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="4dp"
+        android:text="Leyendo módulos…"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
     <Button
         android:id="@+id/refresh_button"
         android:layout_width="wrap_content"

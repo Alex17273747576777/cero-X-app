@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Language
@@ -80,6 +81,9 @@ fun PantallaAjustes(onBack: () -> Unit = {}) {
         },
         AccionAjuste("Idiomas", "Idioma de la aplicación y traducciones", Icons.Default.Language) {
             it.startActivity(Intent(it, IdiomasActivity::class.java))
+        },
+        AccionAjuste("Módulos del sistema", "Filtrar, consultar, iniciar o detener", Icons.Default.Build) {
+            it.startActivity(FragmentHostActivity.intento(it, FragmentHostActivity.MODULOS))
         },
         AccionAjuste("Estado del sistema", "Privilegios, fuentes y diagnóstico real", Icons.Default.Info) {
             it.startActivity(Intent(it, EstadoSistemaActivity::class.java))

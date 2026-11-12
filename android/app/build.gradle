@@ -327,6 +327,8 @@ dependencies {
     // Es `testImplementation` y no `implementation`: no viaja en el APK.
     testImplementation 'com.microsoft.onnxruntime:onnxruntime:1.17.0'
     testImplementation 'androidx.test:core:1.6.1'
+    // Selector semántico real para los accesos Compose bajo Robolectric.
+    testImplementation 'androidx.compose.ui:ui-test-junit4:1.7.0'
     androidTestImplementation 'androidx.test:core:1.6.1'
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

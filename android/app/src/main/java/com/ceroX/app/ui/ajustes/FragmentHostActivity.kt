@@ -12,6 +12,7 @@ import com.ceroX.app.modules.catalog.CatalogUIFragment
 import com.ceroX.app.modules.iptv.IptvUiFragment
 import com.ceroX.app.modules.mode.ModeSwitcherFragment
 import com.ceroX.app.modules.theme.ThemeSwitcherFragment
+import com.ceroX.app.ui.dashboard.ModuleDashboardFragment
 
 /** Aloja herramientas Views sin duplicar actividades ni dejar intents vacíos. */
 class FragmentHostActivity : AppCompatActivity() {
@@ -39,6 +40,7 @@ class FragmentHostActivity : AppCompatActivity() {
         const val IPTV = "iptv"
         const val APPS = "apps"
         const val BOORU = "booru"
+        const val MODULOS = "modulos"
         private const val EXTRA_DESTINO = "destino"
 
         fun intento(context: Context, destino: String): Intent =
@@ -50,6 +52,7 @@ class FragmentHostActivity : AppCompatActivity() {
             IPTV -> "IPTV"
             APPS -> "Catálogo de apps"
             BOORU -> "Imágenes Safebooru"
+            MODULOS -> "Módulos del sistema"
             else -> null
         }
 
@@ -59,6 +62,7 @@ class FragmentHostActivity : AppCompatActivity() {
             IPTV -> IptvUiFragment()
             APPS -> CatalogUIFragment()
             BOORU -> BooruUIFragment()
+            MODULOS -> ModuleDashboardFragment()
             else -> error("Destino desconocido")
         }
     }
