@@ -47,7 +47,13 @@ Brave/FMHY existentes y JustIndex, Miyomi, Wotaku, EverythingMoe y AniPirate com
 
 1. **Motor adaptativo (completado en JVM/build):** perfiles por sesión/categoría, señales locales, recomendaciones explicables, deshacer/restablecer y aplicación manual sin reordenar durante lectura. Reglas en `docs/MOTOR-ADAPTATIVO.md`; no es IA generativa. Cierre `work/ci/adaptacion-cierre-01.log.gz`: 549/0/0/10 y ambos APK. Falta revisión visual física.
 2. **Rediseño Views y Booru (completado en JVM/build):** Booru Safebooru (`docs/BOORU.md`) y tema DayNight, ActionBar/TopAppBar y catálogo (`docs/DISENO-VIEWS.md`). Cierre `work/ci/views-cierre-01.log.gz`: 558/0/0/11 y ambos APK. Falta revisión visual física.
-3. **Pendientes físicos y externos:** Kotatsu, LG V60, pruebas visuales y proveedor IA autenticado. Declarar bloqueo si no hay aparato/credencial.
+3. **Pendientes físicos y externos (bloqueados y documentados):** Kotatsu índice real 3.662/1.113 rotas, sin ejecución de parsers; LG V60/MangaDex/visual sin ADB; IA autenticada sin credenciales, prueba opt-in compilada y omitida. Ver `docs/PENDIENTES-EXTERNOS.md`.
+
+## Cierre acumulado de esta continuación
+
+- Commits: navegación `3407ebb`; directorios `985ec17`; motor adaptativo `4b75d0f`; Booru `7a05c0b`; Views `9f53201`; pendientes externos documentados al final.
+- Validación final `work/ci/cierre-final-01.log.gz`: **559 pruebas, 0 fallos, 0 errores, 12 omitidas**, `assembleDebug` y `assembleDebugAndroidTest`.
+- Red real separada: directorios cinco orígenes con datos y AniPirate 403; Safebooru JSON+JPEG; Kotatsu índice. IA autenticada y Android físico no ejecutados por falta de credencial/aparato.
 
 ## Regla aprendida en esta fase
 
