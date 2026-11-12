@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.ceroX.app.modules.adaptive.AdaptationStore
 import com.ceroX.app.modules.directories.DirectoryRepository
 import com.ceroX.app.modules.directories.PantallaDirectorios
 import com.ceroX.app.modules.extension_sandbox.ClienteRepositorios
@@ -61,6 +62,7 @@ class IntegracionesActivity : AppCompatActivity() {
         title = "Fuentes y extensiones"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val directorios = DirectoryRepository(applicationContext)
+        val adaptacion = AdaptationStore(applicationContext)
         setContent {
             CeroXTheme {
                 Scaffold(topBar = {
@@ -80,6 +82,7 @@ class IntegracionesActivity : AppCompatActivity() {
                             startActivity(Intent(this, KisaraActivity::class.java))
                         },
                         directorios = directorios,
+                        adaptacion = adaptacion,
                         abrirWeb = { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) },
                     )
                 }
@@ -102,6 +105,7 @@ fun PantallaIntegraciones(
     abrirCatalogo: () -> Unit,
     abrirBiblioteca: () -> Unit,
     directorios: DirectoryRepository,
+    adaptacion: AdaptationStore,
     abrirWeb: (String) -> Unit,
 ) {
     var pestana by remember { mutableIntStateOf(0) }
@@ -151,7 +155,7 @@ fun PantallaIntegraciones(
             Tab(pestana == 3, { pestana = 3; error = "" }, text = { Text("Directorios") })
         }
         if (pestana == 3) {
-            PantallaDirectorios(directorios, abrirWeb)
+            PantallaDirectorios(directorios, adaptacion, abrirWeb)
             return@Column
         }
         Column(Modifier.padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

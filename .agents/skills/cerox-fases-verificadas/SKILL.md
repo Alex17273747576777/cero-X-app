@@ -21,3 +21,10 @@ description: Usar al continuar cero-X, cerrar una parte grande o recuperar una s
 - No eludir bloqueos ni convertir un agregador en una promesa de contenido/seguridad. Si no hay datos, mostrar el fallo y conservar sólo la ficha externa.
 - En parsers JVM usar `java.net.URI`, no stubs de Android. Limitar respuesta/caché y guardar datos bajo `AlmacenExterno`, nunca como instantánea redistribuida sin licencia.
 - No descargar ni ejecutar APK/extensiones desde metadatos de descubrimiento. Instalación requiere otra fase de firma, hash, código y permisos.
+
+## Adaptación local
+
+- Separar heurística pura, almacenamiento y Compose. Probar pesos, estabilidad, explicación y desactivación sin red.
+- No guardar consultas, URLs ni credenciales como señales. Acotar historial y usar almacenamiento externo.
+- No reordenar ni cambiar densidad bajo el dedo: acumular señales y aplicar en una acción deliberada. Ofrecer deshacer/restablecer.
+- Llamar «heurística» a reglas locales; no convertir puntuaciones de afinidad en seguridad ni en IA generativa.

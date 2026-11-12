@@ -45,7 +45,7 @@ Brave/FMHY existentes y JustIndex, Miyomi, Wotaku, EverythingMoe y AniPirate com
 
 ## Fases posteriores
 
-1. **Motor adaptativo:** perfiles por sesión/categoría, señales locales, recomendaciones explicables, deshacer/restablecer y bloqueo de cambios durante lectura/escritura. No llamarlo IA generativa si son reglas/heurísticas.
+1. **Motor adaptativo (completado en JVM/build):** perfiles por sesión/categoría, señales locales, recomendaciones explicables, deshacer/restablecer y aplicación manual sin reordenar durante lectura. Reglas en `docs/MOTOR-ADAPTATIVO.md`; no es IA generativa. Cierre `work/ci/adaptacion-cierre-01.log.gz`: 549/0/0/10 y ambos APK. Falta revisión visual física.
 2. **Rediseño Views y Booru:** terminar lenguaje visual/accesibilidad y construir un cliente real antes de devolver Booru a navegación.
 3. **Pendientes físicos y externos:** Kotatsu, LG V60, pruebas visuales y proveedor IA autenticado. Declarar bloqueo si no hay aparato/credencial.
 
