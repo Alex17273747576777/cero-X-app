@@ -88,4 +88,11 @@
     <string name="web_atras">ย้อนกลับ</string>
     <string name="web_recargar">โหลดซ้ำ</string>
     <string name="web_ir">ไป</string>
+    <string name="web_searx_hint">SearXNG ส่วนตัว: https://…</string>
+    <string name="web_limpiar">ล้างคุกกี้และข้อมูล</string>
+    <string name="web_datos_borrados">ล้างคุกกี้และข้อมูลเบราว์เซอร์แล้ว</string>
+    <string name="web_reglas">กฎการบล็อก</string>
+    <string name="web_descarga_iniciada">เริ่มดาวน์โหลดแล้ว</string>
+    <string name="web_descarga_error">ไม่สามารถเริ่มดาวน์โหลดได้</string>
+    <string name="web_destino_invalido">ป้อน URL HTTPS หรือคำค้นหาที่ถูกต้อง</string>
 </resources>

@@ -83,14 +83,15 @@ object Bancos {
     }
 
     /**
-     * El veredicto. La regla: un banco se declara con medidas. Un emulador sin
-     * KVM ni banderas no es un banco lento, es un banco que no existe.
+     * El veredicto. Un banco se declara con medidas. Sin KVM, QEMU puede usar
+     * traducción TCG: no se deduce ni un arranque completo ni una imposibilidad.
+     * Hay que comprobar ADB, el boot y el rendimiento en esa máquina concreta.
      */
     fun veredicto(emulador: Boolean, kvm: Boolean, banderas: Int): String = when {
         !emulador -> "dispositivo físico: el banco es este aparato, no una VM"
         kvm && banderas > 0 -> "emulador con KVM y $banderas banderas de virtualización: banco válido"
         else -> "emulador sin KVM (${if (kvm) "presente" else "ausente"}) y $banderas banderas: " +
-            "no arranca, no es un banco"
+            "no es un banco completo; TCG puede arrancar, pero hay que medirlo"
     }
 
     /**

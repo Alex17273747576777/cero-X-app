@@ -88,4 +88,11 @@
     <string name="web_atras">رجوع</string>
     <string name="web_recargar">إعادة التحميل</string>
     <string name="web_ir">انتقال</string>
+    <string name="web_searx_hint">SearXNG خاص: https://…</string>
+    <string name="web_limpiar">مسح ملفات تعريف الارتباط والبيانات</string>
+    <string name="web_datos_borrados">تم مسح ملفات تعريف الارتباط وبيانات المتصفح</string>
+    <string name="web_reglas">قواعد الحظر</string>
+    <string name="web_descarga_iniciada">بدأ التنزيل</string>
+    <string name="web_descarga_error">تعذر بدء التنزيل</string>
+    <string name="web_destino_invalido">أدخل عنوان HTTPS صالحًا أو عبارة بحث</string>
 </resources>

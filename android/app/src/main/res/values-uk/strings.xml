@@ -88,4 +88,11 @@
     <string name="web_atras">Назад</string>
     <string name="web_recargar">Оновити</string>
     <string name="web_ir">Перейти</string>
+    <string name="web_searx_hint">Власний SearXNG: https://…</string>
+    <string name="web_limpiar">Видалити cookie та дані</string>
+    <string name="web_datos_borrados">Cookie та дані браузера видалено</string>
+    <string name="web_reglas">Правила блокування</string>
+    <string name="web_descarga_iniciada">Завантаження розпочато</string>
+    <string name="web_descarga_error">Не вдалося розпочати завантаження</string>
+    <string name="web_destino_invalido">Введіть дійсну URL-адресу HTTPS або пошуковий запит</string>
 </resources>

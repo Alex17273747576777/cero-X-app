@@ -88,4 +88,11 @@
     <string name="web_atras">戻る</string>
     <string name="web_recargar">再読み込み</string>
     <string name="web_ir">移動</string>
+    <string name="web_searx_hint">自前の SearXNG: https://…</string>
+    <string name="web_limpiar">Cookie とデータを削除</string>
+    <string name="web_datos_borrados">ブラウザーの Cookie とデータを削除しました</string>
+    <string name="web_reglas">ブロックルール</string>
+    <string name="web_descarga_iniciada">ダウンロードを開始しました</string>
+    <string name="web_descarga_error">ダウンロードを開始できませんでした</string>
+    <string name="web_destino_invalido">有効な HTTPS URL または検索語を入力してください</string>
 </resources>

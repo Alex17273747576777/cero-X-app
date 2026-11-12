@@ -5,6 +5,33 @@
     android:orientation="vertical"
     android:padding="12dp">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/web_motor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Brave Search" />
+
+        <Button
+            android:id="@+id/web_fmhya"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FMHY" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/web_searx_base"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/web_searx_hint"
+        android:importantForAutofill="no"
+        android:inputType="textUri" />
+
     <EditText
         android:id="@+id/web_url"
         android:layout_width="match_parent"
@@ -49,11 +76,31 @@
         android:layout_height="wrap_content"
         android:text="@string/web_anti_muro" />
 
-    <Button
-        android:id="@+id/web_cookies"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/web_cookies_terceros" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/web_cookies"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/web_cookies_terceros" />
+
+        <Button
+            android:id="@+id/web_limpiar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/web_limpiar" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/web_estado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/web_reglas" />
 
     <WebView
         android:id="@+id/web_vista"

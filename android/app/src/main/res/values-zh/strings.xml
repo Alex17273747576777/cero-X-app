@@ -88,4 +88,11 @@
     <string name="web_atras">返回</string>
     <string name="web_recargar">重新加载</string>
     <string name="web_ir">前往</string>
+    <string name="web_searx_hint">自建 SearXNG：https://…</string>
+    <string name="web_limpiar">清除 Cookie 和数据</string>
+    <string name="web_datos_borrados">已清除浏览器 Cookie 和数据</string>
+    <string name="web_reglas">拦截规则</string>
+    <string name="web_descarga_iniciada">下载已开始</string>
+    <string name="web_descarga_error">无法开始下载</string>
+    <string name="web_destino_invalido">请输入有效的 HTTPS URL 或搜索内容</string>
 </resources>

@@ -16,10 +16,18 @@ $ which qemu-system-x86_64 emulator sdkmanager → ninguno
 $ echo $ANDROID_HOME                → vacío
 ```
 
-Con esos números es imposible arrancar un emulador de Android aquí, en ninguna
-configuración: el oficial rechaza x86 sin KVM, y QEMU por TCG necesita más
-memoria de la que existe. Escribir "VM instalada" con estas medidas delante sería un anuncio
-vacío, que es justo lo que este repo persigue con `ModelHonestyGuard`.
+Esas medidas eran el estado inicial, no una prueba de imposibilidad. Después se
+añadieron **3 GiB de swap**, QEMU **10.0.13**, ADB **34.0.5**, emulador **37.2.13.0**
+y JDK **21.0.13**. Se creó `cerox_api31_x86_64` con Android 12/API 31, Google APIs
+y x86_64. El primer intento TCG llegó a `adb devices` en estado `device`, confirmó
+Android 12/API 31 y listó paquetes. Sin embargo, la captura estaba negra,
+`sys.boot_completed` seguía vacío y QEMU terminó con **139 (segfault)** tras avisar
+de hilos colgados. Esto demuestra que ADB puede funcionar sin KVM, pero todavía no
+un banco gráfico estable. No se instaló el APK ni se probó WebView en ese intento.
+
+La evidencia está en `work/vm/evidence/`, carpeta externa al APK. La conclusión
+anterior («sin KVM no arranca») se retira: TCG puede ejecutar, aunque sea lento o
+inestable; el resultado se decide con mediciones, no por ausencia de banderas.
 
 ## Los tres bancos que sí hay
 

@@ -88,4 +88,11 @@
     <string name="web_atras">Enrere</string>
     <string name="web_recargar">Recarrega</string>
     <string name="web_ir">Ves</string>
+    <string name="web_searx_hint">SearXNG propi: https://…</string>
+    <string name="web_limpiar">Esborra galetes i dades</string>
+    <string name="web_datos_borrados">Galetes i dades del navegador esborrades</string>
+    <string name="web_reglas">Regles de bloqueig</string>
+    <string name="web_descarga_iniciada">Descàrrega iniciada</string>
+    <string name="web_descarga_error">No s’ha pogut iniciar la descàrrega</string>
+    <string name="web_destino_invalido">Escriu un URL HTTPS o una cerca vàlida</string>
 </resources>

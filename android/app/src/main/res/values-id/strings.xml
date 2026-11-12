@@ -88,4 +88,11 @@
     <string name="web_atras">Kembali</string>
     <string name="web_recargar">Muat ulang</string>
     <string name="web_ir">Buka</string>
+    <string name="web_searx_hint">SearXNG pribadi: https://…</string>
+    <string name="web_limpiar">Hapus cookie dan data</string>
+    <string name="web_datos_borrados">Cookie dan data browser dihapus</string>
+    <string name="web_reglas">Aturan pemblokiran</string>
+    <string name="web_descarga_iniciada">Unduhan dimulai</string>
+    <string name="web_descarga_error">Tidak dapat memulai unduhan</string>
+    <string name="web_destino_invalido">Masukkan URL HTTPS atau pencarian yang valid</string>
 </resources>

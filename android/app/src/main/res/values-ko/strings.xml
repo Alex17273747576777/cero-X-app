@@ -88,4 +88,11 @@
     <string name="web_atras">뒤로</string>
     <string name="web_recargar">새로고침</string>
     <string name="web_ir">이동</string>
+    <string name="web_searx_hint">자체 SearXNG: https://…</string>
+    <string name="web_limpiar">쿠키 및 데이터 삭제</string>
+    <string name="web_datos_borrados">브라우저 쿠키와 데이터를 삭제했습니다</string>
+    <string name="web_reglas">차단 규칙</string>
+    <string name="web_descarga_iniciada">다운로드 시작됨</string>
+    <string name="web_descarga_error">다운로드를 시작할 수 없습니다</string>
+    <string name="web_destino_invalido">유효한 HTTPS URL 또는 검색어를 입력하세요</string>
 </resources>

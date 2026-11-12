@@ -88,4 +88,11 @@
     <string name="web_atras">Quay lại</string>
     <string name="web_recargar">Tải lại</string>
     <string name="web_ir">Đi</string>
+    <string name="web_searx_hint">SearXNG riêng: https://…</string>
+    <string name="web_limpiar">Xóa cookie và dữ liệu</string>
+    <string name="web_datos_borrados">Đã xóa cookie và dữ liệu trình duyệt</string>
+    <string name="web_reglas">Quy tắc chặn</string>
+    <string name="web_descarga_iniciada">Đã bắt đầu tải xuống</string>
+    <string name="web_descarga_error">Không thể bắt đầu tải xuống</string>
+    <string name="web_destino_invalido">Nhập URL HTTPS hoặc nội dung tìm kiếm hợp lệ</string>
 </resources>
