@@ -1,11 +1,11 @@
 # cero-X
 
-> **Estado, 2026-11-11.** Las dos releases anteriores (475 MB y un ANR al abrir) se borraron. Hay un APK nuevo, firmado y verificado byte a byte: `v1.0.1-beta-arranque-honesto`, 31.577.211 bytes, arm64-v8a, cero modelos ONNX dentro, SHA-256 `2661a12ed97b7fec7325514b092e8363beb9fbe0976581c0de1f8be7bed009d0`. El certificado anterior se perdió, así que **hay que desinstalar la build vieja antes de instalar esta**. Lo que ese APK no demuestra: que la app funcione en un teléfono; eso sólo lo dice instalarlo y abrirlo. Véanse [arranque](docs/ARRANQUE-HONESTO.md), [firma](docs/FIRMA-NUEVA.md) y [licencia](docs/LICENCIA.md).
+> **Estado, 2026-11-10.** La beta `1.0.8-beta-fuentes-verificadas` incorpora índices Project Nox/Kotatsu fijados por commit, descarga de APK con hash y certificado comprobados, y operaciones reales de biblioteca Kisara. La instalación de extensiones Nox se etiqueta **para Mihon/Aniyomi**: el host antiguo de cero-X todavía no implementa `extensions-lib 1.6`, y los JAR Kotatsu no se ejecutan. La conversación con proveedores IA y la validación visual en el LG V60 siguen pendientes. Véanse [auditoría de fuentes](docs/AUDITORIA-FUENTES-Y-KISARA.md), [asistente](docs/ASISTENTE-Y-COMPETENCIA.md) y [firma](docs/FIRMA-NUEVA.md).
 
 
 ### Un lector de manga, novelas y anime que trae la IA dentro del APK.
 
-`Android 8.0 – 16` · `arm64 · armv7 · x86 · x86_64` · `APK publicado: 31.577.211 B (30,1 MiB), arm64-v8a, 0 modelos` · `GPL-3.0`
+`Android 8.0 – 16` · `arm64 · armv7 · x86 · x86_64` · `0 modelos ONNX empaquetados` · `GPL-3.0`
 
 ---
 
@@ -48,7 +48,8 @@ no se puede comprobar con un comando, no está en este README.
 | 🔍 | **Reescalado ×4** con dos modelos, elegidos según la página | funciona · interruptor en el lector |
 | 📖 | **Lector** con tres modos, orden natural, marcapáginas y caché en bytes | funciona (falta verlo en un panel) |
 | 📖 | **Caché de páginas** con tope en bytes y prefetch adaptado a la red | funciona |
-| 🔌 | **Extensiones JVM** del ecosistema Mihon, cargadas en aislamiento | funciona |
+| 🔌 | **Catálogo Nox/Kotatsu** con procedencia, NSFW/rotos y verificación de APK | funciona · ejecución Mihon/Kotatsu pendiente |
+| 📚 | **Biblioteca Kisara** con búsqueda avanzada, favoritos y fusión local | funciona |
 | 💾 | **Importador de backups** de 6 formatos, detectados por bytes | funciona |
 | 🩺 | **Estado del sistema**: privilegios, motor JS y fuentes, medidos y visibles | funciona |
 | 🔗 | **Camino completo** Panel → Catálogo → Lector → Tracker, declarado y probado | funciona |
@@ -197,19 +198,23 @@ sirve» en vez de suponerlo.
 
 ## Extensiones: tres arquitecturas
 
-El ecosistema tiene **tres** formas incompatibles de escribir una extensión. La
-mayoría de las apps cubre una y lo llama compatibilidad.
+El ecosistema tiene formatos incompatibles. Una URL en un índice no demuestra que
+el host pueda ejecutarla.
 
-| capa | formato | quién lo usa | cero-X |
-|---|---|---|---|
-| **1 · JVM** | APK con `eu.kanade.tachiyomi.source.SourceFactory` | Mihon, Aniyomi, Komikku, Neko, Kotatsu, houri, Kototoro | ✅ `modules/source_api` |
-| **2 · JavaScript** | archivo JS evaluado en un motor embebido | Mangayomi, AnymeX, Dartotsu | ⚠️ `modules/source_js` — falta elegir motor |
-| **3 · datos** | backups `.tachibk` / `.proto.gz` / JSON | todos | ✅ `modules/backup_import` |
+| capa | formato | estado comprobado en cero-X |
+|---|---|---|
+| **Mihon/Aniyomi** | APK `extensions-lib`, clase declarada en `tachiyomi.extension.class` | Catálogo, descarga, SHA-256/firma e instalador de Android. Ejecución dentro del lector: **pendiente de migrar el contrato 1.6**. |
+| **Kotatsu** | JAR con modelos y `MangaLoaderContext` | Explorador de índices y estado roto/NSFW. Ejecución: **no incluida**. |
+| **JavaScript** | archivo JS evaluado en un motor embebido | Host QuickJS propio y pruebas; no se afirma compatibilidad universal con extensiones externas. |
+| **Datos** | backups `.tachibk` / `.proto.gz` / JSON | Detección por bytes en `modules/backup_import`. |
 
-La capa 1 carga el APK con `DexClassLoader` aislado, descubre la fábrica por
-`META-INF/services/` y verifica la firma antes de ejecutar nada.
+Project Nox se consume en instantáneas fijadas por commit: 1.618 extensiones de
+manga y 273 de anime. MangaDex 1.6.5 se descargó y verificó con hash y firma
+Project Nox reales. Esto demuestra integridad del paquete, no seguridad del sitio
+ni compatibilidad del parser. Kotatsu multi-parsers aporta 3.662 entradas de
+metadatos, 1.113 marcadas rotas; no se cargan sus JAR.
 
-La capa 3 detecta el formato **por los primeros bytes, no por la extensión**:
+La capa de datos detecta el formato **por los primeros bytes, no por la extensión**:
 `.bak` puede ser zip, gzip o SQLite según quién lo exportó, y rechazar un backup
 válido por su nombre es el tipo de fallo que hace que la gente abandone.
 

@@ -26,7 +26,20 @@
             android:layout_height="wrap_content"
             android:text="Favorito Masivo" />
 
+        <Button
+            android:id="@+id/merge_entries_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fusionar" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/library_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:text="Biblioteca local"
+        android:textSize="12sp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/library_recycler"

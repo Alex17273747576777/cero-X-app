@@ -80,6 +80,17 @@ class KisaraLibraryModule : ModuleInterface() {
         entries.add(entry)
     }
 
+    fun replaceEntries(nuevas: List<KisaraLibraryEntry>) {
+        entries.clear()
+        entries.addAll(nuevas.distinctBy { it.id })
+        clearSelection()
+    }
+
+    fun setFavorite(entryId: String, favorite: Boolean) {
+        val indice = entries.indexOfFirst { it.id == entryId }
+        if (indice >= 0) entries[indice] = entries[indice].copy(isFavorite = favorite)
+    }
+
     fun listEntries(): List<KisaraLibraryEntry> = entries.toList()
 
     fun bulkFavorite(ids: List<String>, favorite: Boolean) {
@@ -125,22 +136,7 @@ class KisaraLibraryModule : ModuleInterface() {
     }
 
     fun mergeEntries(primaryId: String, duplicateIds: List<String>) {
-        val primary = entries.find { it.id == primaryId } ?: return
-        for (dupId in duplicateIds) {
-            val dup = entries.find { it.id == dupId } ?: continue
-            val mergedProgress = maxOf(primary.progress, dup.progress)
-            val mergedChapters = primary.chaptersRead + dup.chaptersRead
-            val idx = entries.indexOf(primary)
-            entries[idx] = primary.copy(
-                progress = mergedProgress,
-                chaptersRead = mergedChapters,
-                isFavorite = primary.isFavorite || dup.isFavorite,
-                sources = (primary.sources + dup.sources).distinct(),
-                lastUpdated = System.currentTimeMillis()
-            )
-            entries.removeAll { it.id == dupId }
-        }
-        clearSelection()
+        replaceEntries(fusionarBiblioteca(entries, primaryId, duplicateIds))
     }
 
     fun addCategory(category: KisaraCategory) {
@@ -169,12 +165,8 @@ class KisaraLibraryModule : ModuleInterface() {
     }
 
     fun searchEntries(query: String, exclude: Boolean = false): List<KisaraLibraryEntry> {
-        return entries.filter { entry ->
-            val matches = entry.title.contains(query, ignoreCase = true) ||
-                          entry.author.contains(query, ignoreCase = true) ||
-                          entry.tags.any { it.contains(query, ignoreCase = true) }
-            if (exclude) !matches else matches
-        }
+        val encontradas = BusquedaBiblioteca.filtrar(entries, query)
+        return if (exclude) entries - encontradas.toSet() else encontradas
     }
 
     fun getUpdateStatus(): List<KisaraUpdateStatus> = emptyList()

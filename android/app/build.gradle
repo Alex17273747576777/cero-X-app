@@ -16,8 +16,8 @@ android {
         applicationId "com.ceroX.app"
         minSdk 26
         targetSdk 36
-        versionCode 12
-        versionName "1.0.7-beta-asistente-real"
+        versionCode 13
+        versionName "1.0.8-beta-fuentes-verificadas"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

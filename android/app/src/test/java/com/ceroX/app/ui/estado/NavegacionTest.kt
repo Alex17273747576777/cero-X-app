@@ -93,6 +93,19 @@ class NavegacionTest {
     }
 
     @Test
+    fun extensiones_y_biblioteca_son_alcanzables_sin_prometer_parsers_cargados() {
+        val main = fuente("ui/main/MainActivity.kt")
+        assertTrue(main.contains("IntegracionesActivity::class.java"))
+        assertTrue(manifiesto().contains(".ui.extensiones.IntegracionesActivity"))
+        assertTrue(manifiesto().contains(".ui.extensiones.KisaraActivity"))
+        val pantalla = fuente("ui/extensiones/IntegracionesActivity.kt")
+        assertTrue(pantalla.contains("InstaladorProjectNox"))
+        assertTrue(pantalla.contains("KisaraActivity::class.java"))
+        assertTrue(pantalla.contains("Explorador, no ejecución de parsers"))
+        assertTrue(pantalla.contains("aún está en migración"))
+    }
+
+    @Test
     fun la_pantalla_de_lectura_no_es_un_esqueleto() {
         val lector = fuente("ui/reader/ReaderActivity.kt")
         // Lo que hace que sea un lector y no un visor vacío.

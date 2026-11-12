@@ -195,21 +195,13 @@ class KisaraModule : ModuleInterface() {
         }
     }
 
+    fun replaceLibraryEntries(nuevas: List<KisaraLibraryEntry>) {
+        libraryEntries.clear()
+        libraryEntries.addAll(nuevas.distinctBy { it.id })
+    }
+
     fun mergeLibraryEntries(primaryId: String, duplicateIds: List<String>) {
-        val primary = libraryEntries.find { it.id == primaryId } ?: return
-        for (dupId in duplicateIds) {
-            val dup = libraryEntries.find { it.id == dupId } ?: continue
-            val mergedProgress = maxOf(primary.progress, dup.progress)
-            val mergedChapters = primary.chaptersRead + dup.chaptersRead
-            val idx = libraryEntries.indexOf(primary)
-            libraryEntries[idx] = primary.copy(
-                progress = mergedProgress,
-                chaptersRead = mergedChapters,
-                isFavorite = primary.isFavorite || dup.isFavorite,
-                sources = (primary.sources + dup.sources).distinct()
-            )
-            libraryEntries.removeAll { it.id == dupId }
-        }
+        replaceLibraryEntries(fusionarBiblioteca(libraryEntries, primaryId, duplicateIds))
     }
 
     fun toggleCategoryHidden(categoryId: String, hidden: Boolean) {
@@ -276,12 +268,8 @@ class KisaraModule : ModuleInterface() {
     }
 
     fun searchLibrary(query: String, exclude: Boolean = false): List<KisaraLibraryEntry> {
-        return libraryEntries.filter { entry ->
-            val matches = entry.title.contains(query, ignoreCase = true) ||
-                          entry.author.contains(query, ignoreCase = true) ||
-                          entry.tags.any { it.contains(query, ignoreCase = true) }
-            if (exclude) !matches else matches
-        }
+        val encontradas = BusquedaBiblioteca.filtrar(libraryEntries, query)
+        return if (exclude) libraryEntries - encontradas.toSet() else encontradas
     }
 
     fun getSuggestions(sourceId: String, entryId: String): List<KisaraSuggestion> {

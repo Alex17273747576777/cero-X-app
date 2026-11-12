@@ -51,6 +51,7 @@ import com.ceroX.app.modules.theme.ThemeSwitcherFragment
 import com.ceroX.app.modules.theme.UIThemeManager
 import com.ceroX.app.ui.catalogo.CatalogoActivity
 import com.ceroX.app.ui.estado.EstadoSistemaActivity
+import com.ceroX.app.ui.extensiones.IntegracionesActivity
 import com.ceroX.app.ui.ia.PantallaIaActivity
 import com.ceroX.app.ui.theme.CeroXTheme
 
@@ -105,6 +106,9 @@ class MainActivity : AppCompatActivity(), AplicaDiseno {
                     },
                     onIaClick = {
                         startActivity(Intent(this, PantallaIaActivity::class.java))
+                    },
+                    onExtensionesClick = {
+                        startActivity(Intent(this, IntegracionesActivity::class.java))
                     },
                     onMostrarFragmento = { showFragment(it) },
                 )
@@ -171,6 +175,7 @@ fun CeroXApp(
     onReadClick: () -> Unit = {},
     onEstadoClick: () -> Unit = {},
     onIaClick: () -> Unit = {},
+    onExtensionesClick: () -> Unit = {},
     onMostrarFragmento: (Fragment) -> Unit = {},
 ) {
     var seleccionado by remember { mutableStateOf(DESTINOS.first().id) }
@@ -180,6 +185,9 @@ fun CeroXApp(
             TopAppBar(
                 title = { Text("cero-X") },
                 actions = {
+                    IconButton(onClick = onExtensionesClick) {
+                        Icon(Icons.Default.Settings, contentDescription = "Fuentes y extensiones")
+                    }
                     IconButton(onClick = onIaClick) {
                         Icon(Icons.Default.SmartToy, contentDescription = "IA")
                     }
