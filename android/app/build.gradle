@@ -16,8 +16,8 @@ android {
         applicationId "com.ceroX.app"
         minSdk 26
         targetSdk 36
-        versionCode 7
-        versionName "1.0.2-beta-iptv-eq"
+        versionCode 8
+        versionName "1.0.3-beta-notas"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

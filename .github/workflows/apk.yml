@@ -26,7 +26,7 @@ on:
         description: "Arquitectura del APK"
         type: choice
         default: "arm64-v8a"
-        options: ["arm64-v8a", "armeabi-v7a", "x86_64", "x86"]
+        options: ["universal", "arm64-v8a", "armeabi-v7a", "x86_64", "x86"]
       publicar:
         description: "Crear la release con el APK y sus sumas"
         type: boolean
