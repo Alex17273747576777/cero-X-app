@@ -46,7 +46,7 @@ Brave/FMHY existentes y JustIndex, Miyomi, Wotaku, EverythingMoe y AniPirate com
 ## Fases posteriores
 
 1. **Motor adaptativo (completado en JVM/build):** perfiles por sesión/categoría, señales locales, recomendaciones explicables, deshacer/restablecer y aplicación manual sin reordenar durante lectura. Reglas en `docs/MOTOR-ADAPTATIVO.md`; no es IA generativa. Cierre `work/ci/adaptacion-cierre-01.log.gz`: 549/0/0/10 y ambos APK. Falta revisión visual física.
-2. **Rediseño Views y Booru:** Booru Safebooru real implementado y accesible en Ajustes (`docs/BOORU.md`, red JSON+JPEG opt-in verde). Cierre `work/ci/booru-cierre-01.log.gz`: 555/0/0/11 y ambos APK. Falta revisión visual física. El rediseño visual de las demás Views sigue pendiente.
+2. **Rediseño Views y Booru (completado en JVM/build):** Booru Safebooru (`docs/BOORU.md`) y tema DayNight, ActionBar/TopAppBar y catálogo (`docs/DISENO-VIEWS.md`). Cierre `work/ci/views-cierre-01.log.gz`: 558/0/0/11 y ambos APK. Falta revisión visual física.
 3. **Pendientes físicos y externos:** Kotatsu, LG V60, pruebas visuales y proveedor IA autenticado. Declarar bloqueo si no hay aparato/credencial.
 
 ## Regla aprendida en esta fase

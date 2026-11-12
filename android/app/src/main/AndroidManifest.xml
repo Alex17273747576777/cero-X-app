@@ -134,6 +134,7 @@
         <!-- Actividad principal -->
         <activity
             android:name=".ui.main.MainActivity"
+            android:theme="@style/Theme.ceroX.Compose"
             android:exported="true"
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density"
             android:screenOrientation="unspecified"
@@ -193,6 +194,7 @@
 
         <activity
             android:name=".ui.ajustes.AjustesActivity"
+            android:theme="@style/Theme.ceroX.Compose"
             android:exported="false"
             android:label="Ajustes y herramientas"
             android:parentActivityName=".ui.main.MainActivity" />
@@ -205,6 +207,7 @@
         <!-- Catálogos auditados, instalación confirmada por Android y biblioteca local. -->
         <activity
             android:name=".ui.extensiones.IntegracionesActivity"
+            android:theme="@style/Theme.ceroX.Compose"
             android:exported="false"
             android:label="Fuentes y extensiones"
             android:parentActivityName=".ui.main.MainActivity"
@@ -228,6 +231,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density" />
         <activity
             android:name=".ui.StressTestActivity"
+            android:theme="@style/Theme.ceroX.Compose"
             android:exported="false"
             android:configChanges="orientation|keyboardHidden|screenSize|uiMode|density"
             android:screenOrientation="unspecified" />

@@ -73,8 +73,14 @@ import java.util.Locale
  */
 class IdiomasActivity : AppCompatActivity() {
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val prefs = Prefs(this)
         // ConfigManager se instancia para que dispare la migración de las
         // preferencias viejas del almacenamiento interno en cuanto se abre esta

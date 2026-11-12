@@ -32,6 +32,11 @@ import kotlinx.coroutines.launch
  */
 class TrackerActivity : AppCompatActivity() {
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
+
     private val alcance = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var credenciales: TrackerCredentials
     private val cliente = TrackerClient()
@@ -46,6 +51,7 @@ class TrackerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = "Sincronización"
         credenciales = TrackerCredentials(this)
 

@@ -1,55 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Tema base de cero-X -->
-    <style name="Theme.ceroX" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">#6366F1</item>
-        <item name="colorPrimaryContainer">#E0E7FF</item>
-        <item name="colorSecondary">#22D3EE</item>
-        <item name="colorSecondaryContainer">#CCFEFC</item>
-        <item name="colorTertiary">#DB2777</item>
-        <item name="colorTertiaryContainer">#FCE7F3</item>
-        <item name="colorSurface">#0F172A</item>
-        <item name="colorSurfaceContainerHighest">#1E293B</item>
-        <item name="colorOnSurface">#FFFFFF</item>
-        <item name="colorOnSurfaceVariant">#CBD5E1</item>
-        <item name="android:colorBackground">#0F172A</item>
-        <item name="android:colorForeground">#FFFFFF</item>
-        <item name="colorError">#EF4444</item>
-        <item name="colorOnError">#FFFFFF</item>
-        <item name="android:windowBackground">@color/cerox_fondo</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
+    <!-- Views: DayNight real y ActionBar para que «Volver» exista de verdad. -->
+    <style name="Theme.ceroX" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">@color/ceroX_primary</item>
+        <item name="colorOnPrimary">@color/ceroX_on_primary</item>
+        <item name="colorPrimaryContainer">@color/ceroX_primary_container</item>
+        <item name="colorSecondary">@color/ceroX_secondary</item>
+        <item name="colorOnSecondary">@color/ceroX_on_primary</item>
+        <item name="colorSecondaryContainer">@color/ceroX_secondary_container</item>
+        <item name="colorTertiary">@color/ceroX_tertiary</item>
+        <item name="colorTertiaryContainer">@color/ceroX_tertiary_container</item>
+        <item name="colorSurface">@color/ceroX_surface</item>
+        <item name="colorSurfaceContainer">@color/ceroX_surface_container</item>
+        <item name="colorSurfaceContainerHighest">@color/ceroX_surface_variant</item>
+        <item name="colorOnSurface">@color/ceroX_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/ceroX_on_surface_variant</item>
+        <item name="colorError">@color/ceroX_error</item>
+        <item name="colorOnError">@color/ceroX_on_primary</item>
+        <item name="android:colorBackground">@color/ceroX_background</item>
+        <item name="android:windowBackground">@color/ceroX_background</item>
+        <item name="android:textColorPrimary">@color/ceroX_on_surface</item>
+        <item name="android:textColorSecondary">@color/ceroX_on_surface_variant</item>
+        <item name="android:statusBarColor">@color/ceroX_surface</item>
+        <item name="android:navigationBarColor">@color/ceroX_surface</item>
+        <item name="android:windowLightStatusBar">@bool/cerox_light_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/cerox_light_bars</item>
         <item name="android:enableOnBackInvokedCallback">true</item>
         <item name="android:dataExtractionRules">@xml/data_extraction_rules</item>
     </style>
 
-    <!-- Tema oscuro AMOLED -->
+    <!-- Compose dibuja su propia TopAppBar: nunca una segunda barra XML. -->
+    <style name="Theme.ceroX.Compose" parent="Theme.ceroX">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="Theme.ceroX.Amoled" parent="Theme.ceroX">
         <item name="colorSurface">#000000</item>
         <item name="colorSurfaceContainerHighest">#111111</item>
         <item name="android:colorBackground">#000000</item>
+        <item name="android:windowBackground">#000000</item>
     </style>
 
-    <!-- Lector: negro y a pantalla completa, pero **descendiente de AppCompat**.
-         ReaderActivity es AppCompatActivity; con el tema de plataforma
-         Theme.Black.NoTitleBar.Fullscreen, AppCompat lanza «You need to use a
-         Theme.AppCompat theme» al poner el contenido y el lector no abre. -->
     <style name="Theme.ceroX.Lector" parent="Theme.ceroX.Amoled">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowBackground">@android:color/black</item>
     </style>
 
-    <!-- Tema claro -->
-    <style name="Theme.ceroX.Light" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">#6366F1</item>
-        <item name="colorSurface">#FFFFFF</item>
-        <item name="android:colorBackground">#FFFFFF</item>
-        <item name="colorOnSurface">#000000</item>
-        <item name="android:colorForeground">#000000</item>
-    </style>
+    <style name="Theme.ceroX.Light" parent="Theme.ceroX" />
 
-    <!-- Splash screen theme -->
     <style name="Theme.ceroX.Splash" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/cerox_splash_background</item>
         <item name="android:windowSplashScreenBackground">@color/cerox_fondo</item>

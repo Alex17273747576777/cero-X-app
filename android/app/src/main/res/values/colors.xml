@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ceroX_background">#0F172A</color>
-    <color name="ceroX_surface">#1E293B</color>
-    <color name="ceroX_primary">#6366F1</color>
-    <color name="ceroX_secondary">#22D3EE</color>
-    <color name="ceroX_error">#EF4444</color>
-    <color name="ceroX_on_surface">#FFFFFF</color>
-    <color name="ceroX_on_surface_variant">#CBD5E1</color>
+    <color name="ceroX_background">#F8FAFC</color>
+    <color name="ceroX_surface">#FFFFFF</color>
+    <color name="ceroX_surface_container">#F1F5F9</color>
+    <color name="ceroX_surface_variant">#E2E8F0</color>
+    <color name="ceroX_primary">#4F46E5</color>
+    <color name="ceroX_primary_container">#E0E7FF</color>
+    <color name="ceroX_on_primary">#FFFFFF</color>
+    <color name="ceroX_secondary">#0E7490</color>
+    <color name="ceroX_secondary_container">#CFFAFE</color>
+    <color name="ceroX_tertiary">#BE185D</color>
+    <color name="ceroX_tertiary_container">#FCE7F3</color>
+    <color name="ceroX_error">#B91C1C</color>
+    <color name="ceroX_on_surface">#0F172A</color>
+    <color name="ceroX_on_surface_variant">#475569</color>
 </resources>

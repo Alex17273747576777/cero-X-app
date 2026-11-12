@@ -79,39 +79,53 @@ class CatalogoActivity : AppCompatActivity() {
      * sincronizados; aquí se ve en un sitio qué hay y qué hace cada botón.
      */
     private fun construirVista() {
+        val densidad = resources.displayMetrics.density
+        fun dp(valor: Int) = (valor * densidad).toInt()
         contenedor = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(24, 24, 24, 24)
+            setPadding(dp(16), dp(12), dp(16), dp(16))
         }
 
+        val encabezado = TextView(this).apply {
+            text = "Explora tu biblioteca"
+            textSize = 24f
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        }
+        val instrucciones = TextView(this).apply {
+            text = "Busca una obra, elige un capítulo y continúa en el lector."
+            textSize = 14f
+            setPadding(0, dp(4), 0, dp(12))
+        }
         campoBusqueda = EditText(this).apply {
             hint = "Buscar una obra"
             setSingleLine()
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
         }
-
         botonBuscar = Button(this).apply {
             text = "Buscar"
             setOnClickListener { buscar() }
         }
-
+        val filaBusqueda = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            addView(campoBusqueda)
+            addView(botonBuscar)
+        }
         textoEstado = TextView(this).apply {
-            setPadding(0, 16, 0, 16)
+            setPadding(0, dp(12), 0, dp(12))
             textSize = 13f
         }
-
         lista = ListView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                0,
-                1f,
-            )
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+            dividerHeight = dp(1)
+            clipToPadding = false
             setOnItemClickListener { _, _, posicion, _ ->
                 if (paso == Paso.CAPITULOS) abrirCapitulo(posicion) else abrirObra(posicion)
             }
         }
-
-        contenedor.addView(campoBusqueda)
-        contenedor.addView(botonBuscar)
+        contenedor.addView(encabezado)
+        contenedor.addView(instrucciones)
+        contenedor.addView(filaBusqueda)
         contenedor.addView(textoEstado)
         contenedor.addView(lista)
 
@@ -193,6 +207,7 @@ class CatalogoActivity : AppCompatActivity() {
             capitulos = d.capitulos
             paso = Paso.CAPITULOS
             textoEstado.text = "${d.titulo} · ${d.capitulos.size} capítulo(s) · ${d.fuente}"
+            supportActionBar?.subtitle = "Elige un capítulo · Volver muestra resultados"
             lista.adapter = ArrayAdapter(
                 this@CatalogoActivity,
                 android.R.layout.simple_list_item_1,
@@ -253,6 +268,7 @@ class CatalogoActivity : AppCompatActivity() {
             paso = Paso.BUSCAR
             capitulos = emptyList()
             detalleActual = null
+            supportActionBar?.subtitle = null
             textoEstado.text = "${resultados.size} resultado(s)"
             lista.adapter = ArrayAdapter(
                 this,

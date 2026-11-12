@@ -65,8 +65,14 @@ import java.io.File
  */
 class PantallaIaActivity : AppCompatActivity() {
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
+
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContent {
             CeroXTheme(darkTheme = true) {
                 Surface(
