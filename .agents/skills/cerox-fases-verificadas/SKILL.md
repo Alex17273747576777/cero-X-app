@@ -14,3 +14,10 @@ description: Usar al continuar cero-X, cerrar una parte grande o recuperar una s
 7. Repetir la auditoría de entorno, eliminar artefactos regenerables del workspace y guardar hashes/logs pequeños cuando sean evidencia.
 8. Actualizar `docs/FASES.md` con resultado y bloqueos. Añadir a `AGENTS.md` o a esta habilidad cualquier regla reutilizable aprendida.
 9. Revisar `git diff --check` y `git diff --stat`, y hacer un commit acotado sólo cuando la fase esté verde. No publicar ni prometer validación física sin evidencia.
+
+## Integraciones de directorios
+
+- Auditar una respuesta real antes de dar por bueno un parser: campos `null`, rutas cambiadas y HTTP 403 son estados normales que deben modelarse. Fixtures solos no bastan.
+- No eludir bloqueos ni convertir un agregador en una promesa de contenido/seguridad. Si no hay datos, mostrar el fallo y conservar sólo la ficha externa.
+- En parsers JVM usar `java.net.URI`, no stubs de Android. Limitar respuesta/caché y guardar datos bajo `AlmacenExterno`, nunca como instantánea redistribuida sin licencia.
+- No descargar ni ejecutar APK/extensiones desde metadatos de descubrimiento. Instalación requiere otra fase de firma, hash, código y permisos.

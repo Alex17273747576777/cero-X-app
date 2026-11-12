@@ -33,9 +33,15 @@ Actualizado: 2026-11-12. Este archivo registra trabajo pendiente y evidencia; no
 - Commit de cierre: se registra en Git al terminar esta fase.
 - No se afirma rediseño visual completo de todas las Views ni validación física.
 
-## Fase 3 — Directorios y búsqueda (siguiente)
+## Fase 3 — Directorios y búsqueda (completada)
 
-Brave/FMHY existentes y JustIndex, Miyomi, Wotaku, EverythingMoe y AniPirate como orígenes independientes. Auditar URLs, licencias, formato real, categorías, NSFW y reseñas antes de parser. Appteka Rebuild, FMHY Android y Komi Store se investigan aparte: no se ejecutan APKs ni se aceptan afirmaciones de terceros sin verificar.
+Brave/FMHY existentes y JustIndex, Miyomi, Wotaku, EverythingMoe y AniPirate como orígenes independientes. Appteka Rebuild, FMHY Android y Komi Store son fichas externas, no instalación.
+
+- Destino real en Fuentes → Directorios, filtros combinados, NSFW oculto, caché externa y actualización manual.
+- Auditoría y límites en `docs/DIRECTORIOS.md`.
+- Prueba real opt-in: Miyomi 220, JustIndex 73, EverythingMoe 432, Wotaku 469, FMHY 3.714; AniPirate HTTP 403 explícito. Evidencia `work/ci/directorios-red-02.log` y `directorios-red-02-resumen.txt`.
+- Cierre completo: `work/ci/directorios-cierre-01.log.gz`, BUILD SUCCESSFUL, 543 pruebas/0 fallos/0 errores/10 omitidas, ambos APK.
+- Commit de cierre registrado en Git.
 
 ## Fases posteriores
 

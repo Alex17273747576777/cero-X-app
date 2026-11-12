@@ -40,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.ceroX.app.modules.directories.DirectoryRepository
+import com.ceroX.app.modules.directories.PantallaDirectorios
 import com.ceroX.app.modules.extension_sandbox.ClienteRepositorios
 import com.ceroX.app.modules.extension_sandbox.ExtensionIndice
 import com.ceroX.app.modules.extension_sandbox.FuenteKotatsu
@@ -58,6 +60,7 @@ class IntegracionesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         title = "Fuentes y extensiones"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        val directorios = DirectoryRepository(applicationContext)
         setContent {
             CeroXTheme {
                 Scaffold(topBar = {
@@ -76,6 +79,7 @@ class IntegracionesActivity : AppCompatActivity() {
                         abrirBiblioteca = {
                             startActivity(Intent(this, KisaraActivity::class.java))
                         },
+                        directorios = directorios,
                         abrirWeb = { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it))) },
                     )
                 }
@@ -97,6 +101,7 @@ fun PantallaIntegraciones(
     ejecutar: (ExtensionIndice, Boolean) -> String,
     abrirCatalogo: () -> Unit,
     abrirBiblioteca: () -> Unit,
+    directorios: DirectoryRepository,
     abrirWeb: (String) -> Unit,
 ) {
     var pestana by remember { mutableIntStateOf(0) }
@@ -143,6 +148,11 @@ fun PantallaIntegraciones(
             Tab(pestana == 0, { pestana = 0; error = "" }, text = { Text("Manga Nox") })
             Tab(pestana == 1, { pestana = 1; error = "" }, text = { Text("Anime Nox") })
             Tab(pestana == 2, { pestana = 2; error = "" }, text = { Text("Kotatsu") })
+            Tab(pestana == 3, { pestana = 3; error = "" }, text = { Text("Directorios") })
+        }
+        if (pestana == 3) {
+            PantallaDirectorios(directorios, abrirWeb)
+            return@Column
         }
         Column(Modifier.padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlinedTextField(
