@@ -217,16 +217,21 @@ jobs:
           NOTAS
           if gh release view "$ETIQUETA" > /dev/null 2>&1; then
             gh release upload "$ETIQUETA" "$NOMBRE" "sha256sums-$ABI.txt" --clobber
-            # La idempotencia que sólo reemplaza bytes dejó el cuerpo de la 1.0.4
-            # diciendo el commit del primer corte, que estaba rojo. Reejecutar
-            # actualiza también la línea del commit en la nota.
-            REL_ID="$(gh release view "$ETIQUETA" --json id -q .id)"
-            gh api "repos/$GITHUB_REPOSITORY/releases/$REL_ID" --jq .body > cuerpo.md
-            # Una línea, indentada como el bloque: un heredoc en columna 0
-            # cerraría el literal de YAML. count=1 para no tocar el párrafo de
-            # historia, que nombra de verdad el commit rojo anterior.
-            python3 -c 'import io, os, re; b = io.open("cuerpo.md", encoding="utf-8").read(); b = re.sub(r"en el commit [0-9a-f]{7,40}", "en el commit " + os.environ["GITHUB_SHA"], b, count=1); io.open("cuerpo.md", "w", encoding="utf-8").write(b)'
-            gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$REL_ID" -f body="$(cat cuerpo.md)"
+            # El cuerpo se refresca con curl contra la API REST y no con gh: el
+            # `gh release view --json id` de la primera versión dio 404 en el
+            # corte arm64 de la 1.0.5, cuatro segundos después de que el corte
+            # universal creara la release, y se llevó por delante un run que ya
+            # había subido su APK. El id se resuelve por etiqueta en una llamada.
+            REL_ID="$(curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$ETIQUETA" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("id") or "")')"
+            if [ -n "$REL_ID" ]; then
+              curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/$REL_ID" | python3 -c 'import io,json,sys; io.open("cuerpo.md","w",encoding="utf-8").write(json.load(sys.stdin).get("body") or "")'
+              # count=1 para no tocar el párrafo de historia, que nombra de
+              # verdad el commit rojo anterior.
+              python3 -c 'import io,os,re; b=io.open("cuerpo.md",encoding="utf-8").read(); b=re.sub(r"en el commit [0-9a-f]{7,40}","en el commit "+os.environ["GITHUB_SHA"],b,count=1); io.open("cuerpo.md","w",encoding="utf-8").write(b); io.open("parche.json","w",encoding="utf-8").write(__import__("json").dumps({"body":b}))'
+              curl -sS -o /dev/null -w "cuerpo de la release actualizado: %{http_code}\n" -X PATCH -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -d @parche.json "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/$REL_ID"
+            else
+              echo "::warning::no se resolvió el id de $ETIQUETA: los bytes están subidos, el cuerpo no se refrescó"
+            fi
           else
             # El título sale de la etiqueta y no está escrito a mano: con la
             # versión anterior aquí ponía «1.0.1-beta» y cualquier etiqueta nueva
