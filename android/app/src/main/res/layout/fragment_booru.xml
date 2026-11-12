@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/booru_scope"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Safebooru.org · API pública · sólo rating:safe"
+        android:textStyle="bold"
+        android:padding="4dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        android:orientation="horizontal">
 
         <EditText
             android:id="@+id/search_input"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Etiquetas de búsqueda"
-            android:inputType="text" />
-
-        <EditText
-            android:id="@+id/site_selector"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="Sitio (ej. gelbooru)"
+            android:hint="Una etiqueta, p. ej. landscape"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
             android:inputType="text" />
 
         <Button
@@ -31,7 +33,55 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Buscar" />
+    </LinearLayout>
 
+    <TextView
+        android:id="@+id/booru_privacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:text="Consulta real sin credenciales. Las imágenes se cargan desde Safebooru tras buscar. Favoritos: metadatos en almacenamiento externo. Sin descargas ni contenido adulto."
+        android:textSize="12sp" />
+
+    <ProgressBar
+        android:id="@+id/booru_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/booru_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:text="Escribe una etiqueta o busca las publicaciones safe recientes." />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/booru_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="Anterior" />
+
+        <Button
+            android:id="@+id/booru_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="Siguiente" />
+
+        <Button
+            android:id="@+id/booru_show_favorites"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Favoritos" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -39,6 +89,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:clipToPadding="false"
+        android:paddingBottom="12dp" />
 
 </LinearLayout>

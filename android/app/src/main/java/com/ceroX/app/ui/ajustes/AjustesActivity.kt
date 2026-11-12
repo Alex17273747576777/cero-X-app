@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.Palette
@@ -73,6 +74,9 @@ fun PantallaAjustes(onBack: () -> Unit = {}) {
         },
         AccionAjuste("Catálogo de apps", "Buscar, filtrar y abrir repositorios", Icons.Default.Apps) {
             it.startActivity(FragmentHostActivity.intento(it, FragmentHostActivity.APPS))
+        },
+        AccionAjuste("Imágenes Safebooru", "Búsqueda safe, miniaturas y favoritos", Icons.Default.Image) {
+            it.startActivity(FragmentHostActivity.intento(it, FragmentHostActivity.BOORU))
         },
         AccionAjuste("Idiomas", "Idioma de la aplicación y traducciones", Icons.Default.Language) {
             it.startActivity(Intent(it, IdiomasActivity::class.java))

@@ -14,6 +14,7 @@ Corte: fase de navegación, 2026-11-12. «Retirado» significa que ya no se prom
 | Diseño | Switch/slider de blur que no renderizaban | Sólo selección de paleta; se aplica en Compose al elegir o volver |
 | Modos | Cambiar una cadena para 14 modos, muchos sin pantalla | Seis modos navegables con Intent real; los demás no se ofrecen |
 | Panel diferido | `Thread.sleep` para refrescar | Corrutina y nueva lectura del gestor |
+| Booru | Botón que sólo explicaba la ausencia de cliente | Safebooru real: búsqueda safe, páginas, miniaturas, ficha/original y favoritos externos; acceso en Ajustes |
 
 Pruebas: `CatalogoFiltroTest`, `ModosNavegablesTest`, `NavegacionPrincipalTest`, más las guardas previas `PantallasTest`, `NavegacionTest` y `WebPantallaTest`.
 
@@ -21,7 +22,7 @@ Pruebas: `CatalogoFiltroTest`, `ModosNavegablesTest`, `NavegacionPrincipalTest`,
 
 | Elemento | Estado honesto | Siguiente criterio de salida |
 |---|---|---|
-| Booru | Retirado de la barra. No hay cliente, búsqueda ni favoritos persistentes | API real con red opt-in, resultados, imágenes, error/vacío, NSFW por defecto desactivado y persistencia externa |
+| Otros Booru y visor avanzado | Safebooru sí está integrado; otros orígenes, descargas, zoom y vídeo no | Integrar cada API tras prueba propia; no ampliar la lista por compatibilidad nominal |
 | Kotatsu | Explorador de índice dentro de Fuentes; no ejecución de parsers | Integración compatible o mantener explorador claramente limitado; nunca llamarlo fuente ejecutándose |
 | Catálogo de apps | Metadatos estáticos; abrir repositorio no instala ni verifica una release | Separar directorios curados y tiendas, auditar formatos/licencias y no descargar APK implícitamente |
 | Proveedor IA | Chat con HTTP real y credencial segura, pero sin proveedor autenticado ejecutado aquí | Prueba opt-in con credencial real; registrar modelo/HTTP y no simular respuesta |

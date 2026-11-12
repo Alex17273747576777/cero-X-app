@@ -7,6 +7,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.ceroX.app.R
+import com.ceroX.app.modules.booru.BooruUIFragment
 import com.ceroX.app.modules.catalog.CatalogUIFragment
 import com.ceroX.app.modules.iptv.IptvUiFragment
 import com.ceroX.app.modules.mode.ModeSwitcherFragment
@@ -37,6 +38,7 @@ class FragmentHostActivity : AppCompatActivity() {
         const val MODOS = "modos"
         const val IPTV = "iptv"
         const val APPS = "apps"
+        const val BOORU = "booru"
         private const val EXTRA_DESTINO = "destino"
 
         fun intento(context: Context, destino: String): Intent =
@@ -47,6 +49,7 @@ class FragmentHostActivity : AppCompatActivity() {
             MODOS -> "Modos"
             IPTV -> "IPTV"
             APPS -> "Catálogo de apps"
+            BOORU -> "Imágenes Safebooru"
             else -> null
         }
 
@@ -55,6 +58,7 @@ class FragmentHostActivity : AppCompatActivity() {
             MODOS -> ModeSwitcherFragment()
             IPTV -> IptvUiFragment()
             APPS -> CatalogUIFragment()
+            BOORU -> BooruUIFragment()
             else -> error("Destino desconocido")
         }
     }

@@ -28,3 +28,10 @@ description: Usar al continuar cero-X, cerrar una parte grande o recuperar una s
 - No guardar consultas, URLs ni credenciales como señales. Acotar historial y usar almacenamiento externo.
 - No reordenar ni cambiar densidad bajo el dedo: acumular señales y aplicar en una acción deliberada. Ofrecer deshacer/restablecer.
 - Llamar «heurística» a reglas locales; no convertir puntuaciones de afinidad en seguridad ni en IA generativa.
+
+## APIs de imágenes
+
+- Probar JSON y una imagen real por separado. Un campo `file_url` no demuestra que el medio descargue ni que Android lo renderice.
+- Validar rating y host exacto también al parsear; no confiar sólo en la etiqueta enviada. Mantener 18+ fuera u oculto por defecto.
+- Distinguir búsqueda vacía, HTTP/JSON error, favoritos vacíos y carga. No ofrecer sitios que sólo sean nombres en una lista.
+- Guardar favoritos como metadatos externos acotados; no descargar originales ni prometer MediaStore/zoom/vídeo sin implementación.
