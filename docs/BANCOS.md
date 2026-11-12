@@ -29,6 +29,12 @@ La evidencia está en `work/vm/evidence/`, carpeta externa al APK. La conclusió
 anterior («sin KVM no arranca») se retira: TCG puede ejecutar, aunque sea lento o
 inestable; el resultado se decide con mediciones, no por ausencia de banderas.
 
+El segundo intento fijó 1536 MiB y GPU de invitado. ADB volvió a confirmar Android
+12/API 31/x86_64, pero `bootanim` siguió activo, `sys.boot_completed` vacío y la
+captura no produjo bytes tras más de tres minutos. El host llegó a 1918 MiB de RAM
+usados y 1351 MiB de swap; QEMU ocupaba unos 1610 MiB RSS. Se detuvo para no
+saturar el entorno. El resumen reproducible se publica en `docs/VM-ANDROID.md`.
+
 ## Los tres bancos que sí hay
 
 **1 · El runner de GitHub Actions.** `ubuntu-26.04`. Ahí corren las pruebas y se
