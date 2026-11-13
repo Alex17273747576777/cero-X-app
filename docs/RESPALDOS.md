@@ -45,12 +45,30 @@ drive_carpeta=1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg
 drive_id=1fd1856Yydk-Q-AXOmsP90hMEtbu7zF79
 restore_probado=si
 FIN_RESPALDO_REGISTRO
+
+RESPALDO_REGISTRO
+fecha=2026-11-13T09:57:34Z
+head=d85c0bd8f4b8abe66c4cae7a208aa3d157bda5cc
+archivo=cero-X-respaldo-2026-11-13-d85c0bd.tar.gz
+bytes=8990675
+sha256=cf953c251bc18fcd6e26ec5e10c4f3a242cffa246e7c2e081502c0c08e4f6080
+md5=0a329b63af148966664f8e42f6336e1a
+drive_carpeta=1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg
+drive_id=1qNAlhuCjbClSl6_otA1h0lJq1YevEf1A
+restore_probado=si
+FIN_RESPALDO_REGISTRO
 ```
+
+La segunda entrada existe porque la primera no podía cubrir el commit que añade la
+maquinaria de respaldo: en cuanto `tools/latido.py` y este doc se commitearon, el
+latido avisó de un commit sin respaldar, y tenía razón. Es la comprobación
+funcionando sobre sí misma, no un fallo.
 
 Destino: carpeta «cero-X — respaldos» en Google Drive,
 `https://drive.google.com/drive/folders/1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg`.
 
-Medidas de la primera subida en `work/ci/respaldo-01-resumen.txt`.
+Medidas de cada subida: `work/ci/respaldo-01-resumen.txt` y
+`work/ci/respaldo-02-resumen.txt`.
 
 ## Cómo hacer un respaldo nuevo
 
