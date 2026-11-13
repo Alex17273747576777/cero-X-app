@@ -45,13 +45,23 @@ trabajo de la rama. Las 3 alertas de Dependabot y el resto están en
 desde el 2026-11-13 registra los seis repos de la cuenta con sus herramientas,
 entornos medidos y registros de falla, con CI en verde y licencia GPL-3.0.
 
-**El PR no disparó CI.** `pruebas.yml` declara `pull_request:` sin filtro en `main` y
-Actions está habilitado (`enabled=true`, `allowed_actions=all`), pero el único check
-run sobre el HEAD del PR es `CodeRabbit` en `skipped` y en todo el historial del repo
-hay **0 corridas con `event=pull_request`**. No sé explicarlo con lo que medí. Lo que
-sí está verificado es la rama: corrida `43408379444`, lanzada por `workflow_dispatch`,
-con `611 pruebas · 0 fallos · 0 errores · 14 saltadas`. Mientras el disparador por PR
-no se explique, la comprobación tras cada push a la rama es `workflow_dispatch`.
+**El PR sí dispara CI; la afirmación contraria era una medición prematura.** El
+2026-11-13 se escribió aquí que en todo el historial del repo había **0 corridas con
+`event=pull_request`** y que la causa no se encontraba. Medido de nuevo con
+`/actions/runs?event=pull_request`, hay dos, y las dos son posteriores a esa nota:
+
+| corrida | commit | creada | resultado |
+|---|---|---|---|
+| `43415076063` | `7bbc2ae` | 11:11:39Z, unos 84 s después del push | success |
+| `43418068714` | `e960c81` | 11:33:52Z, unos 19 s después del push | en curso al escribir esto |
+
+El error fue medir un sistema asíncrono una sola vez, inmediatamente después del push,
+y escribir la ausencia observada como una propiedad permanente del repositorio. Lo que
+no se explica, y se deja dicho como tal en vez de taparlo: el push de `57538ab` a las
+10:45Z **no** produjo corrida `pull_request`, y los dos siguientes sí. La comprobación
+tras cada push a la rama sigue siendo explícita —mirar `/actions/runs?head_sha=<sha>` y
+leer la conclusión—, porque `workflow_dispatch` verifica lo mismo y no depende de que el
+disparador por PR se comporte igual cada vez.
 
 `tools/latido.py` cuenta como respaldado un commit que ya esté en alguna rama de algún
 remoto (`git branch -r --contains`); el registro de Drive sigue siendo el aviso para lo
