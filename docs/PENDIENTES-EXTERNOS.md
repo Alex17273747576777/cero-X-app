@@ -31,7 +31,7 @@ adb shell am instrument -w -e recorridoFisico 1 -e networkTests 1 \
    el tema resuelto por el aparato más etiquetas y objetivo táctil de los botones. Sin
    `networkTests 1` sólo corre la parte que no necesita Safebooru.
 
-6. Recorrer visualmente lo que ninguna prueba sustituye: Inicio, Biblioteca, Fuentes→Directorios, Web, IA, Ajustes, Safebooru, Diseño claro/oscuro y rotación. En Ajustes→Módulos del sistema, comprobar búsqueda, detalle, resultado de iniciar/detener y bloqueo de una dependencia con dependientes activos. En el visor, mirar con los ojos la imagen ampliada y escuchar el lector de pantalla. Las pruebas JVM/Robolectric no validan Coil, los gestos reales, foco físico, contraste renderizado ni efectos reales de detener cada módulo en el aparato.
+6. Recorrer visualmente lo que ninguna prueba sustituye: Inicio, Biblioteca, Fuentes→Directorios, Web, IA, Ajustes, Safebooru, Diseño claro/oscuro y rotación. En Ajustes→Módulos del sistema, comprobar búsqueda, detalle, resultado de iniciar/detener y bloqueo de una dependencia con dependientes activos. En el visor, mirar con los ojos la imagen ampliada y escuchar el lector de pantalla. En el catálogo de apps, mirar el bloque de directorios curados, la etiqueta del tipo de enlace de cada ficha, el aviso de enlace muerto y de repositorio archivado, y el filtro «Tiendas e instaladores»: la auditoría cambió lo que se enseña y ninguna prueba JVM valida que se lea bien. Las pruebas JVM/Robolectric no validan Coil, los gestos reales, foco físico, contraste renderizado ni efectos reales de detener cada módulo en el aparato.
 
 ## Kotatsu
 
