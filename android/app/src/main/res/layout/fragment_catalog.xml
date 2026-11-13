@@ -28,6 +28,21 @@
         android:accessibilityLiveRegion="polite" />
 
     <TextView
+        android:id="@+id/directorios_titulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:text="Directorios curados (fuentes del catálogo, no apps)" />
+
+    <LinearLayout
+        android:id="@+id/directorios_lista"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <TextView
         android:id="@+id/empty_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
