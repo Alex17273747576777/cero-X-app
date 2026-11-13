@@ -57,6 +57,18 @@ drive_carpeta=1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg
 drive_id=1qNAlhuCjbClSl6_otA1h0lJq1YevEf1A
 restore_probado=si
 FIN_RESPALDO_REGISTRO
+
+RESPALDO_REGISTRO
+fecha=2026-11-13T10:07:44Z
+head=7bfde2cf33b503837ad92c8f4f82e0390049eac4
+archivo=cero-X-respaldo-2026-11-13-7bfde2c.tar.gz
+bytes=9034304
+sha256=2f49136cdaafcd82cce4e97ec2cfb19c73fd55c1dd6bea55c6f366abf68bc56b
+md5=4da1e2e1a18e178b1b0c02a7a95f91aa
+drive_carpeta=1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg
+drive_id=1NdZcqtIq6Mip85AJhAKHXfGkgUhp3MZ8
+restore_probado=si
+FIN_RESPALDO_REGISTRO
 ```
 
 La segunda entrada existe porque la primera no podía cubrir el commit que añade la
@@ -67,8 +79,14 @@ funcionando sobre sí misma, no un fallo.
 Destino: carpeta «cero-X — respaldos» en Google Drive,
 `https://drive.google.com/drive/folders/1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg`.
 
-Medidas de cada subida: `work/ci/respaldo-01-resumen.txt` y
-`work/ci/respaldo-02-resumen.txt`.
+Medidas de cada subida: `work/ci/respaldo-01-resumen.txt`,
+`work/ci/respaldo-02-resumen.txt` y `work/ci/respaldo-03-resumen.txt`.
+
+Los hashes y los head se pegan de la salida de `git rev-parse` y `sha256sum`, nunca
+se completan de memoria ni se transcriben a mano. En el tercer ciclo se escribió un
+`head=` inventado a partir del hash corto y `git cat-file -t` lo desmintió antes del
+commit; de haber entrado, el registro de la única copia externa habría apuntado a un
+objeto inexistente y `comprobar_respaldo` lo habría convertido en BLOQUEO.
 
 ## Cómo hacer un respaldo nuevo
 
