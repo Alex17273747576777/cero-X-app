@@ -244,17 +244,25 @@ scripts/bajar-referencias.sh --solo Nahiro18/Kiroku
 #    work/ci/frankie/kiroku-license.json y el de su padre en redantotsu-license.json.
 ```
 
-### 2. Dos herramientas nuevas sin espejar en `entorno-de-herramientas-de-trabajo`
+### 2. Dos herramientas nuevas sin espejar en `entorno-de-herramientas-de-trabajo` — CERRADO el 2026-11-13
 
-`scripts/bajar-referencias.sh` y `tools/auditar-referencias.py` se publicaron en cero-X-app
-(`aae6a87`) pero no están en el espejo de edt, que publica las herramientas con manifiesto,
-`sha256sum -c --strict` y fila en `proyectos/fallas-comunes/REGISTRO.md`. El espejo no está
-roto —sigue apuntando a lo que publicó— pero se queda atrás si no se añaden.
+Hecho. `scripts/bajar-referencias.sh` y `tools/auditar-referencias.py` están espejadas en edt
+(commit `e788b92`), copiadas del blob `6f4a848` y verificadas con `git hash-object` (idénticas)
+y con `comprobar-copias.sh --estricto-origen`: `COPIAS_OK`, cero-X con 8 ficheros fieles a
+`6f4a848` y al día con `main`. El `origen-commit` del manifiesto subió de `4ff793a` a `6f4a848`;
+es seguro porque los 6 ficheros ya espejados son byte a byte idénticos en ambos commits, medidos
+con `git rev-parse <sha>:<ruta>`, así que subir la referencia no vuelve infiel a ninguno.
+
+De paso se cazó una deriva que el verificador no cubría: la tabla de `HERRAMIENTAS.md` seguía
+dando 4,973 B y sha `72a98183` para `comprobar_entorno.py` cuando el fichero real y el manifiesto
+están en 5,795 B y `9a9c2355` (repunte de la carrera TOCTOU a `4ff793a`). `comprobar-copias.sh`
+comprueba manifiesto y origen pero no la tabla del doc, así que daba `COPIAS_OK` con el doc
+obsoleto. Registrado como falla **C12** del común (variante de C7 aplicada a la documentación: el
+dato vive en tres sitios —fichero, manifiesto, doc— y el verificador sólo cubría dos) y añadida a
+la familia de «falso éxito» en «Lo que tienen en común».
 
 ```bash
-cd /home/user/work/edt && bash proyectos/comprobar-copias.sh --estricto-origen
-# y para espejar las dos nuevas, siguiendo el procedimiento de las 9 filas C1-C9 ya publicadas:
-# copiar, generar manifiesto con sha256, verificar con -c --strict, añadir fila al REGISTRO.md
+cd /home/user/work/edt && bash proyectos/comprobar-copias.sh --estricto-origen   # → COPIAS_OK, cero-X 8 ficheros
 ```
 
 ### 3. Los tres ejes que faltan de la fase F2 — CERRADO el 2026-11-13
