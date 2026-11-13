@@ -119,20 +119,75 @@ una comprobación que puede fallar, porque un frankie se muere por acumular cód
 puede verificar. El orden lo fija lo que ya se midió: primero lo que no necesita aparato,
 después lo que sí.
 
-**Fase F1 — Referencias fuera del workspace y censo completo.** Clonar las 12 fuentes a
-`/var/tmp/referencias/` con `--depth 1`, nunca a `work/`. *Criterio de salida:* los 12
-clones presentes, `du -sm` de cada uno anotado, y `comprobar_entorno.py` en `ENTORNO_OK`
-con el workspace por debajo de 8.500 ficheros / 110 MiB. *Ya medido por qué:* Kototoro
-clonado dentro de `work/` llevó el workspace a **9.049 ficheros y 367,90 MiB** y rompió el
-presupuesto; sacarlo lo devolvió a 2.246 y 38,86 MiB. Y `/opt/cerox` **ya no es escribible**
-(`touch` da `Permission denied`, no soy root), que era donde vivían el SDK y las cachés, así
-que el sitio ahora es `/var/tmp`.
+**Fase F1 — Referencias bajadas fuera del workspace. CERRADA el 2026-11-13.**
+`scripts/bajar-referencias.sh` clona las fuentes auditables a `/var/tmp/referencias/` con
+`--depth 1 --single-branch`, es idempotente (lo que ya está no se vuelve a clonar), rechaza
+empezar un clon si quedan menos de 800 MB libres, y escribe la evidencia en
+`work/ci/frankie/referencias.tsv` con el SHA, el tamaño y el número de ficheros de cada una.
+Es un script y no un estado guardado porque **`/var/tmp` y `/opt/cerox` no sobreviven al
+reinicio del sandbox**: este mismo turno uno a mitad de camino borró `/opt/cerox`, el SDK,
+el JDK 21 (quedó 11), el swap y los bits de ejecución de 26 ficheros entre los dos repos.
+*Criterio de salida, cumplido:* `REFERENCIAS_OK`, 7 fuentes listas y 0 fallidas, y
+`comprobar_entorno.py` en `ENTORNO_OK` con el workspace en 2.252 ficheros / 38,89 MiB al
+cerrar la fase (2.256 y 38,90 tras añadir las herramientas de F2).
 
-**Fase F2 — Auditoría contra fuente de las siete Kotlin/Java.** Qué permisos declaran
-frente a qué APIs usan, qué componentes exportan sin protección, a qué endpoints hablan,
-qué telemetría fusionan sus dependencias. Es el método ya usado en ProjectNox y
-OmniShizuku. *Criterio de salida:* una ficha por app en `work/ci/frankie/` con los cuatro
-ejes, y ninguna afirmación sin el comando que la produjo.
+| fuente | licencia | SHA del clon | MB | ficheros |
+|---|---|---|---:|---:|
+| `Kototoro-app/Kototoro` | Apache-2.0 | `5238195` | 347 | 6.803 |
+| `andarcanum/Tadami-Aniyomi-fork` | Apache-2.0 | `f3af9e7` | 109 | 5.245 |
+| `unseensnick/Reikai` | Apache-2.0 | `00206fe` | 100 | 4.132 |
+| `Noirero/Miyorare` | GPL-3.0 | `8d6028b` | 73 | 3.247 |
+| `Arthurpendragon9876/DeepSync` | GPL-3.0 | `ddaf6f4` | 44 | 2.358 |
+| `AnantPlay/android` | MIT | `40156e4` | 40 | 257 |
+| `salmanbappi/AniZen` | Apache-2.0 | `95160a7` | 33 | 2.296 |
+
+**746 MB en total, no los 2,03 GB que reporta la API**: ese `size` cuenta el historial
+completo, y `--depth 1` no lo trae. *Dos exclusiones a propósito:* **Kiroku no se clona**
+mientras el dueño no decida sobre su licencia UPL —se lee por la API como referencia de
+producto—, y **las cuatro Dart sólo se bajan con `--todas`**, porque no se compilan aquí y
+para leer un fichero suelto la API de GitHub lo sirve sin gastar disco.
+
+El otro motivo por el que van fuera del workspace, medido: Kototoro clonado dentro de
+`work/` llevó el presupuesto a **9.049 ficheros y 367,90 MiB** y rompió el margen operativo;
+sacarlo lo devolvió a 2.246 y 38,86 MiB. Y `/opt/cerox` no es escribible para este usuario
+(`touch` da `Permission denied`; sólo `preparar-entorno-android.sh` lo recrea, con sudo),
+así que no es un destino alternativo.
+
+**Fase F2 — Auditoría contra fuente. Primer tramo hecho.** Qué permisos declaran frente a
+qué componentes exponen, medido sobre el `AndroidManifest.xml` con
+`tools/auditar-referencias.py` (no necesita aparato ni compilar: es texto). Evidencia en
+`work/ci/frankie/auditoria-manifiestos.tsv`.
+
+| fuente | manifiestos | permisos | componentes | exportados | sensibles |
+|---|---:|---:|---:|---:|---:|
+| Kototoro | 16 | 24 | 96 | 20 | 10 |
+| Miyorare | 7 | 15 | 74 | 21 | 10 |
+| DeepSync | 2 | 15 | 70 | 16 | 10 |
+| AniZen | 15 | 21 | 25 | 5 | **11** |
+| Tadami-Aniyomi-fork | 13 | 15 | 29 | 7 | 8 |
+| Reikai | 16 | 19 | 25 | 7 | 8 |
+| AnantPlay | 1 | 12 | 14 | 2 | 8 |
+| **cero-X-app** | **1** | **21** | **16** | **3** | **11** |
+
+Lo que dice la tabla, y es lo primero que la ruta tiene que resolver:
+
+- **cero-X declara 11 permisos sensibles, tantos como la que más** (AniZen), y tres que
+  ninguna de las otras pide: `READ_EXTERNAL_STORAGE`, `READ_MEDIA_IMAGES`,
+  `READ_MEDIA_VIDEO`. En cambio no pide `MANAGE_EXTERNAL_STORAGE` ni
+  `RECEIVE_BOOT_COMPLETED`, que sí piden seis de las siete. Un todo-en-uno no se resuelve
+  sumando permisos: cada uno tiene que tener el código que lo justifique a la vista.
+- **cero-X es un solo módulo Gradle con 16 componentes; las referencias tienen entre 2 y 16
+  manifiestos y hasta 96 componentes.** La arquitectura modular no es un adorno: es lo que
+  permite que una capacidad falle sin arrastrar a las otras, y es el cambio estructural que
+  un frankie exige antes de meter más funciones.
+- **Exportados: cero-X 3 frente a 16-21 en Miyorare, DeepSync y Kototoro.** Pocas puertas
+  es mejor, pero hay que mirar si las suyas están protegidas por permiso propio antes de
+  darlo por ventaja.
+
+Faltan los otros tres ejes de F2, aún sin hacer: qué APIs usan de verdad (no sólo qué
+declaran), a qué endpoints hablan, y qué telemetría fusionan sus dependencias. *Criterio de
+salida:* una ficha por app en `work/ci/frankie/` con los cuatro ejes, y ninguna afirmación
+sin el comando que la produjo.
 
 **Fase F3 — Mapa de brechas contra lo que cero-X ya tiene.** Ampliar la tabla de
 `docs/ASISTENTE-Y-COMPETENCIA.md` a las 12 fuentes: qué hace cada una que cero-X no hace,
@@ -170,16 +225,23 @@ fichero que entra.
 
 ## Restricción dura de la máquina, medida este turno
 
-2 CPU, 1.983 MB de RAM, **swap en 0** (los 11.264 MB de `/swapfile-cerox` no están: se
-perdieron con `/opt/cerox`), JDK revertido a **11** en `/usr/bin/java` (el proyecto exige
-21), SDK de Android ausente, `gradlew` sin bit de ejecución. O sea: **el entorno de build
-Android está caído ahora mismo** y rearma con `scripts/preparar-entorno-android.sh` es el
-paso previo a cualquier fase que compile. Un cierre completo cuesta 46,2 s con caché y
-225,0 s en frío (`docs/PARALELISMO.md`), y deja `MemAvailable` en 29-58 MB: dos builds a la
-vez son más lentos que en serie (113 s frente a 78 s). Clonar 12 repos y compilar a la vez
-no es una opción en esta máquina.
+2 CPU, 1.983 MB de RAM, **sin `/dev/kvm`**. El entorno de build se cayó a mitad de turno
+(JDK revertido a 11, SDK ausente, swap en 0, `gradlew` y 25 ficheros más sin bit de
+ejecución, remoto de Git perdido) y se rearmó: `scripts/rearmar-git.sh` con la URL explícita
+dio `REARME_OK` y `scripts/preparar-entorno-android.sh` devolvió JDK 21.0.13, SDK completo y
+swap de 11 GiB, con `ENTORNO_OK`. **Coste medido del rearme: el disco libre pasó de 20 GB a
+7,8 GB.** Ese es el techo real con el que trabaja la ruta, no los 20 GB que había antes.
 
-Y el presupuesto de workspace es la restricción que de verdad manda sobre esta ruta:
-128 MiB / 10.000 ficheros, con margen operativo en 110 MiB / 8.500. Las 12 fuentes suman
-**2,03 GB con historial**, así que viven fuera del workspace y de cada una se extrae sólo
-lo que se va a usar, no se arrastran al repo.
+Con 7,8 GB libres, 746 MB de referencias y 324 MB de salidas de build, el margen existe pero
+no es holgado: **no se clonan las cuatro Dart** (927 MB según la API, que cuenta
+historial; su peso real con `--depth 1` no se midió porque no se bajaron) mientras no haga
+falta algo que la API no pueda servir.
+
+Un cierre completo cuesta 46,2 s con caché y 225,0 s en frío (`docs/PARALELISMO.md`), y deja
+`MemAvailable` en 29-58 MB: dos builds a la vez son más lentos que en serie (113 s frente a
+78 s). Bajar referencias y compilar a la vez no es una opción en esta máquina.
+
+Y el presupuesto de workspace es la restricción que manda sobre toda la ruta: 128 MiB /
+10.000 ficheros, con margen operativo en 110 MiB / 8.500. Hoy está en 2.256 ficheros y
+38,90 MiB, medido con `comprobar_entorno.py`. De cada referencia se extrae sólo lo que se va a usar; ninguna se arrastra al
+repo, ni siquiera las fichas de auditoría, que viven en `work/ci/frankie/`.
