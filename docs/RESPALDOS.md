@@ -142,6 +142,18 @@ drive_carpeta=1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg
 drive_id=1oescba14rMOs43FJhmQ9QMJbYF1I_Tk2
 restore_probado=si
 FIN_RESPALDO_REGISTRO
+
+RESPALDO_REGISTRO
+fecha=2026-11-13T20:27:26Z
+head=aae6a87ca4d51a5bf1dd9466cc1207ee62430908
+archivo=cero-X-respaldo-2026-11-13-aae6a87.tar.gz
+bytes=11905193
+sha256=5093596347ba6c1a4765ffb759ac7fb42ef8d041d47611745f6b8ff92c1d493a
+md5=639481bfb64255d21c973e72f3662d1c
+drive_carpeta=1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg
+drive_id=1mhhcq6LdZhIDpo4xeYClkftgg-b8tCo4
+restore_probado=si
+FIN_RESPALDO_REGISTRO
 ```
 
 La segunda entrada existe porque la primera no podía cubrir el commit que añade la
@@ -152,14 +164,27 @@ funcionando sobre sí misma, no un fallo.
 Destino: carpeta «cero-X — respaldos» en Google Drive,
 `https://drive.google.com/drive/folders/1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg`.
 
-Medidas de cada subida: `work/ci/respaldo-01-resumen.txt`,
-`work/ci/respaldo-02-resumen.txt` y `work/ci/respaldo-03-resumen.txt`.
+Medidas de cada subida: `work/ci/respaldo-01-resumen.txt` a
+`work/ci/respaldo-05-resumen.txt`, uno por respaldo. La lista citaba sólo los
+tres primeros y se quedó atrás cuando se añadieron las entradas cuarta y quinta:
+añadir una entrada al registro sin actualizar la prosa que lo describe es la misma
+falla que renumerar a medias.
 
 Los hashes y los head se pegan de la salida de `git rev-parse` y `sha256sum`, nunca
 se completan de memoria ni se transcriben a mano. En el tercer ciclo se escribió un
 `head=` inventado a partir del hash corto y `git cat-file -t` lo desmintió antes del
 commit; de haber entrado, el registro de la única copia externa habría apuntado a un
 objeto inexistente y `comprobar_respaldo` lo habría convertido en BLOQUEO.
+
+En el quinto ciclo volvió a pasar y por eso se anota: el `MANIFIESTO-respaldo.txt` se
+escribió con el sha256 del `app-debug-androidTest.apk` **rellenado a mano** a partir de
+los ocho primeros caracteres que se recordaban (`8ab2d4d1…`), inventando los 48
+restantes. Se cazó antes de empaquetar definitivamente y se sustituyó por el real
+(`8ab2d4d1198d27a285dcf8ee0768b9bc9e3678656a89b7199f799e9808954e35`), copiado con
+`grep -oE '[0-9a-f]{64}'` de `docs/PARALELISMO.md:42`, y el tar se rehizo. Un hash
+verosímil y falso es peor que un hueco: nada lo delata a simple vista y el manifiesto
+existe precisamente para que el archivo se explique solo dentro de un año. Regla
+práctica: si un hash no se puede pegar de una salida, se deja escrito que falta.
 
 ## Cómo hacer un respaldo nuevo
 
