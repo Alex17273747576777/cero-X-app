@@ -130,6 +130,18 @@ drive_carpeta=1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg
 drive_id=1NdZcqtIq6Mip85AJhAKHXfGkgUhp3MZ8
 restore_probado=si
 FIN_RESPALDO_REGISTRO
+
+RESPALDO_REGISTRO
+fecha=2026-11-13T14:40:48Z
+head=fe225d4db600127d684efbe928e19e56fec8deb2
+archivo=cero-X-respaldo-2026-11-13-fe225d4.tar.gz
+bytes=11844185
+sha256=240456fdb3de54f9d0a41f88fffd0924d0b279d99e8f99c3c2ae85c202f502d8
+md5=33131e0f660b44b1dfd4903e953a2e4a
+drive_carpeta=1MTFiK3m6_CbBsWuklewEdW3azRAgKZpg
+drive_id=1oescba14rMOs43FJhmQ9QMJbYF1I_Tk2
+restore_probado=si
+FIN_RESPALDO_REGISTRO
 ```
 
 La segunda entrada existe porque la primera no podía cubrir el commit que añade la
