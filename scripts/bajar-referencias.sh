@@ -35,6 +35,17 @@ KOTLIN=(
   "Arthurpendragon9876/DeepSync:GPL-3.0:Kotlin"
   "AnantPlay/android:MIT:Java"
 )
+# Lectores de manga candidatos a base del modelo de fuentes (añadidos el 2026-11-13 a
+# petición del dueño, que preguntó por kisara frente a ShinKu + houri). Los tres son
+# Kotlin y Apache-2.0, así que copiables a GPL-3.0 conservando NOTICE:
+#   ifritraen/kisara       — fork de Komikku, se declara WIP y no listo para uso público
+#   Harrys-HQ/ShinKu       — fork de TachiyomiSY/Mihon
+#   PineappleTwilight/houri— fork de komikku-app/komikku (★5.019) según la API
+LECTORES=(
+  "ifritraen/kisara:Apache-2.0:Kotlin"
+  "Harrys-HQ/ShinKu:Apache-2.0:Kotlin"
+  "PineappleTwilight/houri:Apache-2.0:Kotlin"
+)
 # Dart: no se portan ni se compilan aquí. Se leen; y para leer un fichero suelto no hace
 # falta el clon (la API de GitHub lo sirve). Se bajan sólo con --todas.
 DART=(
@@ -58,12 +69,12 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-lista=("${KOTLIN[@]}")
-[ "$TODAS" = 1 ] && lista+=("${DART[@]}")
+lista=("${KOTLIN[@]}" "${LECTORES[@]}")
+[ "$TODAS" = 1 ] && lista+=("${DART[@]}")   # LECTORES ya va en la lista por defecto
 
 if [ -n "$SOLO" ]; then
   filtro=()
-  for e in "${KOTLIN[@]}" "${DART[@]}"; do [ "${e%%:*}" = "$SOLO" ] && filtro+=("$e"); done
+  for e in "${KOTLIN[@]}" "${LECTORES[@]}" "${DART[@]}"; do [ "${e%%:*}" = "$SOLO" ] && filtro+=("$e"); done
   [ ${#filtro[@]} -eq 0 ] && { echo "no conozco la fuente '$SOLO'" >&2; exit 2; }
   lista=("${filtro[@]}")
 fi

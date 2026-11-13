@@ -64,3 +64,87 @@ Son operaciones de biblioteca local. No demuestran recomendaciones AniScore, OCR
 3. Probar en dispositivo una extensión concreta: buscar → detalle → capítulos → páginas, con errores de red visibles.
 4. Separar Aniyomi/anime y Kotatsu/JAR; cada uno necesita su contrato y pruebas propios.
 5. Después, valorar funciones adicionales de Kisara y de los proyectos descubiertos, sin copiar código WIP o restrictivo como si fuera estable.
+
+## Kisara frente a ShinKu y houri, medido el 2026-11-13
+
+El dueño preguntó cuál conviene como fuente de manga: `ifritraen/kisara` —el fork de Komikku
+con más opciones, aunque con el README sin actualizar— o una combinación de `Harrys-HQ/ShinKu`
+y `PineappleTwilight/houri`. Se midió en vez de opinar. Los tres clones están en
+`/var/tmp/referencias/` con su SHA en `work/ci/frankie/referencias.tsv`, y los JSON de la API
+en `work/ci/frankie/`.
+
+**Primero la categoría, porque cambia la pregunta.** Ninguno de los tres es una fuente de
+manga: los tres son lectores que cargan extensiones, y resuelven el catálogo del mismo modo,
+contra `https://api.github.com/repos/${repository}/releases` con el contrato `extensions-lib`.
+Las fuentes las pone el repositorio de extensiones que se configure, no el lector. Así que
+elegir entre estos tres no elige qué manga hay disponible: elige arquitectura de lector. Qué
+fuentes hay es una decisión que cero-X ya tomó por su cuenta y está más arriba en este doc —
+índice de `Awerkori/manga-extensoes` fijado a commit, 1.618 extensiones con SHA-256, firma
+Project Nox obligatoria antes de abrir Android.
+
+| | `ifritraen/kisara` | `Harrys-HQ/ShinKu` | `PineappleTwilight/houri` |
+|---|---|---|---|
+| licencia | Apache-2.0 | Apache-2.0 | Apache-2.0 |
+| linaje | fork de Komikku (no marcado como fork por GitHub) | fork de TachiyomiSY/Mihon | **fork de `komikku-app/komikku`** (★5.019), confirmado por `parent` en la API |
+| último commit | 2026-08-30 (**74 días**) | 2026-11-08 (4 días) | 2026-11-04 (8 días) |
+| commits en 30 días | **0** | 40 | **100** de los últimos 100 |
+| CI de build | `Kisara CI/CD` **fallida** en `main` y `master` (2026-10-01, y también el 2026-08-14) | `build_check.yml` y `build_push.yml` declarados activos y **sin ninguna corrida** | `CI` **success** en `master` (11-04, 11-02) y `PR build check` success (11-05) |
+| releases | sólo **prereleases** `build-r10637` (2026-08-13) | `v2.8.1` (2026-11-07), 5 APK, no prerelease | `v1.25.3` (2026-11-04), 6 APK, no prerelease |
+| README | sin tocar hace **184 días** | hace 12 días | hace 26 días |
+| fuentes `.kt` | **2.847** | 1.407 | 1.795 |
+| módulos Gradle | 18 | 14 | **25** |
+| ficheros que tocan novela | **696** | 6 | 73 |
+| ficheros que tocan anime/vídeo | **492** | 29 | 33 |
+| namespace dominante | `eu.kanade.tachiyomi` (1.065) | **`com.shinku.reader` (1.327)**, sólo 68 en `eu.kanade.tachiyomi` | `eu.kanade.tachiyomi` (640) |
+| ★ | 2 | 48 | 47 |
+
+Lo que dicen esos números:
+
+- **Kisara tiene razón en el alcance y no en el estado.** Es el que más abarca —2.847 fuentes,
+  novela en 696 ficheros y anime/vídeo en 492, más que los otros dos juntos— y su README lleva
+  184 días sin tocarse, como decía el dueño. Pero está **parado hace 74 días, con 0 commits en
+  el último mes, su CI fallida en las dos ramas y sólo publica prereleases** `build-r*`. Alcance
+  en código que no compila en su propio CI no son «más opciones»: es más superficie sin
+  verificar.
+- **No hay nada nuevo que mirar en Kisara.** Su HEAD de hoy, `d121a8d6bf931adc34b5d32fbe5fd22c4db922af`,
+  es **byte a byte el commit que la instantánea del 10 de noviembre inspeccionó** (está en la
+  tabla de procedencia de arriba). La decisión de entonces sigue vigente con la misma evidencia
+  y no hace falta revisarla: no copiar `main` completo ni llamarlo estable.
+- **houri es el único de los tres con build verificado en público.** CI verde en `master`,
+  `PR build check` verde, releases estables con semver y 6 APK, y 100 commits en los últimos 30
+  días. Además es el que menos cuesta de leer para este proyecto: mantiene el namespace
+  `eu.kanade.tachiyomi` del linaje Komikku/Mihon, que es el que cero-X ya usa, y `modules/houri/`
+  ya tiene piezas tomadas de ahí (`UniversalTracker`, `Upscaler`, `WebGPUViewer`,
+  `WebtoonSupport`, `AchievementsFramework`, `SingleSQLiteConnection`, `DarkModeFilter`).
+- **ShinKu está vivo pero no demuestra que compile.** Cuarenta commits en 30 días, HEAD de hace
+  4, README de hace 12 y 5 APK por release: hay binarios recientes. Pero sus dos workflows de
+  build están declarados `active` y **no tienen ninguna corrida**, así que los APK se producen
+  fuera de la vista pública. No es lo mismo que no compilar; es que no hay evidencia de que lo
+  haga, y este proyecto no afirma lo que no midió.
+- **«Combinar ShinKu y houri» no es combinar, es portar.** ShinKu renombró el árbol completo a
+  `com.shinku.reader` (1.327 ficheros) y dejó sólo 68 en `eu.kanade.tachiyomi`, mientras houri
+  conserva ese namespace (640). Cada pieza que se tome de ShinKu hay que re-empaquetarla y
+  reconciliar dos arquitecturas de 14 y 25 módulos Gradle. En cambio kisara y houri **sí**
+  comparten namespace, así que entre esos dos las piezas son intercambiables.
+
+Decisión que se propone, y que es reversible porque es de referencia y no de dependencia:
+
+1. **houri como referencia principal** de arquitectura de lector: es el que está vivo, el que
+   demuestra que compila, el del mismo linaje y namespace que cero-X ya usa, y el que ya tiene
+   piezas integradas aquí.
+2. **ShinKu como referencia secundaria** de interfaz y de lectura pura de manga —es el más
+   enfocado (6 ficheros tocan novela)— tomándolo por **comportamiento y no por código**, por el
+   rename de namespace y por la falta de evidencia pública de build.
+3. **Kisara como referencia de alcance**, no como base: mirar qué intentó con novela y anime,
+   que es justo lo que cero-X quiere para el todo-en-uno, sabiendo que está parado y no compila
+   en su CI. Si algún día retoma actividad y su CI vuelve a verde, se reevalúa con las mismas
+   cuatro medidas de esta tabla.
+4. Y sobre las fuentes de manga en sí: ninguna de estas tres opciones las cambia. Lo que las
+   determina es el repositorio de extensiones y el contrato `extensions-lib 1.6`, que es el
+   «siguiente incremento exigido» de la sección anterior.
+
+Las cuatro medidas que deciden esta tabla y que se pueden volver a ejecutar para reevaluar:
+`GET /repos/<r>` (linaje y `pushed_at`), `GET /repos/<r>/commits?per_page=100` (actividad),
+`GET /repos/<r>/actions/runs?per_page=30` (CI) y `GET /repos/<r>/releases` (binarios). Los JSON
+crudos de las cuatro están guardados, así que la comparación se puede reproducir sin volver a
+consultar nada.
