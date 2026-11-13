@@ -240,7 +240,9 @@ private fun CatalogoNox(
                     "Instantánea fijada al commit ${extensiones.firstOrNull()?.let { if (it.repositorio == "nox-manga") "55b9127e" else "d2b689f3" } ?: "auditado"}. " +
                         "Se comprueba certificado Project Nox y SHA-256 publicado. «Ejecutar» carga el ABI 1.6 " +
                         "dentro de cero-X; «Instalar» abre Android para Mihon/Aniyomi. Son acciones distintas. " +
-                        "El código de terceros conserva los permisos de la app: firma válida no significa sandbox.",
+                        "El código de terceros conserva los permisos de la app: firma válida no significa sandbox. " +
+                        "«Ejecutar» no se ha verificado en un aparato físico: sin dispositivo no hay prueba de " +
+                        "que las fuentes carguen de verdad.",
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Text(

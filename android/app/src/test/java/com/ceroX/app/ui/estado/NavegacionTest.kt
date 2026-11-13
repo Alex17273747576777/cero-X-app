@@ -104,6 +104,15 @@ class NavegacionTest {
         assertTrue("Kotatsu no debe confundirse con Nox ejecutándose", pantalla.contains("Explorador, no ejecución de parsers"))
         assertTrue("debe existir la acción interna explícita", pantalla.contains("InstaladorInternoNox"))
         assertTrue("debe distinguir ejecución de instalación Android", pantalla.contains("Son acciones distintas"))
+        // Lo que vigilaba origin/main con «aún está en migración»: que la ejecución dentro de
+        // cero-X no se presente como algo ya probado. El contrato se implementó
+        // (InstaladorInternoNox), pero nunca se ejecutó en un aparato físico, así que la
+        // pantalla tiene que seguir diciéndolo. Sin esta aserción el aviso se puede borrar
+        // en silencio y la pantalla volvería a prometer lo que no se verificó.
+        assertTrue(
+            "la ejecución interna debe decir que no está verificada en aparato",
+            pantalla.contains("no se ha verificado en un aparato físico"),
+        )
         val repositorio = fuente("sources/ContentRepository.kt")
         assertTrue(repositorio.contains("getSearchManga"))
         assertTrue(repositorio.contains("getMangaUpdate"))

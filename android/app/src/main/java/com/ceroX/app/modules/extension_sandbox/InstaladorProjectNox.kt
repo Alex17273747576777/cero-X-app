@@ -49,6 +49,7 @@ class InstaladorProjectNox(
             require(validacion.isValid) { validacion.errors.joinToString("; ") }
             return ApkPreparado(destino, descargado)
         } catch (e: Exception) {
+            // Un archivo descargado que falla hash o firma nunca queda como caché reutilizable.
             destino.delete()
             throw e
         }
