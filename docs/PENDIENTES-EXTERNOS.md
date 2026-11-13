@@ -111,6 +111,88 @@ CEROX_NETWORK_TESTS=1 ./gradlew -I ../tools/low-memory.gradle \
   --tests 'com.ceroX.app.modules.extension_sandbox.IntegracionRedRealTest.instantaneas_publicas_reales_coinciden_con_el_inventario_auditado'
 ```
 
+## Ejecución interna de un APK Nox (requiere aparato)
+
+Existe y es código real, no un botón vacío: `InstaladorInternoNox.ejecutar()` exige que
+la extensión sea del repositorio Nox Manga, exige autorización explícita si está marcada
+NSFW, inicializa el host, descarga con `InstaladorProjectNox.preparar()` —que comprueba
+el SHA-256 publicado contra el archivo y valida la firma con `ExtensionValidator` y el
+certificado auditado, y borra el APK si algo falla—, carga el DEX con
+`ExtensionSourceLoader` fijando `trustedSignerSha256`, verifica que paquete y versión
+coincidan con el índice, registra las fuentes en `RepositorioGlobal`, deja constancia en
+`RegistroNox` y **devuelve el resultado real**, incluido el mensaje de que el código
+conserva los permisos de la app y la firma no es un sandbox.
+
+Lo que falta no es código, es aparato. Nunca se ejecutó: `/dev/kvm` no existe,
+`/proc/cpuinfo` no tiene flags `vmx` ni `svm`, `adb devices` sale vacío y Robolectric no
+ejecuta DEX, así que la ruta del cargador de extensiones está compilada y probada sólo
+hasta donde llega la JVM. La pantalla lo dice literalmente («Ejecutar no se ha verificado
+en un aparato físico: sin dispositivo no hay prueba de que las fuentes carguen de
+verdad») y `NavegacionTest` afirma ese texto, así que no se puede borrar en silencio. Es
+la misma razón por la que `main` decía que el contrato «aún está en migración»: la
+intención era correcta y se conservó, actualizada a lo que hoy es cierto.
+
+Criterio de salida, con aparato:
+
+```bash
+adb install -r android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+adb shell am instrument -w -e class \
+  'com.ceroX.app.modules.extension_sandbox.InstaladorInternoNoxInstrumentedTest' \
+  com.ceroX.app.test/androidx.test.runner.AndroidJUnitRunner
+# y en el aparato: Fuentes y extensiones → Manga Nox → «Verificar y ejecutar en cero-X»
+```
+
+Comprueba que el DEX carga de verdad, que las fuentes quedan registradas y que un APK con
+firma distinta o hash distinto se rechaza y se borra. Hasta entonces el recorrido es un
+pendiente, no un éxito.
+
+## Dependabot: serialize-javascript en el lockfile de Kotlin/JS
+
+Tres alertas abiertas desde el 2026-11-10, todas sobre el mismo paquete y el mismo
+manifiesto, `comun/kotlin-js-store/yarn.lock`:
+
+| # | severidad | GHSA | rango vulnerable | primer parche |
+|---|---|---|---|---|
+| 1 | alta | `GHSA-5c6j-r48x-rmvq` (RCE vía `RegExp.flags` y `Date.prototype.toISOString`) | `<= 7.0.2` | 7.0.3 |
+| 2 | moderada | `GHSA-qj8w-gfj5-8c6v` (DoS por agotamiento de CPU) | `>= 5.0.0, < 7.0.5` | 7.0.5 |
+| 3 | baja | `GHSA-m5mm-p8h7-m29v` (XSS por `</script>` sin escapar) | `< 7.1.3` | 7.1.3 |
+
+El lockfile fija `serialize-javascript@^6.0.2` → 6.0.2, y quien lo arrastra es
+`mocha@10.7.0`, el runner de pruebas del target `js(IR) { nodejs() }` de `comun/`.
+
+**Por qué no se cerró aquí.** Cerrar las tres exige `>= 7.1.3`, un salto de versión mayor
+que el `^6.0.2` de mocha no permite. Forzarlo con una resolución
+(`YarnRootExtension.resolution(...)`) rompería el target JS, y en este entorno **no se
+puede verificar**: `comun/build` no existe, el target JS no se compila nunca aquí, `yarn`
+no está instalado y ningún workflow de CI lo toca. Aplicar el cambio sin poder ejecutarlo
+sería declarar arreglado lo que no se comprobó, que es lo que la regla 5 prohíbe.
+
+**Riesgo medido, no supuesto: no alcanza al producto.** La app no consume el target JS,
+incluye las fuentes de `comun/` directamente en su source set
+(`java.srcDirs += file('../../comun/src/commonMain/kotlin')`), el APK de depuración lleva
+**0 ficheros `.js`** y `comun/build` ni existe. La exposición es del entorno de
+construcción del target JS, no de quien instala la app.
+
+Esa conclusión es cierta hoy y puede dejar de serlo en silencio, así que está atada a
+`core/CadenaDeSuministroJsTest` (3 pruebas): que el lockfile siga siendo del target JS,
+que la app consuma `comun/` por fuentes y no por artefactos JS, y que ninguna fuente
+cargue la salida JS. La versión 6.0.2 se afirma explícitamente para que un cambio obligue
+a releer estas alertas en vez de colar de tapadillo.
+
+Criterio de salida, tres caminos y los tres necesitan red y `yarn`:
+
+```bash
+# a) Subir mocha/Kotlin hasta que el toolchain acepte serialize-javascript 7.x
+cd comun && ../android/gradlew jsNodeTest --info   # requiere yarn y red
+# b) Forzar la resolución y verificar que el target JS sigue compilando y probando
+#    (añadir en comun/build.gradle.kts: the<YarnRootExtension>().resolution("serialize-javascript", "7.1.3"))
+# c) Si el target JS se abandona, quitarlo de comun/build.gradle.kts y borrar
+#    comun/kotlin-js-store/: las tres alertas desaparecen con su causa.
+```
+
+El camino (c) es decisión del dueño: el target JS está documentado como deliberado en
+`docs/MULTIPLATAFORMA.md` y en el README, así que no se quita por iniciativa propia.
+
 ## Proveedor IA autenticado
 
 El cliente OpenAI-compatible existe y la clave UI se cifra con Android Keystore, pero este entorno no contiene credenciales. `ProveedorIaRedRealTest` quedó compilado y omitido, no superado.

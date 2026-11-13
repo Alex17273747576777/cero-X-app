@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 """Audita presupuesto de snapshots y herramientas, sin crear cachés ni procesos."""
 from __future__ import annotations
 
@@ -48,6 +50,36 @@ def main() -> int:
         errors.append("El workspace supera el margen operativo de 8.500 archivos")
     for path in sorted(files, key=lambda item: item.stat().st_size, reverse=True)[:5]:
         print(f"MAYOR bytes={path.stat().st_size} ruta={path}")
+
+    # Cachés que deben vivir FUERA del workspace, con nombre y arreglo. `.gradle` no
+    # está en EXCLUDED del snapshot, así que en cuanto Gradle corre sin
+    # `source entorno/local.sh` usa su GRADLE_USER_HOME por defecto (~/.gradle) y se
+    # come el presupuesto: el 2026-11-13 fueron 659 MiB y 4.600 archivos de una sola
+    # corrida que además falló por no tener ANDROID_HOME. El error genérico de los
+    # 110 MiB decía que había que limpiar pero no decía qué ni por qué estaba ahí.
+    for nombre, arreglo in (
+        (".gradle", "Gradle corrió sin `source entorno/local.sh`. Borrar con "
+                    "`rm -rf ~/.gradle` y cargar el entorno antes de cada gradlew "
+                    "(GRADLE_USER_HOME canónico: /opt/cerox/gradle)"),
+        (".m2", "Maven resolvió dentro del workspace. Borrar con `rm -rf ~/.m2`; "
+                "el repo canónico es /opt/cerox/m2"),
+        (".kotlin", "Caché del compilador de Kotlin dentro del workspace; "
+                    "`rm -rf ~/.kotlin`"),
+    ):
+        ruta = HOME / nombre
+        if ruta.is_dir():
+            peso = sum(f.stat().st_size for f in ruta.rglob("*") if f.is_file())
+            errors.append(
+                f"Caché {nombre}/ dentro del workspace ({peso / 1024 / 1024:.0f} MiB). {arreglo}"
+            )
+
+    # Los directorios de build sí están excluidos del snapshot, pero ocupan disco real
+    # y la receta de cierre los borra. Se informan sin fallar: a mitad de una fase es
+    # normal que existan, y convertirlo en error daría falsos positivos en rojo.
+    for ruta in (ROOT / "android/app/build", ROOT / "android/build", ROOT / "android/.gradle"):
+        if ruta.is_dir():
+            peso = sum(f.stat().st_size for f in ruta.rglob("*") if f.is_file())
+            print(f"BUILD_SIN_LIMPIAR {ruta.relative_to(ROOT)} MiB={peso / 1024 / 1024:.1f}")
 
     if not JAVA.is_file():
         errors.append("Falta JDK 21; ejecuta scripts/preparar-entorno-android.sh")

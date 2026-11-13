@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 # Entorno mínimo y reproducible; no instala emulador, imágenes de Android ni modelos.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

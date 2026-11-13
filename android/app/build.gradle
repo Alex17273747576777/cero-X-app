@@ -368,6 +368,30 @@ tasks.withType(Test).configureEach {
     jvmArgs "-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8", "-Duser.language=es", "-Duser.country=DO"
     environment "LC_ALL", "C.UTF-8"
     environment "LANG", "C.UTF-8"
+
+    // Varias pruebas leen ficheros del repositorio que NO son entradas de esta
+    // tarea: el build.gradle de la app, LICENSE, NOTICE, README.md, AGENTS.md, los
+    // workflows y el lockfile de Kotlin/JS. Gradle sólo vigila el classpath y los
+    // fuentes compilados, así que un cambio en ésos deja la tarea UP-TO-DATE y el
+    // verde que se lee es de la corrida anterior.
+    //
+    // Medido el 2026-11-13: añadir un comentario a este mismo build.gradle y volver
+    // a lanzar :app:testDebugUnitTest dio BUILD SUCCESSFUL en 2 s sin ejecutar
+    // ninguna prueba. Un falso positivo con forma de éxito, que es la peor clase.
+    // data/catalogo-unico.json sí se vigilaba solo (cambiarlo re-ejecutó la suite en
+    // 36 s), así que esto cubre lo que faltaba sin duplicar lo que ya estaba. Los
+    // cierres de fase siguen siendo con `clean`, que no depende de esta declaración.
+    inputs.files(
+        project.file("build.gradle"),
+        rootProject.file("../LICENSE"),
+        rootProject.file("../NOTICE"),
+        rootProject.file("../README.md"),
+        rootProject.file("../AGENTS.md"),
+        rootProject.file("../comun/kotlin-js-store/yarn.lock"),
+        rootProject.file("../comun/build.gradle.kts"),
+        rootProject.file("../.github/workflows/apk.yml"),
+        rootProject.file("../.github/workflows/auditoria-publicaciones.yml"),
+    ).withPropertyName("ficherosDelRepoQueLeenLasPruebas")
 }
 
 

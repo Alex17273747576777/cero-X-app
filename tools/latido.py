@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 """Latido de cero-X: autoverificación de la memoria de trabajo y los pendientes.
 
 Imprime HEARTBEAT_OK sólo si no queda nada obsoleto, vencido ni sin atender.
@@ -287,14 +289,100 @@ def comprobar_logs(hallazgos: list[tuple[str, str, str]]) -> None:
         ))
 
 
+def comprobar_remoto(hallazgos: list[tuple[str, str, str]]) -> None:
+    """Remoto Git configurado, con URL limpia y con forma de autenticarse.
+
+    Por qué existe: el 2026-11-13 este doc y la regla 11 afirmaban que «el
+    repositorio no tiene remoto». Era cierto de `.git/config` y falso del
+    proyecto, que tenía remoto en GitHub con 4 commits propios. El error fue
+    medir sólo la configuración local; pero detrás había un problema real y es
+    que el sandbox nace SIN remoto, sin `credential.helper` y sin identidad, así
+    que cada reinicio devuelve el repo a un estado huérfano aunque exista casa
+    aguas arriba. Nada lo cazaba: el latido daba HEARTBEAT_OK con el trabajo
+    respaldado sólo en esta caja.
+
+    No hace llamadas de red. Un `git ls-remote` aquí convertiría un corte de red
+    en un falso positivo sobre el respaldo, y un verificador que miente es peor
+    que no tenerlo. Lo que comprueba es configurable y local.
+    """
+    remotos = [r for r in git("remote").splitlines() if r.strip()]
+    if not remotos:
+        hallazgos.append((
+            AVISO,
+            "Sin remoto de Git: el trabajo sólo existe en este sandbox",
+            "Rearmar según la regla 11 de AGENTS.md: git remote add origin <url>, "
+            "git config credential.helper /home/user/.gh-credential y "
+            "GIT_TERMINAL_PROMPT=0 git fetch --tags. Antes de empujar, "
+            "git merge-base --is-ancestor origin/main HEAD: si da falso hay "
+            "divergencia y se empuja a rama nueva, nunca con force.",
+        ))
+        return
+
+    # Un token dentro de la URL del remoto acaba en .git/config, en los logs de
+    # cualquier comando que imprima la URL y en el historial de la shell. En la
+    # auditoría del 2026-11-08 hubo que limpiar 3 de 3 URLs por esto.
+    import re
+    patron = re.compile(r"(github_pat_[A-Za-z0-9_]{16,}|ghp_[A-Za-z0-9]{16,}|://[^/\s]*:[^/\s]+@)")
+    sucias = [r for r in remotos if patron.search(git("remote", "get-url", r))]
+    if sucias:
+        hallazgos.append((
+            BLOQUEO,
+            f"Token embebido en la URL del remoto: {', '.join(sucias)}",
+            "git remote set-url <remoto> https://github.com/<usuario>/<repo>.git y "
+            "autenticar con credential.helper. El repositorio es público: una URL "
+            "con token impresa en cualquier log es una fuga.",
+        ))
+
+    helper = git("config", "credential.helper").strip()
+    if helper:
+        ruta = Path(helper.split()[0]) if not helper.startswith(("store", "cache", "libsecret")) else None
+        if ruta is not None and not ruta.exists():
+            hallazgos.append((
+                AVISO,
+                f"credential.helper apunta a {ruta}, que no existe",
+                "El helper se pierde con el sandbox. Recrearlo leyendo del único "
+                "archivo que tiene el token, en vez de duplicar el secreto a un "
+                "segundo archivo, y chmod 700.",
+            ))
+        elif ruta is not None and not os.access(ruta, os.X_OK):
+            hallazgos.append((
+                AVISO,
+                f"credential.helper {ruta} no es ejecutable",
+                "chmod 700 " + str(ruta),
+            ))
+    else:
+        alternativas = [Path.home() / ".git-credentials", Path.home() / ".netrc"]
+        if not any(a.exists() for a in alternativas):
+            hallazgos.append((
+                AVISO,
+                "Hay remoto pero ninguna forma de autenticarse configurada",
+                "git config credential.helper /home/user/.gh-credential, o "
+                "GH_TOKEN en el entorno. Sin esto el primer git push pedirá "
+                "credenciales por terminal y, con GIT_TERMINAL_PROMPT=0, fallará.",
+            ))
+
+    rama = git("rev-parse", "--abbrev-ref", "HEAD").strip()
+    upstream = git("rev-parse", "--abbrev-ref", f"{rama}@{{upstream}}").strip()
+    if rama and rama != "HEAD" and not upstream:
+        hallazgos.append((
+            AVISO,
+            f"La rama {rama} no sigue a ninguna rama remota",
+            f"git branch --set-upstream-to=origin/<rama> {rama}, o empujar con "
+            "refspec explícito (git push origin HEAD:refs/heads/<rama>). Sin esto "
+            "un git push a secas no sabe a dónde va y el trabajo se queda aquí.",
+        ))
+
+
 def comprobar_respaldo(hallazgos: list[tuple[str, str, str]]) -> None:
     """Commits posteriores al último respaldo registrado en docs/RESPALDOS.md.
 
-    El repositorio no tiene remoto (`git remote` da 0 entradas), así que el
-    archivo subido a Drive es la única copia que existe fuera del sandbox. Sin
-    esta comprobación respaldar es algo que hay que acordarse de hacer, y lo que
+    El respaldo primario es el remoto Git (ver `comprobar_remoto`): un commit que
+    ya está en alguna rama de algún remoto está fuera de la caja y cuenta como
+    respaldado. El archivo de Drive es la red secundaria y la única copia de lo
+    que no vive en ningún repo, que es la evidencia de `work/ci`. Sin esta
+    comprobación respaldar es algo que hay que acordarse de hacer, y lo que
     depende de la memoria se olvida: este proyecto ya pierde el toolchain entero
-    en cada reinicio.
+    —y la configuración del remoto— en cada reinicio.
 
     Se excluyen los commits cuya única ruta tocada es el propio doc del registro.
     Sin esa exclusión la comprobación sería circular: anotar un respaldo modifica
@@ -383,6 +471,7 @@ def main(argv: list[str]) -> int:
     comprobar_ultimo_commit(hallazgos)
     comprobar_toolchain(hallazgos)
     comprobar_logs(hallazgos)
+    comprobar_remoto(hallazgos)
     comprobar_respaldo(hallazgos)
     if "--entorno" in argv:
         comprobar_entorno(hallazgos)
@@ -393,7 +482,7 @@ def main(argv: list[str]) -> int:
     if not hallazgos:
         if "--detallado" in argv:
             print("  sin anomalías: árbol, evidencia, fechas, pendientes, identidad,")
-            print("  último commit, toolchain, logs y respaldo revisados")
+            print("  último commit, toolchain, logs, remoto y respaldo revisados")
         print("HEARTBEAT_OK")
         return 0
 

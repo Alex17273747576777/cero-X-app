@@ -192,3 +192,9 @@ python3 tools/latido.py --entorno                 # HEARTBEAT_OK
 
 El entorno no está en el archivo: la regla 11 de `AGENTS.md` describe el rearme, y los
 bits de ejecución se pierden en el proceso aunque el archivo los conserve.
+
+**Resuelto el 2026-11-13**: la fusión se hizo en `7bbc2ae` (dos padres, `57538ab` y
+`1fdad35`), los cinco conflictos se resolvieron leyendo las dos versiones y el cierre
+completo dio 88 suites, 614 pruebas, 0 fallos y 14 omitidas con los dos APK. El PR #7
+pasó de `mergeable=false`/`dirty` a **`mergeable=true`/`clean`**. `main` sigue sin
+tocarse: fusionarlo es decisión del dueño.
