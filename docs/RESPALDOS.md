@@ -2,10 +2,26 @@
 
 Corte: 2026-11-13.
 
-El repositorio **no tiene ningún remoto de Git** (`git remote` devuelve 0 entradas) y
-el sandbox pierde el toolchain en cada reinicio. Mientras no haya remoto, el archivo
-de respaldo en Google Drive es la única copia que existe fuera de esta caja: si el
-workspace se pierde, se pierden los 112 commits con él.
+El repositorio tiene remoto desde el 2026-11-13: `origin` apunta a
+`github.com/Alex17273747576777/cero-X-app` (**público**) con la URL limpia, sin token
+embebido, autenticando por el helper `/home/user/.gh-credential`. **Ese remoto es el
+respaldo primario del código.** Los tarballs de Drive quedan como red secundaria y
+cubren lo que no está en ningún repo: `work/ci` con su evidencia.
+
+Antes de configurar el remoto este doc afirmaba que el repositorio no tenía ninguno.
+Era cierto de la configuración local (`git remote` daba 0 entradas) y falso del
+proyecto: `cero-X-app` existía en GitHub desde antes, y el historial del sandbox
+**diverge** del suyo. El remoto `main` está en `1fdad35` con 4 commits que el sandbox
+no tenía; los 19 commits del sandbox se empujaron a la rama
+`fases-verificadas-2026-11-13` y no a `main`, porque `git merge-base --is-ancestor`
+dijo que un force-push habría borrado esos 4. La divergencia, los 8 ficheros que hay
+que mirar al fusionar y las 3 alertas de Dependabot están en
+`proyectos/cero-X/RESPALDOS.md` del repo `entorno-de-herramientas-de-trabajo`.
+
+`tools/latido.py` cuenta como respaldado un commit que ya esté en alguna rama de algún
+remoto (`git branch -r --contains`); el registro de Drive sigue siendo el aviso para lo
+que no se empujó. Sin esa rama el latido avisaría de trabajo que Git ya respaldó, y un
+aviso falso se deja de leer.
 
 ## Qué se respalda y qué no
 

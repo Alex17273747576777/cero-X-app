@@ -330,6 +330,11 @@ def comprobar_respaldo(hallazgos: list[tuple[str, str, str]]) -> None:
         corto = linea.strip()
         if not corto:
             continue
+        # Un commit ya empujado a un remoto está fuera de la caja: el registro de
+        # Drive es la red secundaria, no la única. Sin esta rama la comprobación
+        # avisaría de trabajo que Git ya respaldó, y un aviso falso se deja de leer.
+        if git("branch", "-r", "--contains", corto).strip():
+            continue
         rutas = {
             r.strip()
             for r in git("show", "--pretty=format:", "--name-only", corto).splitlines()
@@ -342,8 +347,8 @@ def comprobar_respaldo(hallazgos: list[tuple[str, str, str]]) -> None:
             AVISO,
             f"{len(sin_respaldar)} commit(s) sin respaldo fuera del sandbox:"
             f" {', '.join(sin_respaldar[:5])}" + ("…" if len(sin_respaldar) > 5 else ""),
-            f"Seguir docs/RESPALDOS.md y añadir la entrada al registro; el último respaldo"
-            f" cubre {ultima[:7]}.",
+            f"Empujar a un remoto (git push) o seguir docs/RESPALDOS.md y añadir la entrada"
+            f" al registro; el último respaldo cubre {ultima[:7]}.",
         ))
 
 
