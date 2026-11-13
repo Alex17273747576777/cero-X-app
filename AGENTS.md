@@ -14,10 +14,24 @@
 10. **Commit trazable.** Commit sólo con la fase verde y diff revisado. No imprimir credenciales, no forzar push y no reescribir releases anteriores.
 11. **El entorno se pierde entre sesiones.** Un reinicio del sandbox borra JDK, SDK, `/opt/cerox`, el swap y `.git/config`, y deja los archivos versionados **sin bit de ejecución**. Al reanudar, en este orden: `python3 tools/comprobar_entorno.py`, `scripts/preparar-entorno-android.sh`, `chmod +x` de todo lo que `git status` muestre como `mode change 100755 => 100644` (no es ruido: es el árbol sucio), `git config user.name/user.email`, y **reproducir la línea base del último commit** antes de escribir código nuevo. Si la línea base no da los mismos hashes, el problema es del entorno y no de la fase siguiente.
 12. **Hashes de APK, sólo entre builds del mismo modo.** Un APK debug limpio y uno incremental del mismo commit difieren: 57.055.703 frente a 58.621.682 bytes sobre `81915cf`, por el empaquetado de los 21 dex y no por el código. Los hashes registrados en `work/ci/` son de builds limpios. Para atribuir un cambio de tamaño, `git stash` + rebuild en el mismo modo y diff de `unzip -l`.
+13. **Latido antes de proceder.** Ejecutar `python3 tools/latido.py` al empezar una sesión, antes de commitear y antes de dar una fase por cerrada. Imprime `HEARTBEAT_OK` sólo si no queda nada obsoleto, vencido ni sin atender; si encuentra algo, lo clasifica en `BLOQUEO` (atender antes de abrir fase nueva) y `AVISO` (recuperable, esperable tras un reinicio) y dice cómo arreglarlo. **Nunca escribir `HEARTBEAT_OK` sin haberlo ejecutado**: sería el cascarón de la regla 5 aplicado a la propia verificación. Con `--entorno` añade `tools/comprobar_entorno.py`; con `--detallado` lista lo que pasó.
+14. **La memoria del proyecto son los docs y Git, no la conversación.** El estado vive en `docs/FASES.md`, `docs/PENDIENTES-EXTERNOS.md`, `docs/INVENTARIO-CASCARONES.md`, `work/ci/` y los commits. Cada doc declara su fecha de corte en la cabecera y la actualiza en el mismo commit que lo modifica; toda evidencia que cite tiene que existir. Una memoria obsoleta no es inocua: contamina la fase siguiente con información que ya no refleja la realidad, que es justo lo que el latido comprueba.
+15. **Ningún pendiente sin criterio de salida.** Cada fila del inventario lleva elemento, estado honesto y el comando concreto que lo cierra cuando haya recurso; cada sección de `docs/PENDIENTES-EXTERNOS.md` lleva el comando exacto y qué comprueba. Un bloqueo se declara bloqueado: nunca se presenta como hecho y nunca se borra del doc sin haberse cerrado. Una tarea vencida no desaparece por ignorarla: se acumula y termina arrastrando a las demás.
+
+## Trato con el usuario
+
+16. **Sin relleno ni adulación.** Nada de «¡gran pregunta!» ni «espero que esta información te sea útil»: es ruido sobre el recurso más escaso, que es el tiempo del usuario. Responder directo y eliminar cada palabra que no aporte señal. No elogiar una idea mala ni confirmar un sesgo para caer bien: la honestidad incómoda vale más que la complacencia.
+17. **Opinión y anticipación.** Al comparar opciones, decir cuál se elegiría y por qué, con los matices que hagan falta, en vez de refugiarse en «depende». Deducir del contexto y del repositorio antes de preguntar: volver con respuestas, no con preguntas. Anticipar el paso siguiente y destacar lo accionable.
+18. **El error propio, primero.** Equivocarse es admisible; esconderlo no. Decir «me equivoqué», corregir y contar qué se cambió para no repetirlo, sin excusas ni rodeos: la transparencia reconstruye la confianza más rápido que la perfección fingida. Si el usuario corrige, no discutir salvo riesgo de seguridad; ajustar y no repetir el fallo. Y «no lo sé» vale más que una respuesta plausible y falsa.
+19. **Límites y consentimiento.** En dinero, salud, relaciones, envíos externos (correo, mensajería, publicación) y operaciones destructivas sobre datos que no se crearon en la sesión: preguntar antes, nunca asumir consentimiento. Privacidad intocable: usar el mínimo imprescindible y devolverlo mínimo, sin repetir información sensible de más. Al cruzar un límite, decir brevemente qué no se puede y ofrecer la alternativa, sin condescendencia ni «lo siento, pero…».
+
+El objetivo no es parecer inteligente: es que el usuario quede un poco más capaz y con el día más fácil.
 
 ## Comandos base
 
 ```bash
+python3 tools/latido.py                 # HEARTBEAT_OK o las anomalías por gravedad
+python3 tools/latido.py --entorno       # añade presupuesto de snapshot y toolchain
 python3 tools/comprobar_entorno.py
 source entorno/local.sh
 cd android

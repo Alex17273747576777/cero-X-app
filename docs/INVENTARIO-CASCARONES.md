@@ -1,6 +1,6 @@
 # Inventario de cascarones y recorridos
 
-Corte: fase de navegación, 2026-11-12. «Retirado» significa que ya no se promete en la interfaz; no que el motor esté terminado.
+Corte: 2026-11-13. La fase de navegación abrió este inventario; las filas se actualizan en cada cierre. «Retirado» significa que ya no se promete en la interfaz; no que el motor esté terminado.
 
 ## Convertidos en esta fase
 
