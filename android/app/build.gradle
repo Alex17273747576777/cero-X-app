@@ -373,6 +373,17 @@ tasks.withType(Test).configureEach {
     // docs/PARALELISMO.md. Se sube sin editar este fichero: -PceroxForks=2
     maxParallelForks = (project.findProperty("ceroxForks") ?: "1") as int
 
+    // Las pruebas NO entran en la caché de build, aunque la caché esté activada para todo
+    // lo demás (org.gradle.caching=true en gradle.properties). Medido el 2026-11-13: con
+    // la caché activada y nada más cambiado, `clean :app:testDebugUnitTest …` terminó en
+    // 9,6 s con `> Task :app:testDebugUnitTest FROM-CACHE` — 23× más rápido que la base de
+    // 225 s y sin ejecutar UNA sola prueba, porque la caché restauró los XML de resultados.
+    // Un cierre de fase así habría dicho «614 pruebas, 0 fallos» sobre unas pruebas que
+    // nadie corrió: el verde hueco de la regla 18 con otra cara, y más difícil de ver,
+    // porque los XML restaurados tienen mtime nuevo y la comprobación de edad no lo caza.
+    // El resto del cierre sí se beneficia de la caché (compilación, recursos, dex).
+    outputs.cacheIf { false }
+
     systemProperty "file.encoding", "UTF-8"
     systemProperty "sun.jnu.encoding", "UTF-8"
     jvmArgs "-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8", "-Duser.language=es", "-Duser.country=DO"

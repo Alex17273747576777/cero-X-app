@@ -129,6 +129,45 @@ def contar_pruebas() -> dict:
     }
 
 
+def pruebas_ejecutadas(registro: Path) -> tuple[bool, list[str]]:
+    """Dice si las tareas de pruebas se ejecutaron o se sirvieron de caché/UP-TO-DATE.
+
+    La edad de los XML no basta: la caché de build los restaura con mtime nuevo, así que
+    una corrida que no ejecutó nada parece recién hecha. Lo que no miente es la propia
+    línea de Gradle, `> Task :app:testDebugUnitTest FROM-CACHE`.
+    """
+    import re as _re
+    sin_ejecutar = []
+    vio_alguna = False
+    try:
+        lineas = registro.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return False, ["<sin registro que leer>"]
+    for linea in lineas:
+        # Sólo las tareas que EJECUTAN pruebas: `test`, `testDebugUnitTest`,
+        # `testReleaseUnitTest`. Un regex con `[Tt]est` a secas casa también con
+        # kspDebugUnitTestKotlin, compileDebugUnitTestKotlin o
+        # generateDebugAndroidTestAssets, que compilan o preparan pero nunca ejecutan una
+        # prueba: la primera versión de este detector marcaba «no se ejecutaron» en TODAS
+        # las corridas, incluidas las verdes, y un detector que siempre grita no se lee.
+        # `FAILED` cuenta como ejecutada: corrió y falló, que es lo contrario de servida
+        # de caché. Sin admitirlo, las dos corridas rojas de hoy habrían salido como
+        # «ninguna tarea de pruebas aparece en el registro».
+        m = _re.match(
+            r"^> Task (\S*:(?:test|test\w*UnitTest))( FROM-CACHE| UP-TO-DATE| SKIPPED| FAILED)?\s*$",
+            linea,
+        )
+        if not m:
+            continue
+        vio_alguna = True
+        # FAILED no entra: la tarea corrió y falló, que es lo contrario de no haber corrido.
+        if m.group(2) and m.group(2).strip() != "FAILED":
+            sin_ejecutar.append(f"{m.group(1)}{m.group(2)}")
+    if not vio_alguna:
+        return False, ["<ninguna tarea de pruebas aparece en el registro>"]
+    return not sin_ejecutar, sin_ejecutar
+
+
 def medir_apks() -> dict:
     salida = {}
     for nombre, ruta in APKS.items():
@@ -205,8 +244,11 @@ def main() -> int:
     paro.set()
     vigilante.join(timeout=2)
 
+    ejecutadas, sin_ejecutar = pruebas_ejecutadas(registro)
     fila = {
         "variante": args.nombre,
+        "pruebas_ejecutadas": ejecutadas,
+        "tareas_de_prueba_sin_ejecutar": sin_ejecutar,
         "segundos": round(segundos, 1),
         "exit": completado.returncode,
         "pico_rss_java_mb": round(pico_rss),
@@ -223,6 +265,12 @@ def main() -> int:
     }
 
     print(json.dumps(fila, ensure_ascii=False, indent=2))
+    if not ejecutadas:
+        print("AVISO ESTA CORRIDA NO EJECUTÓ LAS PRUEBAS: "
+              f"{', '.join(sin_ejecutar)}. Los XML que se acaban de contar son de otra "
+              "corrida o los restauró la caché. Un recuento de pruebas de una corrida que "
+              "no corrió es el verde hueco que la regla 18 prohíbe.", file=sys.stderr)
+
     if completado.returncode != 0:
         print(f"AVISO la corrida terminó con {completado.returncode}: las cifras de tiempo y memoria "
               "son de un build que no terminó. No comparar con variantes verdes.", file=sys.stderr)
@@ -237,7 +285,7 @@ def main() -> int:
         nuevo = not historico.exists()
         columnas = ["cuando", "variante", "head", "segundos", "exit", "pico_rss_java_mb",
                     "min_mem_available_mb", "max_procesos_java", "suites", "pruebas", "fallos", "omitidas",
-                    "xml_mas_viejo_s", "apk_app_bytes", "apk_app_sha256", "propiedades", "args_gradle"]
+                    "xml_mas_viejo_s", "apk_app_bytes", "apk_app_sha256", "pruebas_ejecutadas", "propiedades", "args_gradle"]
         with historico.open("a", encoding="utf-8") as salida:
             if nuevo:
                 salida.write("\t".join(columnas) + "\n")
@@ -249,7 +297,8 @@ def main() -> int:
                 max_procesos,
                 pruebas.get("suites", 0), pruebas.get("pruebas", 0), pruebas.get("fallos", 0),
                 pruebas.get("omitidas", 0), pruebas.get("xml_mas_viejo_s", ""),
-                apk.get("bytes", ""), (apk.get("sha256") or "")[:16], ",".join(args.prop),
+                apk.get("bytes", ""), (apk.get("sha256") or "")[:16],
+                "si" if ejecutadas else "NO:" + ";".join(sin_ejecutar)[:40], ",".join(args.prop),
                 args.gradle_args,
             ]) + "\n")
         print(f"histórico: {historico}", file=sys.stderr)
