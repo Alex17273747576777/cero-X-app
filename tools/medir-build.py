@@ -76,19 +76,30 @@ def meminfo_mb() -> float:
     return 0.0
 
 
-def rss_java_mb() -> float:
-    """RSS sumado de todos los procesos java vivos, en MB."""
-    total = 0
+def rss_java_mb() -> tuple[float, float, int]:
+    """(RSS sumado de los java vivos, RSS del mayor, cuántos son), todo en MB.
+
+    La suma sola no basta: el 2026-11-13 dos builds concurrentes y un build individual
+    dieron los tres «pico 1732 MB», que o bien es casualidad o bien significa que el
+    monitor no estaba viendo los procesos que creía. Con el máximo por proceso y el
+    recuento se distingue un demonio grande de dos medianos.
+    """
+    total = 0.0
+    mayor = 0.0
+    cuantos = 0
     for pid in (p for p in Path("/proc").iterdir() if p.name.isdigit()):
         try:
             if "java" not in (pid / "comm").read_text():
                 continue
             for campo in (pid / "status").read_text().splitlines():
                 if campo.startswith("VmRSS:"):
-                    total += int(campo.split()[1])
+                    rss = int(campo.split()[1]) / 1024
+                    total += rss
+                    mayor = max(mayor, rss)
+                    cuantos += 1
         except OSError:
             continue  # el proceso terminó entre leer el directorio y leer su estado
-    return total / 1024
+    return total, mayor, cuantos
 
 
 def du_mb(ruta: Path) -> float:
@@ -164,13 +175,18 @@ def main() -> int:
     }
 
     pico_rss = 0.0
+    pico_uno = 0.0
+    max_procesos = 0
     minimo_disponible = meminfo_mb()
     paro = threading.Event()
 
     def vigilar() -> None:
-        nonlocal pico_rss, minimo_disponible
+        nonlocal pico_rss, pico_uno, max_procesos, minimo_disponible
         while not paro.is_set():
-            pico_rss = max(pico_rss, rss_java_mb())
+            total, mayor, cuantos = rss_java_mb()
+            pico_rss = max(pico_rss, total)
+            pico_uno = max(pico_uno, mayor)
+            max_procesos = max(max_procesos, cuantos)
             minimo_disponible = min(minimo_disponible, meminfo_mb())
             time.sleep(0.5)
 
@@ -194,6 +210,8 @@ def main() -> int:
         "segundos": round(segundos, 1),
         "exit": completado.returncode,
         "pico_rss_java_mb": round(pico_rss),
+        "pico_rss_un_java_mb": round(pico_uno),
+        "max_procesos_java": max_procesos,
         "min_mem_available_mb": round(minimo_disponible),
         "propiedades": args.prop,
         "args_gradle": args.gradle_args,
@@ -218,7 +236,7 @@ def main() -> int:
     if historico.parent.is_dir():
         nuevo = not historico.exists()
         columnas = ["cuando", "variante", "head", "segundos", "exit", "pico_rss_java_mb",
-                    "min_mem_available_mb", "suites", "pruebas", "fallos", "omitidas",
+                    "min_mem_available_mb", "max_procesos_java", "suites", "pruebas", "fallos", "omitidas",
                     "xml_mas_viejo_s", "apk_app_bytes", "apk_app_sha256", "propiedades", "args_gradle"]
         with historico.open("a", encoding="utf-8") as salida:
             if nuevo:
@@ -228,6 +246,7 @@ def main() -> int:
             salida.write("\t".join(str(x) for x in [
                 fila["cuando"], args.nombre, estado_inicial["head"], fila["segundos"],
                 completado.returncode, fila["pico_rss_java_mb"], fila["min_mem_available_mb"],
+                max_procesos,
                 pruebas.get("suites", 0), pruebas.get("pruebas", 0), pruebas.get("fallos", 0),
                 pruebas.get("omitidas", 0), pruebas.get("xml_mas_viejo_s", ""),
                 apk.get("bytes", ""), (apk.get("sha256") or "")[:16], ",".join(args.prop),
