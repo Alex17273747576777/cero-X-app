@@ -37,10 +37,28 @@ def snapshot_files() -> list[Path]:
     return result
 
 
+def tamano(path: Path) -> int:
+    """Tamaño en bytes, o 0 si el fichero desapareció entre el recorrido y el stat.
+
+    El snapshot incluye `.git` (Arena lo snapshottea; sólo `.git/config` y las
+    credenciales son sensibles y quedan fuera), y Git crea y borra ficheros efímeros
+    ahí dentro mientras trabaja —`index.lock` entre ellos. Medido el 2026-11-13: al
+    correr las 9 comprobaciones en 2 hilos, `entorno` reventó con `FileNotFoundError`
+    sobre `.git/index.lock` porque otro hilo estaba ejecutando git. Era una carrera
+    TOCTOU, no un problema del entorno: `path.exists()` protegía la suma pero no el
+    `sorted(..., key=item.stat().st_size)` ni el print. Una herramienta de auditoría
+    que peta por mirar da un rojo que no significa nada y se deja de leer.
+    """
+    try:
+        return path.stat().st_size
+    except OSError:
+        return 0
+
+
 def main() -> int:
     errors: list[str] = []
     files = snapshot_files()
-    size = sum(path.stat().st_size for path in files if path.exists())
+    size = sum(tamano(path) for path in files)
     mib = size / 1024 / 1024
     print(f"WORKSPACE_PERSISTENTE bytes={size} MiB={mib:.2f} archivos={len(files)}")
     # Aviso antes del límite de Arena: 128 MiB / 10.000 archivos.
@@ -48,8 +66,8 @@ def main() -> int:
         errors.append("El workspace supera el margen operativo de 110 MiB")
     if len(files) > 8_500:
         errors.append("El workspace supera el margen operativo de 8.500 archivos")
-    for path in sorted(files, key=lambda item: item.stat().st_size, reverse=True)[:5]:
-        print(f"MAYOR bytes={path.stat().st_size} ruta={path}")
+    for path in sorted(files, key=tamano, reverse=True)[:5]:
+        print(f"MAYOR bytes={tamano(path)} ruta={path}")
 
     # Cachés que deben vivir FUERA del workspace, con nombre y arreglo. `.gradle` no
     # está en EXCLUDED del snapshot, así que en cuanto Gradle corre sin
