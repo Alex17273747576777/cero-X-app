@@ -3,6 +3,9 @@
 **GPL-3.0 desde el 2026-11-11.** Antes: Apache-2.0. Este documento existe porque
 un relicenciamiento sin la procedencia auditada es una afirmación, no un hecho.
 
+Corte del documento: **2026-11-13**. La procedencia se auditó el 2026-11-11 y el caso de
+Kiroku (UPL aceptada por el dueño, cabo ①) se añadió el 2026-11-13.
+
 ## Quién puede decidirlo
 
 Los cuatro identificadores de la lista de contribuidores del repositorio
