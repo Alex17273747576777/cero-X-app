@@ -19,7 +19,7 @@ import org.robolectric.RobolectricTestRunner
 // Robolectric 4.13 no conoce targetSdk 36; se fija Android 14, la última imagen que
 // trae. El lector sólo usa XmlPullParser, idéntico desde API 26.
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [34])
+@org.robolectric.annotation.Config(sdk = [36])
 class XmltvLectorTest {
 
     private val guia = """

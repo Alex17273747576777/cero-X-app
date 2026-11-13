@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *   3. con red de pago solo se adelanta una página, no tres
  */
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [34])
+@org.robolectric.annotation.Config(sdk = [36])
 class StressPrefetchTest {
 
     private val alcance = CoroutineScope(SupervisorJob() + Dispatchers.Default)

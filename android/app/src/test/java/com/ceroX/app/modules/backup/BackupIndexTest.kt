@@ -23,7 +23,7 @@ import java.util.zip.ZipOutputStream
  *   4. que un gzip truncado se nota
  */
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [34])
+@org.robolectric.annotation.Config(sdk = [36])
 class BackupIndexTest {
 
     private val dir = File(System.getProperty("java.io.tmpdir"), "cerox-backup-index").apply { mkdirs() }

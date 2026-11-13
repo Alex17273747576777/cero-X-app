@@ -10,7 +10,7 @@ import org.robolectric.annotation.Config
 
 /** Opt-in: prueba formatos actuales; no convierte disponibilidad en seguridad. */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [36])
 class DirectoriosRedRealTest {
     @Test fun agregadores_reales_o_fallo_explicito() = runBlocking {
         assumeTrue("Definir CEROX_LIVE_DIRECTORIES=1", System.getenv("CEROX_LIVE_DIRECTORIES") == "1")

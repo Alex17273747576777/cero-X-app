@@ -36,7 +36,7 @@ import org.robolectric.annotation.Config
  *     dispositivo delante, y es exactamente lo que faltaba: la pantalla no existía.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [36])
 class IaDePaginaTest {
 
     private val contexto get() = ApplicationProvider.getApplicationContext<android.content.Context>()

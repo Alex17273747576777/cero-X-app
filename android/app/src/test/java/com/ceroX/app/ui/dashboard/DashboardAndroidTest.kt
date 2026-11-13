@@ -18,7 +18,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [36])
 class DashboardAndroidTest {
     @Test fun pantalla_real_muestra_modulos_y_filtra() {
         AlmacenExterno.olvidar()

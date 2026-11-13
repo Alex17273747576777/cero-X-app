@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
  *  · que el `<queries>` del manifest tenga todos los paquetes comprobables
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [36])
 class GestoresTest {
 
     private val contexto: Context get() = ApplicationProvider.getApplicationContext()

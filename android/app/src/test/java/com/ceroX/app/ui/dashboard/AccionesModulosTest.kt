@@ -26,7 +26,7 @@ class ModuloDashboardPrueba : ModuleInterface() {
 }
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [36])
 class AccionesModulosTest {
     @Test fun dependencias_inicio_y_parada_son_reales() {
         AlmacenExterno.olvidar()

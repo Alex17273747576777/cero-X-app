@@ -21,7 +21,7 @@ import org.robolectric.annotation.Config
 import java.util.concurrent.atomic.AtomicInteger
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [36])
 class DirectoryRepositoryTest {
     @Before fun limpiar() { AlmacenExterno.olvidar() }
 

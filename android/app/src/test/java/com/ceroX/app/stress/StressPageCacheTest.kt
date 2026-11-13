@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * ocupa menos de lo que ocupa — o sea, comiéndose la memoria sin saberlo.
  */
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [34])
+@org.robolectric.annotation.Config(sdk = [36])
 class StressPageCacheTest {
 
     private fun pagina(lado: Int): Bitmap =

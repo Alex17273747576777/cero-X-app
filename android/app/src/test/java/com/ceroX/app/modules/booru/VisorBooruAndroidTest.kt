@@ -44,7 +44,7 @@ import org.robolectric.annotation.Config
  * antes de tocar la red.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [36])
 class VisorBooruAndroidTest {
 
     private val post = BooruPost(

@@ -23,7 +23,7 @@ import java.io.File
  * androidTest/MangaDexAndroidTest, donde Android proporciona DexClassLoader.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34], application = MangaDexRealHostTest.HostApplicationPrueba::class)
+@Config(sdk = [36], application = MangaDexRealHostTest.HostApplicationPrueba::class)
 class MangaDexRealHostTest {
     class HostApplicationPrueba : Application() {
         override fun getSharedPreferences(name: String, mode: Int): SharedPreferences =

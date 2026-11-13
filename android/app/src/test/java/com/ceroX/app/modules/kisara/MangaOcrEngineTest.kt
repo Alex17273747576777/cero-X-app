@@ -23,7 +23,7 @@ import java.nio.file.Files
  *   · que el vocabulario que se empaqueta sea el del tokenizador real
  */
 @org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [34])
+@org.robolectric.annotation.Config(sdk = [36])
 class MangaOcrEngineTest {
 
     private fun dirVacio(): File = Files.createTempDirectory("cerox-ocr").toFile()

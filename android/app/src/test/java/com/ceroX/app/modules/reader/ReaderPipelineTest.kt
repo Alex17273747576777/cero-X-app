@@ -24,7 +24,7 @@ import org.robolectric.RuntimeEnvironment
  *   3. el reescalado va antes que la colorización
  */
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [34])
+@org.robolectric.annotation.Config(sdk = [36])
 class ReaderPipelineTest {
 
     private fun pagina(w: Int = 16, h: Int = 16): Bitmap =

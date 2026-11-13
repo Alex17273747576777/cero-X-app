@@ -21,7 +21,7 @@ import org.robolectric.RobolectricTestRunner
 // que es la última que trae. El código bajo prueba no depende de la versión:
 // solo usa Bitmap, que es idéntico desde API 26.
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [34])
+@org.robolectric.annotation.Config(sdk = [36])
 class PageCacheTest {
 
     private fun bitmap(ancho: Int = 8, alto: Int = 8): Bitmap =
