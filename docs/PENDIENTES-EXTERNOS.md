@@ -257,18 +257,28 @@ cd /home/user/work/edt && bash proyectos/comprobar-copias.sh --estricto-origen
 # copiar, generar manifiesto con sha256, verificar con -c --strict, añadir fila al REGISTRO.md
 ```
 
-### 3. Los tres ejes que faltan de la fase F2
+### 3. Los tres ejes que faltan de la fase F2 — CERRADO el 2026-11-13
 
-El primer tramo (manifiestos) está hecho con `tools/auditar-referencias.py`. Faltan: qué APIs
-usan de verdad frente a qué declaran, a qué endpoints hablan, y qué telemetría fusionan sus
-dependencias. Los tres se pueden hacer sin aparato, sobre los 7 clones de
-`/var/tmp/referencias/`.
+Hecho. `tools/auditar-referencias.py` audita ya los cuatro ejes sobre los 11 objetivos (10
+referencias + cero-X) sin aparato ni compilación: manifiestos, APIs usadas frente a
+declaradas, endpoints por host y telemetría de dependencias. Evidencia en
+`work/ci/frankie/f2-{manifiestos,apis,endpoints,telemetria}.tsv` y una ficha por app en
+`work/ci/frankie/fichas/`. El cierre y lo que dicen los cuatro ejes está en
+`docs/OBJETIVO-TODO-EN-UNO.md`, fase F2.
+
+Cuatro falsos positivos cazados al validar la salida antes de publicarla, que es la razón de
+que este cabo se cierre con la herramienta corregida y no con la primera corrida:
 
 ```bash
-scripts/bajar-referencias.sh --listar     # confirmar qué está bajado
-# endpoints: grep de https:// sobre cada clon, agrupado por host
-# telemetría: leer los build.gradle(.kts) y sus lockfiles, buscando firebase/crashlytics/
-#             analytics/sentry/posthog —el método ya usado en ProjectNox y OmniShizuku
+# 'adjust' casaba con android:windowSoftInputMode="adjustResize" en las ONCE apps; el SDK
+#   real (com.adjust) no está en ninguna. 'umeng' casaba con «Diumenge» (domingo en catalán)
+#   de un strings.xml de Kototoro. Ahora se buscan coordenadas de módulo, no subcadenas.
+grep -rn 'com\.adjust\|adjust-sdk\|AdjustSdk' /var/tmp/referencias   # → 0 coincidencias
+# 'image/*' en una cabecera HTTP Accept contaba como uso de READ_MEDIA_IMAGES; el eje 2 ya
+#   separa código de recursos y del propio manifiesto.
+# El eje 4 audita la raíz de build (android/ en cero-X), no src/main: antes daba «0 ficheros
+#   de build» y «ninguna telemetría» sin haber mirado el build.gradle.kts real.
+python3 tools/auditar-referencias.py --ejes telemetria   # cero-X: 5 ficheros, ninguno
 ```
 
 ### 4. PlayTorrio: no hay fuente pública que auditar

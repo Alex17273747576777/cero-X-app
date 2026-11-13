@@ -153,41 +153,95 @@ sacarlo lo devolvió a 2.246 y 38,86 MiB. Y `/opt/cerox` no es escribible para e
 (`touch` da `Permission denied`; sólo `preparar-entorno-android.sh` lo recrea, con sudo),
 así que no es un destino alternativo.
 
-**Fase F2 — Auditoría contra fuente. Primer tramo hecho.** Qué permisos declaran frente a
-qué componentes exponen, medido sobre el `AndroidManifest.xml` con
-`tools/auditar-referencias.py` (no necesita aparato ni compilar: es texto). Evidencia en
-`work/ci/frankie/auditoria-manifiestos.tsv`.
+**Fase F2 — Auditoría contra fuente. CERRADA el 2026-11-13.** Los cuatro ejes, medidos con
+`tools/auditar-referencias.py` sobre los 11 objetivos (10 referencias + cero-X) sin aparato ni
+compilación —es texto—. Evidencia: `work/ci/frankie/f2-{manifiestos,apis,endpoints,telemetria}.tsv`
+y una ficha por app en `work/ci/frankie/fichas/`. Cada cifra sale de esos ficheros; ninguna se
+transcribió de memoria.
 
-| fuente | manifiestos | permisos | componentes | exportados | sensibles |
+*Eje 1 — manifiesto.* Permisos declarados frente a componentes expuestos.
+
+| fuente | manif | permisos | componentes | exportados | sensibles |
 |---|---:|---:|---:|---:|---:|
-| Kototoro | 16 | 24 | 96 | 20 | 10 |
-| Miyorare | 7 | 15 | 74 | 21 | 10 |
-| DeepSync | 2 | 15 | 70 | 16 | 10 |
-| AniZen | 15 | 21 | 25 | 5 | **11** |
-| Tadami-Aniyomi-fork | 13 | 15 | 29 | 7 | 8 |
-| Reikai | 16 | 19 | 25 | 7 | 8 |
+| Kototoro | 16 | 24 | 96 | 20 | 13 |
+| Miyorare | 7 | 15 | 74 | 21 | 12 |
+| DeepSync | 2 | 15 | 70 | 16 | 12 |
+| houri | 17 | 22 | 23 | 7 | 14 |
+| kisara | 15 | 23 | 29 | 7 | 14 |
+| AniZen | 15 | 21 | 25 | 5 | 13 |
+| ShinKu | 11 | 20 | 20 | 6 | 12 |
+| Tadami | 13 | 15 | 29 | 7 | 10 |
+| Reikai | 16 | 19 | 25 | 7 | 10 |
 | AnantPlay | 1 | 12 | 14 | 2 | 8 |
-| **cero-X-app** | **1** | **21** | **16** | **3** | **11** |
+| **cero-X** | **1** | **21** | **16** | **3** | **13** |
 
-Lo que dice la tabla, y es lo primero que la ruta tiene que resolver:
+(«Sensibles» sube a 13 en cero-X frente a los 11 de la serie antigua
+`auditoria-manifiestos.tsv` porque el conjunto `SENSIBLES` se amplió al reescribir la
+herramienta. Son dos series distintas; la autorizada ahora es `f2-manifiestos.tsv`.)
 
-- **cero-X declara 11 permisos sensibles, tantos como la que más** (AniZen), y tres que
-  ninguna de las otras pide: `READ_EXTERNAL_STORAGE`, `READ_MEDIA_IMAGES`,
-  `READ_MEDIA_VIDEO`. En cambio no pide `MANAGE_EXTERNAL_STORAGE` ni
-  `RECEIVE_BOOT_COMPLETED`, que sí piden seis de las siete. Un todo-en-uno no se resuelve
-  sumando permisos: cada uno tiene que tener el código que lo justifique a la vista.
-- **cero-X es un solo módulo Gradle con 16 componentes; las referencias tienen entre 2 y 16
-  manifiestos y hasta 96 componentes.** La arquitectura modular no es un adorno: es lo que
-  permite que una capacidad falle sin arrastrar a las otras, y es el cambio estructural que
-  un frankie exige antes de meter más funciones.
-- **Exportados: cero-X 3 frente a 16-21 en Miyorare, DeepSync y Kototoro.** Pocas puertas
-  es mejor, pero hay que mirar si las suyas están protegidas por permiso propio antes de
-  darlo por ventaja.
+- **cero-X es un solo módulo Gradle, 16 componentes, 1 manifiesto; las referencias tienen entre
+  2 y 17 manifiestos y hasta 96 componentes.** houri y kisara reparten su código en 25 y 18
+  módulos Gradle. La arquitectura modular no es un adorno: es lo que permite que una capacidad
+  falle sin arrastrar a las otras, y es el cambio estructural que un frankie exige antes de
+  meter más funciones. F2 lo señala; lo abordan F4/F5.
+- **Exportados: cero-X 3, el que menos junto a AnantPlay (2).** Pocas puertas es mejor, pero
+  antes de darlo por ventaja hay que mirar si esas 3 están protegidas por permiso propio.
 
-Faltan los otros tres ejes de F2, aún sin hacer: qué APIs usan de verdad (no sólo qué
-declaran), a qué endpoints hablan, y qué telemetría fusionan sus dependencias. *Criterio de
-salida:* una ficha por app en `work/ci/frankie/` con los cuatro ejes, y ninguna afirmación
-sin el comando que la produjo.
+*Eje 2 — APIs usadas frente a permisos declarados.* Qué ejercita el código de verdad.
+
+- **cero-X declara 8 permisos que su propio Kotlin no ejercita** (`ACCESS_WIFI_STATE`,
+  `FOREGROUND_SERVICE`, `POST_NOTIFICATIONS`, `QUERY_ALL_PACKAGES`, `READ_EXTERNAL_STORAGE`,
+  `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`, `WAKE_LOCK`) y usa 1 sin declarar
+  (`REQUEST_DELETE_PACKAGES`, del manifiesto fusionado de una biblioteca). Es el que más
+  permisos declara sin usarlos de los 11.
+- **Pero «huérfano» no es «borrable».** Leído el manifiesto entero, cada uno tiene su motivo
+  escrito: `QUERY_ALL_PACKAGES` va con un bloque `<queries>` y existe porque sin él
+  `getPackageInfo("moe.shizuku.privileged.api")` da falso negativo; `FOREGROUND_SERVICE`
+  acompaña a un `<service>` declarado `foregroundServiceType="dataSync"`; `INSTALL_PACKAGES`
+  está documentado como vía de Shizuku/root que la app no se concede a sí misma. El hallazgo
+  honesto no es «quitar 8 permisos»: es que cero-X pide por adelantado capacidades cuyo código
+  aún no está escrito —superficie regalada que F4/F5 tienen que rellenar o recortar, no un
+  listado de bajas mecánico.
+- Un permiso puede ejercerlo una dependencia o un recurso XML sin dejar rastro en `src/main`;
+  la ficha separa «ejercido en código» de «sólo en recursos» y ambas se confirman leyendo.
+
+*Eje 3 — endpoints por host.* Fuera del ruido (GitHub, Discord, TLD reservados de prueba,
+strings de traducción).
+
+- **cero-X: 49 hosts.** Los tres primeros, leídos y no grepados: `everythingmoe.com` (8) y
+  `miyomi.app` (6) en `CatalogModule.kt`, `anipirate.xyz` (7) en `DirectoryParsers.kt`.
+  Catálogos y directorios, no rastreo.
+- Kototoro es el que más habla (173 hosts, `huggingface.co` 41 veces para modelos de ML);
+  kisara 119, houri 103. El eje excluye i18n y comentarios, que antes inflaban la cuenta (el
+  FlareSolverr por defecto `192.168.1.202` de AniZen salía 22 veces, una por idioma).
+
+*Eje 4 — telemetría de dependencias.* Qué SDK de rastreo entra en el APK, distinguiendo
+declarado en el catálogo de aplicado de verdad.
+
+- **cero-X: ninguno.** Cero SDK en sus 5 ficheros de build reales, confirmado por grep directo
+  además de por la herramienta. Es la postura más limpia posible y no se toca.
+- **8 de 10 referencias cablean telemetría, pero ninguna la activa por defecto.** Cinco usan
+  Firebase (AniZen, houri, kisara, Reikai, ShinKu) y tres ACRA —reporte de fallos abierto y
+  autoalojable, no un rastreador como Firebase— (DeepSync, Kototoro, Miyorare). Tadami no
+  tiene; AnantPlay compila con `build.sh` y no Gradle, así que su telemetría **no se midió**
+  (la herramienta reporta `ficheros_build=0`, no «ninguna»).
+- **El patrón que importa para el frankie:** houri, AniZen, Reikai y kisara aíslan la
+  telemetría en un módulo Gradle propio (`telemetry/`, 3-5 ficheros) que sólo se compila con
+  `if (Config.includeTelemetry)`, falso salvo `-Pinclude-telemetry`. ShinKu la condiciona a que
+  exista `google-services.json`. Y **ninguno de los 10 clones trae ese `google-services.json`
+  commiteado** —está en `.gitignore`—, así que ninguno compila con telemetría activa de salida.
+  houri lo dice en `app/build.gradle.kts:66`: «no telemetry in the lean variant». cero-X ya
+  está donde esas variantes «lean» quieren llegar.
+
+*Disciplina aplicada, que es parte del cierre.* La primera corrida del eje 4 era falsa en las
+11 apps: buscar subcadenas minúsculas hizo que «adjust» casara con `adjustResize` y «umeng» con
+«Diumenge» (domingo en catalán). Se validó cada coincidencia leyendo la línea antes de escribir
+nada, se reescribieron los ejes 2, 3 y 4 con coordenadas reales y raíces correctas, y sólo
+entonces se publicó. Cuatro falsos positivos cazados, documentados en el cabo ③ de
+`docs/PENDIENTES-EXTERNOS.md`.
+
+*Criterio de salida: cumplido.* Una ficha por app (11) en `work/ci/frankie/fichas/` con los
+cuatro ejes, cuatro TSV, y ninguna afirmación sin el comando o la línea que la produjo.
 
 **Fase F3 — Mapa de brechas contra lo que cero-X ya tiene.** Ampliar la tabla de
 `docs/ASISTENTE-Y-COMPETENCIA.md` a las 12 fuentes: qué hace cada una que cero-X no hace,
