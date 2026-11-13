@@ -12,6 +12,8 @@
 8. **Diseño por sesión y categoría.** El motor adaptativo debe explicar y permitir deshacer sus cambios; no puede hacerse pasar por IA generativa ni alterar navegación mientras el usuario escribe, lee o reproduce. NSFW permanece desactivado por defecto.
 9. **Cierre mínimo de fase Android.** Suite `testDebugUnitTest`, `assembleDebug`, `assembleDebugAndroidTest`, auditoría de entorno y revisión del diff. Las pruebas físicas, credenciales reales o recursos ausentes quedan como bloqueos visibles, nunca como éxitos.
 10. **Commit trazable.** Commit sólo con la fase verde y diff revisado. No imprimir credenciales, no forzar push y no reescribir releases anteriores.
+11. **El entorno se pierde entre sesiones.** Un reinicio del sandbox borra JDK, SDK, `/opt/cerox`, el swap y `.git/config`, y deja los archivos versionados **sin bit de ejecución**. Al reanudar, en este orden: `python3 tools/comprobar_entorno.py`, `scripts/preparar-entorno-android.sh`, `chmod +x` de todo lo que `git status` muestre como `mode change 100755 => 100644` (no es ruido: es el árbol sucio), `git config user.name/user.email`, y **reproducir la línea base del último commit** antes de escribir código nuevo. Si la línea base no da los mismos hashes, el problema es del entorno y no de la fase siguiente.
+12. **Hashes de APK, sólo entre builds del mismo modo.** Un APK debug limpio y uno incremental del mismo commit difieren: 57.055.703 frente a 58.621.682 bytes sobre `81915cf`, por el empaquetado de los 21 dex y no por el código. Los hashes registrados en `work/ci/` son de builds limpios. Para atribuir un cambio de tamaño, `git stash` + rebuild en el mismo modo y diff de `unzip -l`.
 
 ## Comandos base
 

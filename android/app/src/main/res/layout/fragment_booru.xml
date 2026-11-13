@@ -40,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="4dp"
-        android:text="Consulta real sin credenciales. Las imágenes se cargan desde Safebooru tras buscar. Favoritos: metadatos en almacenamiento externo. Sin descargas ni contenido adulto."
+            android:text="Consulta real sin credenciales. Las imágenes se cargan desde Safebooru tras buscar. Toca una miniatura para abrirla en el visor con zoom. Favoritos y descargas: sólo en el almacenamiento externo de la app y sólo con acción explícita. Sin contenido adulto."
         android:textSize="12sp" />
 
     <ProgressBar

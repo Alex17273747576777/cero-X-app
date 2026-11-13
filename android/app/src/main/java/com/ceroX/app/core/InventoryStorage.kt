@@ -268,6 +268,26 @@ object InventoryStorage {
             Verdict.DEUDA_MIGRACION,
             "Resuelve rutas de modelo en el directorio de la app.",
         ),
+        Sitio(
+            "modules/booru/FavoritosBooruStore.kt",
+            "favoritos de Safebooru (sólo metadatos)",
+            Verdict.FUERA_DEL_INTERNO,
+            "Un JSON en `AlmacenExterno/booru/favoritos.json` con lo que ya devolvió la API: id, " +
+                "URL, etiquetas y puntuación. No guarda las imágenes. Si el almacenamiento " +
+                "externo no está disponible, `disponible()` devuelve false y la pantalla lo dice; " +
+                "no se cae al interno.",
+        ),
+        Sitio(
+            "modules/booru/DescargasBooru.kt",
+            "imágenes de Safebooru descargadas a petición del usuario",
+            Verdict.FUERA_DEL_INTERNO,
+            "Sólo con botón explícito, sólo HTTPS de safebooru.org, sólo `rating:safe` y sólo " +
+                "`image/*`, con tope de 25 MiB. Escribe en " +
+                "`AlmacenExterno/booru/safebooru-<id>.<ext>` pasando por un `.tmp` que se " +
+                "renombra: una descarga cortada no deja un archivo que parezca bueno. Sin " +
+                "almacenamiento externo devuelve el fallo con su motivo en vez de escribir " +
+                "dentro del interno.",
+        ),
     )
 
     /** Las que hoy cumplen. Sirve para no dar por bueno lo que no lo es. */

@@ -7,7 +7,9 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.ceroX.app.R
+import com.ceroX.app.modules.booru.BooruPost
 import com.ceroX.app.modules.booru.BooruUIFragment
+import com.ceroX.app.modules.booru.VisorBooruFragment
 import com.ceroX.app.modules.catalog.CatalogUIFragment
 import com.ceroX.app.modules.iptv.IptvUiFragment
 import com.ceroX.app.modules.mode.ModeSwitcherFragment
@@ -23,8 +25,12 @@ class FragmentHostActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(FrameLayout(this).apply { id = R.id.fragment_host_container })
         if (savedInstanceState == null) {
+            val fragment = fragmento(destino)
+            // El visor necesita saber qué publicación mostrar; los argumentos van
+            // en un Bundle aparte para no mezclarlos con el destino.
+            intent.getBundleExtra(EXTRA_ARGUMENTOS)?.let { fragment.arguments = it }
             supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_host_container, fragmento(destino))
+                .replace(R.id.fragment_host_container, fragment)
                 .commit()
         }
     }
@@ -41,10 +47,18 @@ class FragmentHostActivity : AppCompatActivity() {
         const val APPS = "apps"
         const val BOORU = "booru"
         const val MODULOS = "modulos"
+        const val VISOR = "visor"
         private const val EXTRA_DESTINO = "destino"
+        private const val EXTRA_ARGUMENTOS = "argumentos"
 
         fun intento(context: Context, destino: String): Intent =
             Intent(context, FragmentHostActivity::class.java).putExtra(EXTRA_DESTINO, destino)
+
+        /** Visor de una publicación concreta, con sus datos como argumentos. */
+        fun intentoVisor(context: Context, post: BooruPost): Intent =
+            Intent(context, FragmentHostActivity::class.java)
+                .putExtra(EXTRA_DESTINO, VISOR)
+                .putExtra(EXTRA_ARGUMENTOS, VisorBooruFragment.argumentos(post))
 
         private fun titulo(destino: String): String? = when (destino) {
             DISENO -> "Diseño"
@@ -53,6 +67,7 @@ class FragmentHostActivity : AppCompatActivity() {
             APPS -> "Catálogo de apps"
             BOORU -> "Imágenes Safebooru"
             MODULOS -> "Módulos del sistema"
+            VISOR -> "Visor de imagen"
             else -> null
         }
 
@@ -63,6 +78,7 @@ class FragmentHostActivity : AppCompatActivity() {
             APPS -> CatalogUIFragment()
             BOORU -> BooruUIFragment()
             MODULOS -> ModuleDashboardFragment()
+            VISOR -> VisorBooruFragment()
             else -> error("Destino desconocido")
         }
     }

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="?android:attr/colorBackground">
+
+        <com.ceroX.app.modules.booru.VisorImagenView
+            android:id="@+id/visor_imagen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Imagen de Safebooru; se amplía con dos dedos o con doble toque"
+            android:scaleType="matrix" />
+
+        <ProgressBar
+            android:id="@+id/visor_progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/visor_zoom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="4dp"
+        android:text="Sin imagen cargada"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/visor_estado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:text="Preparando el visor…"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/visor_metadata"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/visor_tags"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:paddingHorizontal="16dp"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp">
+
+        <Button
+            android:id="@+id/visor_alejar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Reducir la imagen"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            android:text="−" />
+
+        <Button
+            android:id="@+id/visor_acercar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Ampliar la imagen"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            android:text="+" />
+
+        <Button
+            android:id="@+id/visor_ajustar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Ajustar" />
+
+        <Button
+            android:id="@+id/visor_uno_a_uno"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Ver a tamaño real, un píxel por píxel"
+            android:minHeight="48dp"
+            android:text="1:1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingBottom="8dp">
+
+        <Button
+            android:id="@+id/visor_guardar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Guardar la imagen en el almacenamiento externo de la aplicación"
+            android:minHeight="48dp"
+            android:text="Guardar" />
+
+        <Button
+            android:id="@+id/visor_favorito"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Guardar en favoritos"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            android:text="☆" />
+
+        <Button
+            android:id="@+id/visor_ficha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Ficha en Safebooru" />
+    </LinearLayout>
+
+</LinearLayout>

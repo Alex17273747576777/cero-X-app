@@ -8,12 +8,13 @@ import kotlinx.serialization.Serializable
 /** Cliente Safebooru real y limitado a rating:safe; no reimplementa otras apps Booru. */
 class BooruModule : ModuleInterface() {
     override val name = "booru-viewer"
-    override val version = "1.1.0-safebooru-real"
+    override val version = "1.2.0-visor-zoom"
     override val dependencies: List<String> = emptyList()
 
     private val supportedSites = mutableListOf<String>()
     private val client = SafebooruClient()
     private var favoritos: FavoritosBooruStore? = null
+    private var descargas: DescargasBooru? = null
     var ultimoResultado: BooruSearchResult? = null
         private set
 
@@ -22,6 +23,7 @@ class BooruModule : ModuleInterface() {
     override fun initialize(config: Map<String, Any>): Boolean {
         val contexto = config["context"] as? Context ?: return false
         favoritos = FavoritosBooruStore(contexto.applicationContext)
+        descargas = DescargasBooru.real(contexto)
         registerDefaultSites()
         _initialized = true
         return true
@@ -42,6 +44,8 @@ class BooruModule : ModuleInterface() {
             "favorite_posts" to (favoritos?.listar()?.size ?: 0),
             "safe_only" to true,
             "external_favorites" to (favoritos?.disponible() == true),
+            "downloads_to_external_storage" to (descargas != null),
+            "download_limit_bytes" to DescargasBooru.MAX_BYTES,
             "min_android" to "8.0 (API 26)",
         ),
     )
@@ -65,9 +69,22 @@ class BooruModule : ModuleInterface() {
     fun alternarFavorito(post: BooruPost): Boolean = favoritos?.alternar(post) == true
     fun getSupportedSites(): List<String> = supportedSites.toList()
 
-    fun downloadMedia(url: String, destination: String): DownloadResult = DownloadResult(
-        url, destination, false, "Esta fase no incluye descargas; abre el original en el navegador",
-    )
+    /**
+     * Descarga la imagen en el almacenamiento externo. Bloquea el hilo: la
+     * pantalla la llama en `Dispatchers.IO`.
+     *
+     * Sustituye a un `downloadMedia` que devolvía siempre «esta fase no incluye
+     * descargas». Devolver un fallo fijo no es lo mismo que no tener la función:
+     * ahora el fallo lleva el motivo real (host ajeno, HTTP, tamaño, falta de
+     * almacenamiento externo).
+     */
+    fun descargar(post: BooruPost, url: String): ResultadoDescarga {
+        val descargador = descargas
+            ?: return ResultadoDescarga.Fallo(
+                "El módulo Booru no está inicializado: no se puede descargar nada",
+            )
+        return descargador.descargar(post, url)
+    }
 }
 
 @Serializable
@@ -88,5 +105,3 @@ data class BooruSearchResult(
     val site: String, val tags: String, val limit: Int, val results: List<BooruPost>, val success: Boolean,
     val motivo: String? = null, val pagina: Int = 0,
 )
-
-data class DownloadResult(val url: String, val destination: String, val success: Boolean, val message: String)

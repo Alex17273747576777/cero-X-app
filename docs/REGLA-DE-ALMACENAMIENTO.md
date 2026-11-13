@@ -22,6 +22,8 @@ Por eso el inventario no dice «cumple», dice cuántas deudas quedan.
 | sitio | qué | por qué cumple |
 |---|---|---|
 | `modules/houri/tracker/TrackerCredentials` | token de AniList y MAL | `EncryptedSharedPreferences` con clave del Keystore. **Es la excepción de la regla.** Si el Keystore no está, no se guarda en claro: se devuelve `false` y la pantalla lo avisa. |
+| `modules/booru/FavoritosBooruStore` | favoritos de Safebooru | JSON con metadatos en `AlmacenExterno/booru/favoritos.json`. Sin almacenamiento externo, `disponible()` devuelve false y la pantalla lo dice. |
+| `modules/booru/DescargasBooru` | imágenes descargadas a petición | Sólo con botón, sólo HTTPS de safebooru.org, sólo `rating:safe`, sólo tipo imagen y 25 MiB de tope. Escribe en `AlmacenExterno/booru/` por un `.tmp` renombrado. Sin externo devuelve el motivo: no cae al interno. |
 | `modules/ai/ModelAssets` | modelos ONNX | **Se leen del APK** con `AssetFileDescriptor.openFd()`. Antes se copiaban 373 MiB a `filesDir` en el primer arranque; esa copia ya no existe. |
 | `modules/diagnostics/ModelHonestyGuard` | lista de modelos | Ya no crea el directorio de prueba: comprobar una lectura no necesita escribir. |
 | `modules/installflow/SilentInstaller` | ¿puede `pm install` leer el APK? | Solo compara rutas; ya no nombra `cacheDir`. |

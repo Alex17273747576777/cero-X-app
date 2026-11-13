@@ -24,6 +24,7 @@ import com.ceroX.app.R
 import com.ceroX.app.core.CeroXApplication
 import com.ceroX.app.core.Pantallas
 import com.ceroX.app.databinding.FragmentBooruBinding
+import com.ceroX.app.ui.ajustes.FragmentHostActivity
 import kotlinx.coroutines.launch
 
 class BooruUIFragment : Fragment() {
@@ -41,7 +42,7 @@ class BooruUIFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val b = binding ?: return
-        adapter = BooruAdapter(::alternarFavorito, ::abrir)
+        adapter = BooruAdapter(::alternarFavorito, ::abrir, ::ver)
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
         mostrandoFavoritos = savedInstanceState?.getBoolean("favoritos") ?: false
@@ -62,6 +63,11 @@ class BooruUIFragment : Fragment() {
             if (isAdded) pintar()
         }
         pintar()
+    }
+
+    /** Abre la publicación en el visor propio, con zoom y descarga explícita. */
+    private fun ver(post: BooruPost) {
+        startActivity(FragmentHostActivity.intentoVisor(requireContext(), post))
     }
 
     private fun buscar(pagina: Int) {
@@ -137,6 +143,7 @@ class BooruUIFragment : Fragment() {
 class BooruAdapter(
     private val favorito: (BooruPost) -> Unit,
     private val abrir: (String) -> Unit,
+    private val ver: (BooruPost) -> Unit,
 ) : ListAdapter<BooruPost, BooruAdapter.ViewHolder>(BooruDiff()) {
     private var idsFavoritos: Set<Int> = emptySet()
 
@@ -163,7 +170,9 @@ class BooruAdapter(
         holder.site.text = "Safebooru · #${post.id}"
         holder.tags.text = post.tags.joinToString(" ", limit = 8)
         holder.score.text = "Puntuación ${post.score} · ${post.dimensions} · ${post.rating}"
-        holder.image.contentDescription = "Miniatura de ${post.tags.take(4).joinToString(" ")}"
+        holder.image.contentDescription = "Abrir la publicación ${post.id} en el visor: " +
+            post.tags.take(4).joinToString(" ")
+        holder.image.setOnClickListener { ver(post) }
         holder.image.setImageDrawable(ColorDrawable(Color.DKGRAY))
         holder.image.load(post.previewUrl) {
             error(ColorDrawable(Color.LTGRAY))

@@ -16,14 +16,15 @@ Corte: fase de navegación, 2026-11-12. «Retirado» significa que ya no se prom
 | Panel diferido | `Thread.sleep` para refrescar | Corrutina y nueva lectura del gestor |
 | Booru | Botón que sólo explicaba la ausencia de cliente | Safebooru real: búsqueda safe, páginas, miniaturas, ficha/original y favoritos externos; acceso en Ajustes |
 | Dashboard de módulos | Búsqueda desconectada y fila que sólo escribía Log | Ajustes→Módulos: salud real, filtro, versión/dependencias/detalle y ciclo iniciar/detener con protección de dependencias |
+| Visor de imágenes | Tocar una publicación abría el navegador: sin zoom, sin estado, sin descarga (`downloadMedia` devolvía un fallo fijo) | Visor propio con pellizco, doble toque, arrastre, botones equivalentes, 1:1, escala visible, descarga explícita al almacenamiento externo y favorito |
 
-Pruebas: `CatalogoFiltroTest`, `ModosNavegablesTest`, `NavegacionPrincipalTest`, `AccionesModulosTest`, `DashboardAndroidTest`, `AjustesModulosTest`, más las guardas previas `PantallasTest`, `NavegacionTest` y `WebPantallaTest`.
+Pruebas: `CatalogoFiltroTest`, `ModosNavegablesTest`, `NavegacionPrincipalTest`, `AccionesModulosTest`, `DashboardAndroidTest`, `AjustesModulosTest`, `VisorTransformacionTest`, `DescargasBooruTest`, `VisorBooruAndroidTest`, más las guardas previas `PantallasTest`, `NavegacionTest` y `WebPantallaTest`.
 
 ## Pendientes visibles o previamente visibles
 
 | Elemento | Estado honesto | Siguiente criterio de salida |
 |---|---|---|
-| Otros Booru y visor avanzado | Safebooru sí está integrado; otros orígenes, descargas, zoom y vídeo no | Integrar cada API tras prueba propia; no ampliar la lista por compatibilidad nominal |
+| Otros Booru y visor de vídeo | Safebooru integrado con visor de imagen propio (zoom, 1:1, descarga explícita). Otros orígenes y el vídeo siguen fuera | Integrar cada API tras prueba propia; el vídeo exige un origen que lo sirva y un reproductor probado, no ampliar la lista por compatibilidad nominal |
 | Kotatsu | Explorador de índice dentro de Fuentes; no ejecución de parsers | Integración compatible o mantener explorador claramente limitado; nunca llamarlo fuente ejecutándose |
 | Catálogo de apps | Metadatos estáticos; abrir repositorio no instala ni verifica una release | Separar directorios curados y tiendas, auditar formatos/licencias y no descargar APK implícitamente |
 | Proveedor IA | Chat con HTTP real y credencial segura, pero sin proveedor autenticado ejecutado aquí | Prueba opt-in con credencial real; registrar modelo/HTTP y no simular respuesta |
