@@ -27,6 +27,7 @@ estado es el workspace, y el latido revisa eso:
 | `git status` y el último commit | trabajo sin commitear y docs que se quedaron atrás |
 | `docs/PENDIENTES-EXTERNOS.md` y `INVENTARIO-CASCARONES.md` | qué sigue bloqueado y con qué comando se cierra |
 | toolchain y presupuesto de snapshot | si la fase siguiente es siquiera posible |
+| `docs/RESPALDOS.md` con su registro | qué commit está copiado fuera del sandbox; el repo no tiene remoto |
 
 Revisar «la memoria» sin un sitio donde mirarla sería un cascarón: un control que
 promete una comprobación y no la hace. La regla 5 de `AGENTS.md` prohíbe eso en la
@@ -76,6 +77,8 @@ validación física. Eso lo cubre el cierre mínimo de la regla 9.
 | `doc(s) con fecha de corte obsoleta` | actualizar la fecha en el mismo commit | el doc se modificó y su cabecera seguía en la fecha anterior |
 | `log(s) crudos de más de 1 MiB` | `grep -vE '^\s+at '` + `gzip -9` y borrar el crudo | un log de Gradle llegó a 49,9 MB por 435.671 líneas de pila D8 |
 | `pendiente(s) sin comando para cerrarlo` | escribir el comando exacto y qué comprueba | un bloqueo sin salida es trabajo que nunca se cierra |
+| `N commit(s) sin respaldo fuera del sandbox` | hacer el respaldo siguiendo `docs/RESPALDOS.md` y añadir la entrada al registro | el repo no tiene remoto: sin copia externa un workspace perdido se lleva los 112 commits |
+| `el head del último respaldo registrado no existe en el historial` | `git cat-file -t <hash>` y corregir la entrada | el registro se copió mal o se reescribió el historial |
 
 ## Añadir comprobaciones nuevas
 

@@ -36,6 +36,8 @@ DOCS = ROOT / "docs"
 # Los docs que declaran su propio corte en las primeras líneas.
 FECHA_DECLARADA = re.compile(r"\b(\d{4}-\d{2}-\d{2})\b")
 RUTA_EVIDENCIA = re.compile(r"\bwork/ci/[A-Za-z0-9._+-]+")
+REGISTRO_RESPALDO = re.compile(r"^head=([0-9a-f]{7,40})[ \t]*$", re.MULTILINE)
+DOC_RESPALDOS = "docs/RESPALDOS.md"
 JAVA = Path("/usr/lib/jvm/java-21-openjdk-amd64/bin/java")
 SDK = Path(os.environ.get("ANDROID_HOME", Path.home() / ".local/share/cerox-android-sdk"))
 LIMITE_LOG_CRUDO = 1024 * 1024
@@ -285,6 +287,66 @@ def comprobar_logs(hallazgos: list[tuple[str, str, str]]) -> None:
         ))
 
 
+def comprobar_respaldo(hallazgos: list[tuple[str, str, str]]) -> None:
+    """Commits posteriores al último respaldo registrado en docs/RESPALDOS.md.
+
+    El repositorio no tiene remoto (`git remote` da 0 entradas), así que el
+    archivo subido a Drive es la única copia que existe fuera del sandbox. Sin
+    esta comprobación respaldar es algo que hay que acordarse de hacer, y lo que
+    depende de la memoria se olvida: este proyecto ya pierde el toolchain entero
+    en cada reinicio.
+
+    Se excluyen los commits cuya única ruta tocada es el propio doc del registro.
+    Sin esa exclusión la comprobación sería circular: anotar un respaldo modifica
+    el doc, eso genera un commit posterior al respaldo, y el latido avisaría de
+    un trabajo pendiente que es exactamente el aviso que acaba de escribir.
+    """
+    doc = DOCS / "RESPALDOS.md"
+    if not doc.is_file():
+        return
+    cabezas = REGISTRO_RESPALDO.findall(doc.read_text(encoding="utf-8", errors="replace"))
+    if not cabezas:
+        hallazgos.append((
+            AVISO,
+            f"{DOC_RESPALDOS} no registra ningún respaldo",
+            "Añadir una entrada head=<hash> dentro del bloque RESPALDO_REGISTRO. Sin"
+            " registro no se sabe qué commit está copiado fuera del sandbox.",
+        ))
+        return
+    ultima = cabezas[-1]
+    # rev-parse --verify --quiet imprime el hash si existe y nada si no; devuelve
+    # cadena vacía en ambos casos de fallo, así que sirve para distinguir «el
+    # registro apunta a un commit que no está» de «no hay commits nuevos».
+    if not git("rev-parse", "--verify", "--quiet", f"{ultima}^{{commit}}"):
+        hallazgos.append((
+            BLOQUEO,
+            f"el head del último respaldo registrado ({ultima}) no existe en el historial",
+            "El registro apunta a un commit ausente: o se reescribió el historial o la"
+            " entrada está mal copiada. Comprobar con git cat-file -t <hash>.",
+        ))
+        return
+    sin_respaldar: list[str] = []
+    for linea in git("log", "--format=%h", f"{ultima}..HEAD").splitlines():
+        corto = linea.strip()
+        if not corto:
+            continue
+        rutas = {
+            r.strip()
+            for r in git("show", "--pretty=format:", "--name-only", corto).splitlines()
+            if r.strip()
+        }
+        if rutas - {DOC_RESPALDOS}:
+            sin_respaldar.append(corto)
+    if sin_respaldar:
+        hallazgos.append((
+            AVISO,
+            f"{len(sin_respaldar)} commit(s) sin respaldo fuera del sandbox:"
+            f" {', '.join(sin_respaldar[:5])}" + ("…" if len(sin_respaldar) > 5 else ""),
+            f"Seguir docs/RESPALDOS.md y añadir la entrada al registro; el último respaldo"
+            f" cubre {ultima[:7]}.",
+        ))
+
+
 def comprobar_entorno(hallazgos: list[tuple[str, str, str]]) -> None:
     resultado = subprocess.run(
         [sys.executable, str(ROOT / "tools/comprobar_entorno.py")],
@@ -316,6 +378,7 @@ def main(argv: list[str]) -> int:
     comprobar_ultimo_commit(hallazgos)
     comprobar_toolchain(hallazgos)
     comprobar_logs(hallazgos)
+    comprobar_respaldo(hallazgos)
     if "--entorno" in argv:
         comprobar_entorno(hallazgos)
 
@@ -325,7 +388,7 @@ def main(argv: list[str]) -> int:
     if not hallazgos:
         if "--detallado" in argv:
             print("  sin anomalías: árbol, evidencia, fechas, pendientes, identidad,")
-            print("  último commit, toolchain y logs revisados")
+            print("  último commit, toolchain, logs y respaldo revisados")
         print("HEARTBEAT_OK")
         return 0
 
