@@ -41,7 +41,23 @@ Corte: 2026-11-13. Pedidos explícitos del usuario que este entorno no puede sat
 
 **Android 17 beta 3 no se puede emular.** `platforms/android-37.2-beta3` sí está instalado (`sdkmanager --install` con EXIT=0; `AndroidVersion.ApiLevel=37.1`, `CodeName=DEV`, `ExtensionLevel=23`) y sirve para compilar. Robolectric 4.16.1 no lo emula: `IllegalArgumentException: API level 37 is not available` en `UnknownSdk.java:45`. Los niveles que arrancan son 34, 35 y 36, y el proyecto prueba en 36.
 
-**OmniShizuku no se incorpora.** `github.com/krishna3163/OmniShizuku`, Apache-2.0, 29 estrellas, Kotlin, `pushed_at 2026-11-13T08:52:59Z`. Sus dos releases publican un único asset cada una, `omnishizuku-latest-debug.apk`: 57.801.232 B, sha256 `7a0fce3109c7827e826f55a51f9b4bc3398311ceea8b9d14e3631f7330070f19`, paquete `com.krishna.omnishizuku` versionCode 326 / v1.0.0, targetSdk 37, ABIs arm64-v8a, armeabi-v7a, x86 y x86_64. Está firmado con `CN=Android Debug, O=Android, C=US` (esquemas v2 y v3 true, v1 false) y declara **47 permisos**, entre ellos `READ_CALL_LOG`, `READ_CONTACTS`, `RECORD_AUDIO`, `MANAGE_ONGOING_CALLS`, `PACKAGE_USAGE_STATS`, `QUERY_ALL_PACKAGES`, `WRITE_SECURE_SETTINGS`, `SYSTEM_ALERT_WINDOW`, `REQUEST_INSTALL_PACKAGES`, `REQUEST_DELETE_PACKAGES`, `HIDE_OVERLAY_WINDOWS`, `USE_BIOMETRIC` y `ACCESS_ADSERVICES_AD_ID`. La regla 7 no deja incorporar un artefacto que sólo existe como build de depuración, y no habría aparato donde instalarlo. El APK se descargó a `/tmp` a propósito —fuera del workspace— y no se copió al repo.
+**OmniShizuku no se incorpora.** `github.com/krishna3163/OmniShizuku`, Apache-2.0, 29 estrellas, Kotlin, `pushed_at 2026-11-13T08:52:59Z`. Sus dos releases publican un único asset cada una, `omnishizuku-latest-debug.apk`: 57.801.232 B, sha256 `7a0fce3109c7827e826f55a51f9b4bc3398311ceea8b9d14e3631f7330070f19`, paquete `com.krishna.omnishizuku` versionCode 326 / v1.0.0, targetSdk 37, ABIs arm64-v8a, armeabi-v7a, x86 y x86_64. Está firmado con `CN=Android Debug, O=Android, C=US` (esquemas v2 y v3 true, v1 false) y declara **47 permisos**, entre ellos `READ_CALL_LOG`, `READ_CONTACTS`, `RECORD_AUDIO`, `MANAGE_ONGOING_CALLS`, `PACKAGE_USAGE_STATS`, `QUERY_ALL_PACKAGES`, `WRITE_SECURE_SETTINGS`, `SYSTEM_ALERT_WINDOW`, `REQUEST_INSTALL_PACKAGES`, `REQUEST_DELETE_PACKAGES`, `HIDE_OVERLAY_WINDOWS`, `USE_BIOMETRIC` y `ACCESS_ADSERVICES_AD_ID`. **Corrección del motivo, medido el 2026-11-13 sobre la fuente clonada (31 MB, 613 `.kt`).** Lo anterior está bien como dato del binario, pero la conclusión era falsa: se escribió que «la regla 7 no deja incorporar un artefacto que sólo existe como build de depuración», y la regla 7 no dice eso —dice que no se ejecute nada automáticamente y que firma y hash prueban procedencia, no seguridad. Que sólo publique debug tiene además explicación inocente: `build_apk.sh` sólo construye `:manager:assembleDebug` y `signing.gradle` cae al keystore de depuración cuando falta `signing.properties`. Es un hueco de CI, no un ocultamiento.
+
+También es un **fork de Shizuku**, no una alternativa: clases en `moe.shizuku.manager.*`, `libshizuku.so` y `librish.so` empaquetadas, y permisos `moe.shizuku.manager.permission.API`/`.MANAGER` declarados como propios. Shizuku original (`RikkaApps/Shizuku`, 33.570 estrellas, 3.644 forks, no archivado) lleva ~17 meses sin commits —el último es 2025-06-18— y su última release v13.6.0 es de 2025-05-25, con 3.716.322 descargas de un APK sí firmado en release. «Sin actualizar» es correcto; «obsoleto» es otra cosa, y el fork hereda la misma base.
+
+Lo que la auditoría contra la fuente sí encontró, y que un antivirus no diría:
+
+- **Telemetría de Google en una herramienta privilegiada.** `manager/build.gradle:140-142` trae `firebase-bom:34.19.0`, `firebase-crashlytics` y `firebase-analytics`, con `manager/google-services.json` (project_id `omnishiziku`). De ahí salen `ACCESS_ADSERVICES_AD_ID` y `com.google.android.gms.permission.AD_ID`: cero referencias en el código propio, vienen del manifiesto fusionado de la librería.
+- **Salidas a proveedores de IA**: `openrouter.ai` (8 referencias), `generativelanguage.googleapis.com` (4), `aistudio.google.com` (3), en `AiClient.kt`, `AiExplainUtil.kt`, `AiProviderRepository.kt`, `AiProviderPresets.kt` y `AgyCliEngine.kt`. Un cliente de IA dentro de una app con `WRITE_SECURE_SETTINGS` usado en 96 ficheros y `ProcessBuilder`/`exec` en 11.
+- **Grabadora de llamadas real**, no un permiso huérfano: `callrecorder/ShellRecordingEngine.kt`, `ShellService.kt`, `RecordingModel.kt` y wrappers de `ServiceManager`/`ActivityManager`.
+- **17 componentes `exported="true"` sin `android:permission`** que los proteja, de 48 exportados y 111 componentes. Los que merecen revisión: `InstallZipModuleActivity`, `ShellRequestHandlerActivity` y `DhizukuProvider`. `ComponentActivity` y `PreviewActivity` de Compose son restos del tooling que sólo aparecen en build de depuración.
+- **Permisos declarados sin uso encontrado**: `READ_CONTACTS` (0 `ContactsContract`), `READ_CALL_LOG` (0 `CallLog`/`call_log`), `SmsManager`, `LocationManager`, `AdvertisingIdClient`. Sobre-declaración de fork agregador: descuido, no exfiltración.
+
+En contra de la sospecha: el proyecto publica `security-reports/` con una auditoría propia que clasifica las 427 alertas de GitHub Code Scanning (419 de mobsfscan, 8 de OpenSSF Scorecard) en 21 vulnerabilidades confirmadas y corregidas, 322 endurecimientos, 8 restricciones de plataforma, 71 falsos positivos y 5 de gobernanza; y las correcciones están en `main` (`SafeIntentUtils` 25 ocurrencias, `taskAffinity=""` 16, `allowBackup="false"` 10). El APK publicado declara `HIDE_OVERLAY_WINDOWS` y `targetSdk 37`, dos de esas correcciones: binario y fuente concuerdan.
+
+**No se ejecutó ningún antivirus y no se va a fingir lo contrario**: `clamscan`, `apktool`, `jadx`, `androguard` y `dexdump` no están instalados y la API de VirusTotal exige una clave que este entorno no tiene. Lo hecho en su lugar —auditoría contra la fuente y lectura del MobSF que ellos publican— responde mejor a la pregunta real, que no es «¿es malware conocido?» sino «¿qué hace una app con shell y `WRITE_SECURE_SETTINGS` con los datos del aparato?». Medidas completas en `work/ci/omnishizuku-auditoria-01.txt`.
+
+El APK publicado sigue sin incorporarse al repo, y sigue sin poder instalarse: no hay aparato. Compilarlo aquí sin aparato sería teatro, y la regla 5 prohíbe presentar como «instalado» o «funcionando» lo que sólo compiló.
 
 **zram no es posible.** `sudo modprobe` da `command not found`, no existe `/sys/block/zram*` y `zramctl` no está instalado. Hay sudo sin contraseña (uid 1000) pero no se pueden cargar módulos del kernel. La palanca real es el archivo de swap, hoy en 12 GiB sobre 1.982 MB de RAM.
 
@@ -63,7 +79,23 @@ grep -n 'sdk=' android/app/src/test/resources/robolectric.properties
   --tests com.ceroX.app.core.NivelDeSdkDePruebasTest
 ```
 
-Criterio de salida — OmniShizuku: que el proyecto publique un APK de release firmado con un certificado que no sea `CN=Android Debug`, y que exista un aparato donde instalarlo. Se vuelve a medir con `apksigner verify --print-certs` sobre el asset nuevo antes de decidir nada.
+Criterio de salida — OmniShizuku: lo que falta no es una firma de release, es **un aparato**. El orden correcto cuando lo haya es compilarlo desde la fuente con clave propia en vez de instalar el binario publicado, porque la fuente es Apache-2.0 y eso convierte la confianza en control:
+
+```bash
+git clone --depth 1 https://github.com/krishna3163/OmniShizuku && cd OmniShizuku
+# quitar telemetría antes de compilar: firebase-analytics y firebase-crashlytics
+# en manager/build.gradle:140-142, y el plugin apply de google-services
+grep -n 'firebase\|google-services' manager/build.gradle build.gradle
+keytool -genkeypair -v -keystore cerox.keystore -alias cerox -keyalg RSA \
+  -keysize 4096 -validity 10000        # la clave, fuera del repo y sin commitear
+printf 'KEYSTORE_FILE=...\nKEYSTORE_PASSWORD=...\nKEYSTORE_ALIAS=cerox\nKEYSTORE_ALIAS_PASSWORD=...\n' \
+  > signing.properties                  # signing.gradle lo lee; si falta, cae a debug
+./gradlew :manager:assembleRelease
+apksigner verify --print-certs manager/build/outputs/apk/release/*.apk
+adb devices && adb install -r manager/build/outputs/apk/release/*.apk
+```
+
+Comprobar después, sobre el APK construido y no sobre el descargado: que `aapt2 dump xmltree` ya no liste `FirebaseInitProvider` ni `AppMeasurementService`, que no queden permisos `AD_ID`, y que los 17 componentes `exported="true"` sin permiso se hayan reducido. Si el usuario quiere el binario publicado tal cual en vez del compilado, hace falta su decisión explícita con estos hallazgos delante, no una regla que lo dé por bueno.
 
 ## Kotatsu
 
