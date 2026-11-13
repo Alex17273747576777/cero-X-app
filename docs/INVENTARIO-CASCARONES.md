@@ -29,6 +29,7 @@ Pruebas: `CatalogoFiltroTest`, `ModosNavegablesTest`, `NavegacionPrincipalTest`,
 | Catálogo de apps | Metadatos estáticos; abrir repositorio no instala ni verifica una release | Separar directorios curados y tiendas, auditar formatos/licencias y no descargar APK implícitamente |
 | Proveedor IA | Chat con HTTP real y credencial segura, pero sin proveedor autenticado ejecutado aquí | Prueba opt-in con credencial real; registrar modelo/HTTP y no simular respuesta |
 | LG V60 / MangaDex Android | APK de instrumentación compilado; sin dispositivo | Ejecutar DEX→búsqueda→capítulos→páginas→imagen en Android y prueba visual |
+| Revisión física del visor | `VisorFisicoAndroidTest` escrita, compilada y dentro del APK androidTest; nunca ejecutada porque no hay aparato | Ejecutar con `-e recorridoFisico 1 -e networkTests 1` y guardar la salida `RECORRIDO_FISICO` del aparato; si algo falla, arreglar el gesto o la pantalla, no la prueba |
 
 ## Código no expuesto como opción
 

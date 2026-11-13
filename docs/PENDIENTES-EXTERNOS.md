@@ -4,7 +4,7 @@ Corte: 2026-11-13. Estos elementos no se marcan completados por compilar.
 
 ## LG V60 / MangaDex / revisión visual
 
-Estado: `adb devices` no muestra aparatos. `assembleDebugAndroidTest` compila, pero no ejecuta Android.
+Estado: `adb devices` no muestra aparatos (comprobado de nuevo el 2026-11-13). `assembleDebugAndroidTest` compila, pero no ejecuta Android.
 
 Cuando haya un dispositivo:
 
@@ -17,7 +17,21 @@ Cuando haya un dispositivo:
 ```
 
 4. Comprobar DEX→búsqueda→detalle/capítulos→páginas→imagen y conservar resultado del dispositivo.
-5. Recorrer visualmente Inicio, Biblioteca, Fuentes→Directorios, Web, IA, Ajustes, Safebooru, Diseño claro/oscuro y rotación. En Ajustes→Módulos del sistema, comprobar búsqueda, detalle, resultado de iniciar/detener y bloqueo de una dependencia con dependientes activos. En Ajustes→Imágenes Safebooru, tocar una miniatura y comprobar el visor: pellizco real, doble toque sobre el punto tocado, arrastre sin huecos con la imagen ampliada, botones −/+/Ajustar/1:1, escala visible, rotación recuperando la escala y «Guardar» escribiendo en la carpeta externa de la app con su ruta y tamaño (o el motivo si no hay externo). Las pruebas JVM/Robolectric no validan Coil, los gestos reales, foco físico, contraste renderizado, lector de pantalla ni efectos reales de detener cada módulo en el aparato.
+5. Ejecutar el recorrido físico del visor, que ya está escrito y **compilado pero nunca ejecutado**:
+
+```text
+adb shell am instrument -w -e recorridoFisico 1 -e networkTests 1 \
+  com.ceroX.app.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+   `VisorFisicoAndroidTest` inyecta tactos reales con `sendPointerSync` y comprueba: render de Coil
+   con drawable de tamaño real, pellizco que amplía y reduce sin bajar del ajuste, doble toque que
+   alterna, arrastre que no saca la imagen de la vista, «Guardar» escribiendo de verdad en
+   `AlmacenExterno` con ruta, tamaño y cabecera mágica de imagen, y contraste WCAG AA medido sobre
+   el tema resuelto por el aparato más etiquetas y objetivo táctil de los botones. Sin
+   `networkTests 1` sólo corre la parte que no necesita Safebooru.
+
+6. Recorrer visualmente lo que ninguna prueba sustituye: Inicio, Biblioteca, Fuentes→Directorios, Web, IA, Ajustes, Safebooru, Diseño claro/oscuro y rotación. En Ajustes→Módulos del sistema, comprobar búsqueda, detalle, resultado de iniciar/detener y bloqueo de una dependencia con dependientes activos. En el visor, mirar con los ojos la imagen ampliada y escuchar el lector de pantalla. Las pruebas JVM/Robolectric no validan Coil, los gestos reales, foco físico, contraste renderizado ni efectos reales de detener cada módulo en el aparato.
 
 ## Kotatsu
 

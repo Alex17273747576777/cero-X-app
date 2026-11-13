@@ -51,10 +51,14 @@ El visor amplía imágenes: no reproduce WebM ni MP4, y no registra las descarga
 source entorno/local.sh
 cd android
 CEROX_LIVE_BOORU=1 ./gradlew -I ../tools/low-memory.gradle \
-  :app:testDebugUnitTest --tests com.ceroX.app.modules.booru.SafebooruRedRealTest
+  :app:testDebugUnitTest --tests 'com.ceroX.app.modules.booru.*RedRealTest'
 ```
 
-Resultado `booru-red-01`: búsqueda `landscape`, dos resultados safe; miniatura JPEG HTTP 200, 10.045 bytes. Evidencia en `work/ci/booru-red-01.log` y `booru-red-01-resumen.txt`. Esto ejecuta red JSON+imagen en JVM; no demuestra el render de Coil ni interacción en Android físico. Esa revisión sigue pendiente junto al LG V60.
+Resultado `booru-red-01`: búsqueda `landscape`, dos resultados safe; miniatura JPEG HTTP 200, 10.045 bytes. Evidencia en `work/ci/booru-red-01.log` y `booru-red-01-resumen.txt`. Esto ejecuta red JSON+imagen en JVM; no demuestra el render de Coil ni interacción en Android físico.
+
+Resultado `descarga-real-01` (2026-11-13): `DescargasBooruRedRealTest` descargó de verdad la publicación 6540805 desde `https://safebooru.org/images/816/27b6c56e46291fdcb43cc51daa0c6cbd.png`: **5.411.582 bytes**, archivo en disco, bytes contados iguales a los escritos, cabecera mágica PNG comprobada, ningún `.tmp` residual, y la segunda llamada devolvió `yaExistia=true` sin volver a bajar. Evidencia en `work/ci/descarga-real-01-resumen.txt`.
+
+Esa descarga escribe en una carpeta temporal de la JVM, no en `AlmacenExterno` de Android: que el volumen externo de un aparato sea escribible de verdad sigue siendo del dispositivo.
 
 ## Pruebas locales
 
@@ -76,6 +80,10 @@ Del visor (corte 2026-11-13, 30 pruebas nuevas):
   todo queda desactivado, la imagen cargada reajusta con las dimensiones reales, el fallo de carga
   dice el motivo y conserva el zoom, y «Guardar» es explícito y dice dónde escribe.
 
-Lo que estas pruebas no hacen: no lanzan `MotionEvent` sintéticos (el pellizco real se revisa en el
-aparato) y no cargan una imagen por red; llaman a los mismos callbacks que Coil invoca. En
-Robolectric el `ImageLoader` lleva un interceptor que corta antes de tocar la red.
+Lo que estas pruebas no hacen: no lanzan `MotionEvent` sintéticos y no cargan una imagen por red; llaman a los mismos callbacks que Coil invoca. En Robolectric el `ImageLoader` lleva un interceptor que corta antes de tocar la red.
+
+## Recorrido físico automatizado (escrito, sin ejecutar)
+
+`android/app/src/androidTest/java/com/ceroX/app/visor/VisorFisicoAndroidTest.kt` convierte la revisión pendiente del aparato en cuatro pruebas de instrumentación: render de Coil y pellizco real, doble toque y arrastre sin huecos, descarga efectiva en `AlmacenExterno`, y contraste WCAG AA medido sobre el tema resuelto más etiquetas y tamaño táctil de los botones. Inyecta tactos con `sendPointerSync`, no los simula.
+
+**Compilada y empaquetada en el APK androidTest; nunca ejecutada**, porque `adb devices` no muestra aparatos. Se lanza con `-e recorridoFisico 1 -e networkTests 1`; sin esas banderas se omite. Un detalle que la rompe si se toca: nada que espere o lea puede ir dentro de `ActivityScenario.onActivity`, porque ese bloque corre en el hilo principal y `waitForIdleSync`/`runOnMainSync` desde ahí se bloquean para siempre.

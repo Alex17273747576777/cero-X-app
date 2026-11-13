@@ -85,6 +85,9 @@ class BooruModule : ModuleInterface() {
             )
         return descargador.descargar(post, url)
     }
+
+    /** Dice si el descargador existe, o sea si `initialize` llegó a correr. */
+    fun descargasDisponibles(): Boolean = descargas != null
 }
 
 @Serializable
