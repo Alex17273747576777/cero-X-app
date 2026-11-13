@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 """
 Copia los modelos de `assets/models` a un directorio de archivos, una sola vez.
 

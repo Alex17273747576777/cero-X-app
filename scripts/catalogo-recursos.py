@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 """
 Catálogo de recursos del ecosistema: EverythingMoe, Wotaku y Miyomi.
 

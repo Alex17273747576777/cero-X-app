@@ -363,6 +363,16 @@ tasks.withType(Test).configureEach {
     // ASCII y «Capítulo» llega como «Cap?tulo»: el lector parece roto cuando el
     // roto es el entorno de compilación. Se fija UTF-8 aquí para que la prueba
     // mida el lector y no la configuración de la máquina.
+    // Cuántos procesos de prueba corren a la vez. Por defecto 1, y el valor lo decide
+    // la memoria, no los núcleos: con 2 CPUs y ~2 GiB de RAM el demonio de Gradle ya
+    // pide -Xmx2048m y cada fork de Robolectric su propio heap (384m vía
+    // tools/low-memory.gradle). Medido el 2026-11-13 con tools/medir-build.py en la
+    // línea base de un cierre completo: pico de RSS java 1.748 MB y MemAvailable bajó
+    // a 33 MB, o sea que un solo build ya corre al borde del OOM killer. Las cifras de
+    // las variantes están en work/ci/paralelismo.tsv y la conclusión en
+    // docs/PARALELISMO.md. Se sube sin editar este fichero: -PceroxForks=2
+    maxParallelForks = (project.findProperty("ceroxForks") ?: "1") as int
+
     systemProperty "file.encoding", "UTF-8"
     systemProperty "sun.jnu.encoding", "UTF-8"
     jvmArgs "-Dfile.encoding=UTF-8", "-Dsun.jnu.encoding=UTF-8", "-Duser.language=es", "-Duser.country=DO"

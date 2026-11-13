@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 """
 ¿El OCR empaquetado lee de verdad, o solo devuelve tokens con buena pinta?
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 # run_stress_tests.sh — Ejecuta las pruebas de estrés de cero-X
 set -euo pipefail
 

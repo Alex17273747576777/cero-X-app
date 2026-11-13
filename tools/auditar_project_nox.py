@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 """Reconstruye/verifica URLs de releases Project Nox sin descargar ni ejecutar APKs."""
 import argparse
 import hashlib

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 # clone_all_repos.sh — Clona los 8 repositorios de referencia de cero-X
 set -euo pipefail
 

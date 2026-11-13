@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 """clone_repos.py — Clona ecosistemas de referencia para cero-X.
 
 Clona los repositorios de referencia mencionados en el proyecto:

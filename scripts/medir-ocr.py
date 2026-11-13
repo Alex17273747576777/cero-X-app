@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 """
 Mide manga-ocr de verdad, sobre una imagen real, antes de escribir el pipeline
 de inferencia en Kotlin.

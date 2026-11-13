@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2026 La Bandita
+# SPDX-License-Identifier: GPL-3.0-only
 # Arranca el emulador Android sin aceleración por hardware (/dev/kvm no existe).
 #
 # LO QUE SE MIDIÓ Y LO QUE PASÓ (2026-11-08)
