@@ -63,12 +63,19 @@ disponible**, sin restricciones de acceso ni pago. Kiroku hereda la UPL de su pa
 ReDantotsu, que declara la misma.
 
 cero-X-app es GPL-3.0 y su fuente es público en GitHub, así que la condición adicional se
-cumple de hecho. Pero **no es una licencia reconocida por SPDX** y combinar código bajo una
-licencia personalizada es una decisión jurídica, no técnica: la toma el dueño. Mientras no
-la tome, Kiroku y ReDantotsu son **referencia de producto** (se leen, se aprende de su
-diseño, se compara) y **no fuente de código copiado**. Es el mismo criterio que ya aplica
-`proyectos/LICENCIAS.md` del repo `entorno-de-herramientas-de-trabajo` para
-`normas-de-diseno`, que tampoco declara licencia.
+cumple de hecho. **El dueño aceptó la UPL el 2026-11-13** (cabo ① de
+`docs/PENDIENTES-EXTERNOS.md`): Kiroku ya se clona como referencia
+(`scripts/bajar-referencias.sh`, 22 MB, 1.090 ficheros, `e2d54c4`) y se audita junto a las
+otras once fuentes. Si se llega a copiar código de Kiroku, el aviso de la UPL se conserva en
+cada fichero que proceda de ahí, como hace `docs/LICENCIA.md` con el linaje Apache/MIT.
+ReDantotsu (el padre) sigue sin clonarse: se lee por la API como referencia de producto.
+
+Un dato de la auditoría que conviene no olvidar: Kiroku aplica Firebase **sin condicional** y
+trae `google-services.json` commiteado, así que su telemetría está activa de serie —a
+diferencia de houri, AniZen o ShinKu, que la gatean tras `Config.includeTelemetry` o la
+existencia del fichero. Eso no afecta a la licencia (la UPL va de disponibilidad del fuente,
+no de rastreo), pero sí a qué se copia: cero-X no tiene telemetría y si toma algo de Kiroku no
+toma ni el Firebase ni el `google-services.json`.
 
 ### Las cuatro Dart no se portan: se estudian
 
@@ -154,7 +161,7 @@ sacarlo lo devolvió a 2.246 y 38,86 MiB. Y `/opt/cerox` no es escribible para e
 así que no es un destino alternativo.
 
 **Fase F2 — Auditoría contra fuente. CERRADA el 2026-11-13.** Los cuatro ejes, medidos con
-`tools/auditar-referencias.py` sobre los 11 objetivos (10 referencias + cero-X) sin aparato ni
+`tools/auditar-referencias.py` sobre los 12 objetivos (11 referencias + cero-X) sin aparato ni
 compilación —es texto—. Evidencia: `work/ci/frankie/f2-{manifiestos,apis,endpoints,telemetria}.tsv`
 y una ficha por app en `work/ci/frankie/fichas/`. Cada cifra sale de esos ficheros; ninguna se
 transcribió de memoria.
@@ -165,6 +172,7 @@ transcribió de memoria.
 |---|---:|---:|---:|---:|---:|
 | Kototoro | 16 | 24 | 96 | 20 | 13 |
 | Miyorare | 7 | 15 | 74 | 21 | 12 |
+| Kiroku | 1 | 21 | 72 | 17 | 13 |
 | DeepSync | 2 | 15 | 70 | 16 | 12 |
 | houri | 17 | 22 | 23 | 7 | 14 |
 | kisara | 15 | 23 | 29 | 7 | 14 |
@@ -220,21 +228,23 @@ declarado en el catálogo de aplicado de verdad.
 
 - **cero-X: ninguno.** Cero SDK en sus 5 ficheros de build reales, confirmado por grep directo
   además de por la herramienta. Es la postura más limpia posible y no se toca.
-- **8 de 10 referencias cablean telemetría, pero ninguna la activa por defecto.** Cinco usan
-  Firebase (AniZen, houri, kisara, Reikai, ShinKu) y tres ACRA —reporte de fallos abierto y
-  autoalojable, no un rastreador como Firebase— (DeepSync, Kototoro, Miyorare). Tadami no
-  tiene; AnantPlay compila con `build.sh` y no Gradle, así que su telemetría **no se midió**
-  (la herramienta reporta `ficheros_build=0`, no «ninguna»).
+- **9 de 11 referencias cablean telemetría.** Seis usan Firebase (AniZen, houri, kisara, Reikai,
+  ShinKu, Kiroku) y tres ACRA —reporte de fallos abierto y autoalojable, no un rastreador como
+  Firebase— (DeepSync, Kototoro, Miyorare). Tadami no tiene; AnantPlay compila con `build.sh` y
+  no Gradle, así que su telemetría **no se midió** (la herramienta reporta `ficheros_build=0`,
+  no «ninguna»).
 - **El patrón que importa para el frankie:** houri, AniZen, Reikai y kisara aíslan la
   telemetría en un módulo Gradle propio (`telemetry/`, 3-5 ficheros) que sólo se compila con
   `if (Config.includeTelemetry)`, falso salvo `-Pinclude-telemetry`. ShinKu la condiciona a que
-  exista `google-services.json`. Y **ninguno de los 10 clones trae ese `google-services.json`
-  commiteado** —está en `.gitignore`—, así que ninguno compila con telemetría activa de salida.
-  houri lo dice en `app/build.gradle.kts:66`: «no telemetry in the lean variant». cero-X ya
-  está donde esas variantes «lean» quieren llegar.
+  exista `google-services.json`. Diez de los once clones **no** traen ese `google-services.json`
+  commiteado —está en `.gitignore`—, así que no compilan con telemetría activa de salida; houri
+  lo dice en `app/build.gradle.kts:66`: «no telemetry in the lean variant». **La excepción es
+  Kiroku**, que aplica Firebase sin condicional y trae `google-services.json` commiteado: su
+  telemetría sí está activa de serie. cero-X ya está donde esas variantes «lean» quieren llegar,
+  y si toma algo de Kiroku no toma ni el Firebase ni ese fichero.
 
-*Disciplina aplicada, que es parte del cierre.* La primera corrida del eje 4 era falsa en las
-11 apps: buscar subcadenas minúsculas hizo que «adjust» casara con `adjustResize` y «umeng» con
+*Disciplina aplicada, que es parte del cierre.* La primera corrida del eje 4 era falsa en todas
+las apps: buscar subcadenas minúsculas hizo que «adjust» casara con `adjustResize` y «umeng» con
 «Diumenge» (domingo en catalán). Se validó cada coincidencia leyendo la línea antes de escribir
 nada, se reescribieron los ejes 2, 3 y 4 con coordenadas reales y raíces correctas, y sólo
 entonces se publicó. Cuatro falsos positivos cazados, documentados en el cabo ③ de

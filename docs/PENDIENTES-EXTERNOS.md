@@ -214,7 +214,7 @@ La prueba exige HTTP 2xx, modelo y respuesta no vacía. Registra sólo HTTP/mode
 Anotados el 2026-11-13 al cerrar la fase F1 de `docs/OBJETIVO-TODO-EN-UNO.md`. Cada uno con
 su salida, porque un pendiente sin comando es un recordatorio que se olvida.
 
-### 1. Licencia de Kiroku y ReDantotsu: decisión del dueño, no técnica
+### 1. Licencia de Kiroku y ReDantotsu — DECIDIDO el 2026-11-13: se acepta la UPL
 
 `Nahiro18/Kiroku` (18★) y su padre `AsrOfficialDev/ReDantotsu` (156★) declaran
 `NOASSERTION` en la API porque su `LICENSE.md` (1.434 bytes, leído entero) no es una licencia
@@ -224,11 +224,14 @@ disponible, sin restricciones de acceso ni pago, identificando claramente la obr
 automáticamente si se incumple.
 
 cero-X-app es GPL-3.0 y su fuente es público en GitHub, así que la condición adicional se
-cumple de hecho. Lo que no se puede decidir desde aquí es si combinar código bajo una licencia
-personalizada es aceptable para el proyecto. Mientras no se decida, **Kiroku no se clona** y
-`scripts/bajar-referencias.sh` lo excluye a propósito.
+cumple de hecho. **El dueño decidió el 2026-11-13 aceptar la UPL** (opción a de abajo): Kiroku
+ya está en la lista `KOTLIN` de `scripts/bajar-referencias.sh`, clonado en `/var/tmp/referencias`
+(22 MB, 1.090 ficheros, `e2d54c4`) y auditado como la fuente número once. El aviso de la UPL se
+conservará en cada fichero que proceda de ahí si se llega a copiar código, como hace
+`docs/LICENCIA.md` con el linaje Apache/MIT. ReDantotsu (el padre) sigue sin clonarse: se lee
+por la API como referencia de producto.
 
-Salida, según lo que se decida:
+Salida que se tomó (a); las otras dos quedan anotadas por si se revierte:
 
 ```bash
 # a) Aceptar la UPL como compatible: añadir Kiroku a la lista KOTLIN del script y bajarlo
@@ -267,8 +270,9 @@ cd /home/user/work/edt && bash proyectos/comprobar-copias.sh --estricto-origen  
 
 ### 3. Los tres ejes que faltan de la fase F2 — CERRADO el 2026-11-13
 
-Hecho. `tools/auditar-referencias.py` audita ya los cuatro ejes sobre los 11 objetivos (10
-referencias + cero-X) sin aparato ni compilación: manifiestos, APIs usadas frente a
+Hecho. `tools/auditar-referencias.py` audita ya los cuatro ejes sobre los 12 objetivos (11
+referencias + cero-X; Kiroku se unió al aceptar el dueño la UPL, cabo ①) sin aparato ni
+compilación: manifiestos, APIs usadas frente a
 declaradas, endpoints por host y telemetría de dependencias. Evidencia en
 `work/ci/frankie/f2-{manifiestos,apis,endpoints,telemetria}.tsv` y una ficha por app en
 `work/ci/frankie/fichas/`. El cierre y lo que dicen los cuatro ejes está en

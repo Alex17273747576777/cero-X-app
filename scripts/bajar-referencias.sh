@@ -34,6 +34,14 @@ KOTLIN=(
   "Noirero/Miyorare:GPL-3.0:Kotlin"
   "Arthurpendragon9876/DeepSync:GPL-3.0:Kotlin"
   "AnantPlay/android:MIT:Java"
+  # Kiroku, añadido el 2026-11-13 por decisión del dueño (cabo ① de PENDIENTES-EXTERNOS.md):
+  # su licencia es la «Unabandon Public License», que incorpora todos los términos de GPLv3
+  # y añade una condición —el fuente de modificaciones y obras derivadas debe estar público,
+  # sin restricciones de acceso ni pago, identificando claramente la obra—. cero-X-app es
+  # GPL-3.0 y su fuente es público en GitHub, así que la condición se cumple de hecho. La
+  # licencia no es SPDX (la API devuelve NOASSERTION); el campo dice «UPL» y el aviso se
+  # conserva en cada fichero que proceda de ahí, como explica docs/LICENCIA.md.
+  "Nahiro18/Kiroku:UPL:Kotlin"
 )
 # Lectores de manga candidatos a base del modelo de fuentes (añadidos el 2026-11-13 a
 # petición del dueño, que preguntó por kisara frente a ShinKu + houri). Los tres son
@@ -54,9 +62,9 @@ DART=(
   "ferelking242/watchtower:Apache-2.0:Dart"
   "Foxlations/Foxlations:Apache-2.0:Dart"
 )
-# Nahiro18/Kiroku NO está: su licencia es una "Unabandon Public License" no reconocida por
-# SPDX y combinar código bajo una licencia personalizada es decisión del dueño. Mientras
-# no la tome, Kiroku se lee por la API como referencia de producto y no se clona.
+# Nahiro18/Kiroku SÍ está desde el 2026-11-13, por decisión del dueño (cabo ① de
+# PENDIENTES-EXTERNOS.md): la UPL incorpora GPLv3 y su condición de fuente público ya la
+# cumple cero-X. Ver el comentario en la lista KOTLIN y docs/LICENCIA.md.
 
 TODAS=0 SOLO="" LISTAR=0
 while [ $# -gt 0 ]; do
@@ -89,7 +97,7 @@ if [ "$LISTAR" = 1 ]; then
   for e in "${lista[@]}"; do
     printf '  %-34s %-12s %s\n' "${e%%:*}" "$(echo "$e" | cut -d: -f2)" "$(echo "$e" | cut -d: -f3)"
   done
-  echo "  (Kiroku excluido a propósito: licencia UPL, decisión del dueño pendiente)"
+  echo "  (Kiroku incluido desde el 2026-11-13: UPL aceptada por decisión del dueño, cabo ①)"
   exit 0
 fi
 

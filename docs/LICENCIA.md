@@ -67,6 +67,33 @@ hay —las menciones son atribuciones de formato y entradas de catálogo en JSON
 con la app bajo GPL-3.0 la pregunta deja de ser crítica. Se deja escrita porque
 antes sí lo era.
 
+## El caso Kiroku: UPL aceptada el 2026-11-13
+
+`Nahiro18/Kiroku` (y su padre `AsrOfficialDev/ReDantotsu`) declaran `NOASSERTION` en la API
+porque su `LICENSE.md` no es SPDX: es la **«Unabandon Public License (UPL)»**, que en sus
+propias palabras «incorporates all terms and conditions of the GNU General Public License
+Version 3» y añade una condición —el fuente de modificaciones y obras derivadas debe estar
+públicamente disponible, sin restricciones de acceso ni pago, identificando claramente la obra—
+y termina automáticamente si se incumple.
+
+El dueño aceptó la UPL el 2026-11-13 (cabo ① de `PENDIENTES-EXTERNOS.md`). cero-X-app es
+GPL-3.0 y su fuente es público en GitHub, así que la condición adicional se cumple de hecho y
+la UPL es compatible en la práctica: GPLv3 más una cláusula de disponibilidad que cero-X ya
+satisface. Kiroku está clonado como referencia (`scripts/bajar-referencias.sh`, lista `KOTLIN`,
+22 MB, 1.090 ficheros, `e2d54c4`) y auditado con las otras once fuentes.
+
+Lo que obliga si se llega a copiar código de Kiroku:
+
+- **Conservar el aviso de la UPL** en cada fichero que proceda de ahí, igual que se conserva el
+  `NOTICE` del linaje Apache/MIT.
+- **Identificar claramente la obra** derivada, que es lo que la UPL añade sobre GPLv3.
+- **No tomar la telemetría**: Kiroku aplica Firebase sin condicional y trae
+  `google-services.json` commiteado (telemetría activa de serie, a diferencia de houri o AniZen,
+  que la gatean). cero-X no tiene telemetría; si toma algo de Kiroku, no toma ni el Firebase ni
+  ese fichero.
+
+ReDantotsu (el padre) sigue sin clonarse: se lee por la API como referencia de producto.
+
 ## Lo que obliga la GPL-3.0 aquí
 
 - **Ofrecer el código fuente correspondiente** al distribuir el APK. El repo es
