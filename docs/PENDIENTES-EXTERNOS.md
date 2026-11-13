@@ -208,3 +208,99 @@ export CEROX_AI_API_KEY='...'
 ```
 
 La prueba exige HTTP 2xx, modelo y respuesta no vacía. Registra sólo HTTP/modelo/milisegundos/cantidad de caracteres; no imprime clave ni respuesta. Ejecutarla en JVM no prueba Keystore ni la UI Android, que deben revisarse en dispositivo.
+
+## Objetivo todo-en-uno: decisiones del dueño y cabos medidos
+
+Anotados el 2026-11-13 al cerrar la fase F1 de `docs/OBJETIVO-TODO-EN-UNO.md`. Cada uno con
+su salida, porque un pendiente sin comando es un recordatorio que se olvida.
+
+### 1. Licencia de Kiroku y ReDantotsu: decisión del dueño, no técnica
+
+`Nahiro18/Kiroku` (18★) y su padre `AsrOfficialDev/ReDantotsu` (156★) declaran
+`NOASSERTION` en la API porque su `LICENSE.md` (1.434 bytes, leído entero) no es una licencia
+SPDX: es la **«Unabandon Public License (UPL)»**, que incorpora todos los términos de GPLv3 y
+añade una condición —el fuente de modificaciones y obras derivadas debe estar públicamente
+disponible, sin restricciones de acceso ni pago, identificando claramente la obra— y termina
+automáticamente si se incumple.
+
+cero-X-app es GPL-3.0 y su fuente es público en GitHub, así que la condición adicional se
+cumple de hecho. Lo que no se puede decidir desde aquí es si combinar código bajo una licencia
+personalizada es aceptable para el proyecto. Mientras no se decida, **Kiroku no se clona** y
+`scripts/bajar-referencias.sh` lo excluye a propósito.
+
+Salida, según lo que se decida:
+
+```bash
+# a) Aceptar la UPL como compatible: añadir Kiroku a la lista KOTLIN del script y bajarlo
+#    (la condición de fuente público ya se cumple; habría que conservar el aviso de la UPL
+#    en cada fichero que proceda de ahí, como hace docs/LICENCIA.md con las otras).
+scripts/bajar-referencias.sh --solo Nahiro18/Kiroku
+
+# b) Rechazarla: dejar el script como está y anotar el motivo en docs/OBJETIVO-TODO-EN-UNO.md
+#    para que nadie vuelva a abrir la pregunta. Kiroku sigue siendo referencia de producto
+#    legible por la API de GitHub, que es lo que ya se hizo con su tema «Kiroku Liquid Glass».
+
+# c) Pedir aclaración al autor: el texto completo de la licencia está guardado en
+#    work/ci/frankie/kiroku-license.json y el de su padre en redantotsu-license.json.
+```
+
+### 2. Dos herramientas nuevas sin espejar en `entorno-de-herramientas-de-trabajo`
+
+`scripts/bajar-referencias.sh` y `tools/auditar-referencias.py` se publicaron en cero-X-app
+(`aae6a87`) pero no están en el espejo de edt, que publica las herramientas con manifiesto,
+`sha256sum -c --strict` y fila en `proyectos/fallas-comunes/REGISTRO.md`. El espejo no está
+roto —sigue apuntando a lo que publicó— pero se queda atrás si no se añaden.
+
+```bash
+cd /home/user/work/edt && bash proyectos/comprobar-copias.sh --estricto-origen
+# y para espejar las dos nuevas, siguiendo el procedimiento de las 9 filas C1-C9 ya publicadas:
+# copiar, generar manifiesto con sha256, verificar con -c --strict, añadir fila al REGISTRO.md
+```
+
+### 3. Los tres ejes que faltan de la fase F2
+
+El primer tramo (manifiestos) está hecho con `tools/auditar-referencias.py`. Faltan: qué APIs
+usan de verdad frente a qué declaran, a qué endpoints hablan, y qué telemetría fusionan sus
+dependencias. Los tres se pueden hacer sin aparato, sobre los 7 clones de
+`/var/tmp/referencias/`.
+
+```bash
+scripts/bajar-referencias.sh --listar     # confirmar qué está bajado
+# endpoints: grep de https:// sobre cada clon, agrupado por host
+# telemetría: leer los build.gradle(.kts) y sus lockfiles, buscando firebase/crashlytics/
+#             analytics/sentry/posthog —el método ya usado en ProjectNox y OmniShizuku
+```
+
+### 4. PlayTorrio: no hay fuente pública que auditar
+
+El sitio vive (`https://playtorrio.xyz/`, HTTP 200, 57.105 bytes guardados en
+`work/ci/frankie/playtorrio.html`), se declara open-source y menciona `torrent` 30 veces y
+`stremio` 12. El único enlace a GitHub de su portada, `ayman708-UX/PlayTorrioV3`, **devuelve
+404** y ese usuario tiene 0 repos públicos. Los 15 resultados de buscar «playtorrio» en GitHub
+son copias de terceros (`hgus7089/PlayTorrioV3-TW` y `MediaHub-Org/PlayTorrioMov`, ambas Dart
+y GPL-3.0, 4★ cada una), que no sustituyen al origen.
+
+Salida: si el dueño conoce el repositorio oficial real, aportarlo y se censura como los otros
+doce. Si no, PlayTorrio queda como **referencia de producto por su sitio** y nada más —y por
+lo que anuncia (torrent + IPTV) es además la fuente de mayor riesgo jurídico de las 13, así
+que no copiar nada de ahí es la posición por defecto y no una pérdida.
+
+```bash
+curl -sS -o /home/user/work/ci/frankie/playtorrio.html https://playtorrio.xyz/   # ya hecho
+# con un repo oficial confirmado:
+# curl -sS -H "Authorization: Bearer $GP" https://api.github.com/repos/<owner>/<repo>
+```
+
+### 5. Las cuatro fuentes Dart, sin bajar
+
+`mangayomi` (4.475★), `AnymeX` (1.283★), `watchtower` y `Foxlations` suman 927 MB según la
+API —que cuenta historial; su peso real con `--depth 1` no se midió porque no se bajaron. No
+se portan ni se compilan aquí: se leen. Para un fichero suelto no hace falta el clon.
+
+```bash
+# leer un fichero concreto sin gastar disco:
+curl -sS -H "Authorization: Bearer $GP" \
+  "https://api.github.com/repos/kodjodevf/mangayomi/contents/lib/modules/backup"
+# bajarlas enteras sólo si hace falta grep local:
+scripts/bajar-referencias.sh --todas
+```
