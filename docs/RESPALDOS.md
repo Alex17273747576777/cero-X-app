@@ -14,11 +14,44 @@ proyecto: `cero-X-app` existía en GitHub desde antes, y el historial del sandbo
 **diverge** del suyo. El remoto `main` está en `1fdad35` con 4 commits que el sandbox
 no tenía; los 21 commits del sandbox se empujaron a la rama
 `fases-verificadas-2026-11-13` y no a `main`, porque `git merge-base --is-ancestor`
-dijo que un force-push habría borrado esos 4. La divergencia, los 8 ficheros que hay
-que mirar al fusionar y las 3 alertas de Dependabot están en
+dijo que un force-push habría borrado esos 4.
+
+La divergencia quedó como **PR #7** (`/pull/7`), abierto y **sin fusionar**. No es
+fusionable tal cual: la API responde `mergeable=false`, `mergeable_state=dirty`,
+`rebaseable=false`, y `git merge-tree --write-tree origin/main HEAD` sale 1 con cinco
+ficheros en conflicto, medidos sin tocar el árbol:
+
+| fichero | tipo | `main` desde la base | esta rama desde la base |
+|---|---|---|---|
+| `android/app/src/main/AndroidManifest.xml` | content | +15 −2 | +30 −2 |
+| `…/modules/extension_sandbox/InstaladorProjectNox.kt` | **add/add** | +65 −0 | +71 −0 |
+| `…/ui/extensiones/IntegracionesActivity.kt` | **add/add** | +270 −0 | +337 −0 |
+| `…/ui/main/MainActivity.kt` | content | +17 −0 | +163 −142 |
+| `…/src/test/java/com/ceroX/app/ui/estado/NavegacionTest.kt` | content | +25 −0 | +30 −0 |
+
+Los dos **add/add** son el hallazgo: `main` y esta rama crearon esos dos ficheros **por
+separado**, cada una con su versión. No es un conflicto de líneas sino dos
+implementaciones paralelas del mismo módulo escritas en sesiones distintas, así que
+resolverlo exige decidir cuál manda o fusionarlas a mano y volver a cerrar con suite y
+los dos APK. Fusionan solos `android/app/build.gradle`, `core/CeroXApplication.kt` y
+`ui/ia/PantallaIa.kt`.
+
+Cifras de la divergencia, corregidas: lo que ve el PR es la comparación desde la base
+común `0aaad47768ef`, o sea `git diff --stat origin/main...HEAD` → **210 ficheros,
++12.886, −1.853**. El `origin/main HEAD` de dos puntos que se anotó primero (161
+ficheros) mezcla lo que hizo la rama con lo que avanzó `main` y por tanto subestima el
+trabajo de la rama. Las 3 alertas de Dependabot y el resto están en
 `proyectos/cero-X/RESPALDOS.md` del repo `entorno-de-herramientas-de-trabajo`, que
-desde el 2026-11-13 (commit `61b9888`) registra los seis repos de la cuenta con sus
-herramientas, entornos medidos y registros de falla, con CI en verde.
+desde el 2026-11-13 registra los seis repos de la cuenta con sus herramientas,
+entornos medidos y registros de falla, con CI en verde y licencia GPL-3.0.
+
+**El PR no disparó CI.** `pruebas.yml` declara `pull_request:` sin filtro en `main` y
+Actions está habilitado (`enabled=true`, `allowed_actions=all`), pero el único check
+run sobre el HEAD del PR es `CodeRabbit` en `skipped` y en todo el historial del repo
+hay **0 corridas con `event=pull_request`**. No sé explicarlo con lo que medí. Lo que
+sí está verificado es la rama: corrida `43408379444`, lanzada por `workflow_dispatch`,
+con `611 pruebas · 0 fallos · 0 errores · 14 saltadas`. Mientras el disparador por PR
+no se explique, la comprobación tras cada push a la rama es `workflow_dispatch`.
 
 `tools/latido.py` cuenta como respaldado un commit que ya esté en alguna rama de algún
 remoto (`git branch -r --contains`); el registro de Drive sigue siendo el aviso para lo
