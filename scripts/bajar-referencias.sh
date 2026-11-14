@@ -42,6 +42,13 @@ KOTLIN=(
   # licencia no es SPDX (la API devuelve NOASSERTION); el campo dice «UPL» y el aviso se
   # conserva en cada fichero que proceda de ahí, como explica docs/LICENCIA.md.
   "Nahiro18/Kiroku:UPL:Kotlin"
+  # komi-store, añadido el 2026-11-13 por indicación del dueño para sustituir a PlayTorrio
+  # (cabo ④: PlayTorrio no tiene fuente pública). Verificado por API, no por la descripción:
+  # es «a free, open-source app store for developers' releases on GitHub, Codeberg & Forgejo»
+  # (antes «GitHub Store», de ahí sus ★20.656), Kotlin Multiplatform + Compose con build-logic.
+  # Apache-2.0, 100 commits en 30 días, CI verde, releases maduras (v1.9.4). Relevante para el
+  # catálogo+instalación+updates de cero-X y como modelo de la modularización que F2 pidió.
+  "komi-store/komi-store:Apache-2.0:Kotlin"
 )
 # Lectores de manga candidatos a base del modelo de fuentes (añadidos el 2026-11-13 a
 # petición del dueño, que preguntó por kisara frente a ShinKu + houri). Los tres son

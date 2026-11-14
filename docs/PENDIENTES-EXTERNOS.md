@@ -1,6 +1,6 @@
 # Pendientes que requieren dispositivo o credenciales
 
-Corte: 2026-11-13. Estos elementos no se marcan completados por compilar.
+Corte: 2026-11-14. Estos elementos no se marcan completados por compilar.
 
 ## LG V60 / MangaDex / revisión visual
 
@@ -293,7 +293,7 @@ grep -rn 'com\.adjust\|adjust-sdk\|AdjustSdk' /var/tmp/referencias   # → 0 coi
 python3 tools/auditar-referencias.py --ejes telemetria   # cero-X: 5 ficheros, ninguno
 ```
 
-### 4. PlayTorrio: no hay fuente pública que auditar
+### 4. PlayTorrio: sustituido por `komi-store` como referencia de código — CERRADO el 2026-11-14
 
 El sitio vive (`https://playtorrio.xyz/`, HTTP 200, 57.105 bytes guardados en
 `work/ci/frankie/playtorrio.html`), se declara open-source y menciona `torrent` 30 veces y
@@ -302,15 +302,39 @@ El sitio vive (`https://playtorrio.xyz/`, HTTP 200, 57.105 bytes guardados en
 son copias de terceros (`hgus7089/PlayTorrioV3-TW` y `MediaHub-Org/PlayTorrioMov`, ambas Dart
 y GPL-3.0, 4★ cada una), que no sustituyen al origen.
 
-Salida: si el dueño conoce el repositorio oficial real, aportarlo y se censura como los otros
-doce. Si no, PlayTorrio queda como **referencia de producto por su sitio** y nada más —y por
-lo que anuncia (torrent + IPTV) es además la fuente de mayor riesgo jurídico de las 13, así
-que no copiar nada de ahí es la posición por defecto y no una pérdida.
+El dueño autorizó entonces **sustituir PlayTorrio por otra referencia de código** de dos listas
+que aportó (JustIndex, Miyomi, Wotaku, EverythingMoe, AniPirate · Appteka Rebuild, FMHY Android,
+Komi Store). Se censó cada candidata por la API antes de afirmar nada y **las descripciones no
+casaron con los repos**: `miyomiorg/Miyomi` y `wotakumoe/wotaku` son TypeScript de sitio web (no
+código Android; Wotaku además con licencia NOASSERTION), `SehonYT/AniPirate` es un índice de
+datos sin código (127 KB, sin lenguaje ni licencia), y JustIndex, EverythingMoe y Appteka no
+citan repo público. Sólo dos tienen código Android real: `omeg4-dev/fmhy-android` (Kotlin,
+GPL-3.0, wiki FMHY sin conexión, creado tres semanas antes) y `komi-store/komi-store`.
+
+**Decisión: `komi-store/komi-store` ocupa el hueco de código de PlayTorrio.** No es el
+«marketplace madre de Appteka» que la prosa sugería: es *«a free, open-source app store for
+developers' releases on GitHub, Codeberg & Forgejo»* (antes «GitHub Store», de ahí sus ★20.656),
+Kotlin Multiplatform + Compose con `build-logic`. Apache-2.0 (dirección ya permitida por
+`docs/LICENCIA.md`, conservar `NOTICE`), 100 commits en 30 días, CI verde (Verify, PR checks,
+CodeQL) y releases maduras (v1.9.4, 13 recursos). Es la referencia directa de la superficie
+catálogo+instalación+actualizaciones de cero-X —resuelve releases por la API de
+GitHub/Codeberg/Forgejo e instala APK— y, al revés que cero-X (8 permisos huérfanos en F2),
+**no declara ningún permiso huérfano** y **no trae telemetría** (0 SDK en 49 ficheros de build):
+modelo de la higiene que F2 pidió. Clonado el 2026-11-14: 108 MB, 1.818 ficheros, `19eb744`;
+fila en `referencias.tsv` y ficha en `fichas/komi-store.md`. `fmhy-android` queda como secundaria
+(GPL-3.0, relevante para el indexado de directorios, recién nacida) y no se clona.
+
+PlayTorrio sigue siendo **referencia de producto por su sitio** y nada más; por lo que anuncia
+(torrent + IPTV) es la fuente de mayor riesgo jurídico de las 13, así que no copiar de ahí es la
+posición por defecto y no una pérdida. Las 13 fuentes de la lista del dueño siguen siendo 13:
+komi-store no reemplaza a PlayTorrio en esa lista, reemplaza su *hueco de código auditable*. El
+censo queda en **12 referencias + cero-X = 13 objetivos auditados**.
 
 ```bash
 curl -sS -o /home/user/work/ci/frankie/playtorrio.html https://playtorrio.xyz/   # ya hecho
-# con un repo oficial confirmado:
-# curl -sS -H "Authorization: Bearer $GP" https://api.github.com/repos/<owner>/<repo>
+# verificación por API de la sustituta (no por la descripción del dueño):
+curl -sS -H "Authorization: Bearer $GP" https://api.github.com/repos/komi-store/komi-store
+curl -sS -H "Authorization: Bearer $GP" https://api.github.com/repos/komi-store/komi-store/contents/
 ```
 
 ### 5. Las cuatro fuentes Dart, sin bajar

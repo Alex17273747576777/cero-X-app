@@ -1,6 +1,6 @@
 # Objetivo todo-en-uno: el «frankie»
 
-Corte: 2026-11-13.
+Corte: 2026-11-14.
 
 ## Lo que pidió el dueño, en sus palabras
 
@@ -47,11 +47,37 @@ GitHub son forks y copias de terceros, ninguno oficial.
 | `Nahiro18/Kiroku` | Kotlin | **NOASSERTION** | 27 | 18 | 2026-11-09 | **sí** (`AsrOfficialDev/ReDantotsu`, NOASSERTION, 156★) | **decisión del dueño** |
 | `AnantPlay/android` | Java | MIT | 15 | 392 | 2026-11-13 | no | sí |
 | `Foxlations/Foxlations` | Dart | Apache-2.0 | 4 | 3 | 2026-10-29 | no | sí |
-| `playtorrio.xyz` | — | — | — | — | 2026-11-13 (sitio vivo) | — | **no hay fuente pública** |
+| `playtorrio.xyz` | — | — | — | — | 2026-11-13 (sitio vivo) | — | **no hay fuente pública** → el hueco de código lo ocupa `komi-store` (cabo ④) |
 
 Total con historial git: **2,03 GB**. Once de las doce fuentes con repo son copiables a
 GPL-3.0: Apache-2.0 y MIT son compatibles (GPLv3 permite combinar con Apache-2.0; MIT es
 permisiva), conservando `NOTICE` y el aviso de copyright de cada una.
+
+### El hueco de código de PlayTorrio: `komi-store` (cabo ④, cerrado el 2026-11-14)
+
+PlayTorrio no tiene fuente pública que auditar (véase arriba y el cabo ④ de
+`docs/PENDIENTES-EXTERNOS.md`). El dueño autorizó sustituirlo por otra referencia de código de
+dos listas que aportó. Se censó cada candidata por la API antes de afirmar nada y **las
+descripciones no casaron con los repos**: `miyomiorg/Miyomi` y `wotakumoe/wotaku` son TypeScript
+de sitio web (no código Android; Wotaku además con licencia NOASSERTION), `SehonYT/AniPirate` es
+un índice de datos sin código (127 KB, sin lenguaje ni licencia), y JustIndex, EverythingMoe y
+Appteka no citan repo público. Sólo dos tienen código Android real: `omeg4-dev/fmhy-android`
+(Kotlin, GPL-3.0, wiki FMHY sin conexión, creado tres semanas antes) y `komi-store/komi-store`.
+
+**`komi-store/komi-store` ocupa el hueco.** No es el «marketplace madre de Appteka» que la prosa
+sugería: es *«a free, open-source app store for developers' releases on GitHub, Codeberg &
+Forgejo»* (antes «GitHub Store», de ahí sus ★20.656), Kotlin Multiplatform + Compose con
+`build-logic`. Apache-2.0 —misma dirección permitida que el resto del linaje, conservar
+`NOTICE`—, 100 commits en 30 días, CI verde (Verify, PR checks, CodeQL) y releases maduras
+(v1.9.4, 13 recursos). Es la referencia directa de la superficie catálogo+instalación+
+actualizaciones de cero-X: resuelve releases por la API de GitHub/Codeberg/Forgejo e instala
+APK. Y aporta un modelo que F2 echó en falta en cero-X: **no declara ningún permiso huérfano**
+(cero-X tiene 8) y **no trae telemetría** (0 SDK en 49 ficheros de build). Clonado el
+2026-11-14: 108 MB, 1.818 ficheros, `19eb744`; fila en `referencias.tsv` y ficha en
+`fichas/komi-store.md`. `fmhy-android` queda anotada como secundaria y no se clona. Con
+komi-store el cupo de referencias de código queda completo: **12 referencias + cero-X = 13
+objetivos auditados**. Las 13 fuentes de la lista del dueño siguen siendo 13 —komi-store no
+reemplaza a PlayTorrio en esa lista, reemplaza su *hueco de código auditable*.
 
 ### El caso Kiroku / ReDantotsu, leído y no supuesto
 
@@ -161,7 +187,7 @@ sacarlo lo devolvió a 2.246 y 38,86 MiB. Y `/opt/cerox` no es escribible para e
 así que no es un destino alternativo.
 
 **Fase F2 — Auditoría contra fuente. CERRADA el 2026-11-13.** Los cuatro ejes, medidos con
-`tools/auditar-referencias.py` sobre los 12 objetivos (11 referencias + cero-X) sin aparato ni
+`tools/auditar-referencias.py` sobre los 13 objetivos (12 referencias + cero-X) sin aparato ni
 compilación —es texto—. Evidencia: `work/ci/frankie/f2-{manifiestos,apis,endpoints,telemetria}.tsv`
 y una ficha por app en `work/ci/frankie/fichas/`. Cada cifra sale de esos ficheros; ninguna se
 transcribió de memoria.
@@ -228,15 +254,16 @@ declarado en el catálogo de aplicado de verdad.
 
 - **cero-X: ninguno.** Cero SDK en sus 5 ficheros de build reales, confirmado por grep directo
   además de por la herramienta. Es la postura más limpia posible y no se toca.
-- **9 de 11 referencias cablean telemetría.** Seis usan Firebase (AniZen, houri, kisara, Reikai,
+- **9 de 12 referencias cablean telemetría.** Seis usan Firebase (AniZen, houri, kisara, Reikai,
   ShinKu, Kiroku) y tres ACRA —reporte de fallos abierto y autoalojable, no un rastreador como
-  Firebase— (DeepSync, Kototoro, Miyorare). Tadami no tiene; AnantPlay compila con `build.sh` y
+  Firebase— (DeepSync, Kototoro, Miyorare). Tadami no tiene; komi-store tampoco (0 SDK en 49
+  ficheros de build); AnantPlay compila con `build.sh` y
   no Gradle, así que su telemetría **no se midió** (la herramienta reporta `ficheros_build=0`,
   no «ninguna»).
 - **El patrón que importa para el frankie:** houri, AniZen, Reikai y kisara aíslan la
   telemetría en un módulo Gradle propio (`telemetry/`, 3-5 ficheros) que sólo se compila con
   `if (Config.includeTelemetry)`, falso salvo `-Pinclude-telemetry`. ShinKu la condiciona a que
-  exista `google-services.json`. Diez de los once clones **no** traen ese `google-services.json`
+  exista `google-services.json`. Once de los doce clones **no** traen ese `google-services.json`
   commiteado —está en `.gitignore`—, así que no compilan con telemetría activa de salida; houri
   lo dice en `app/build.gradle.kts:66`: «no telemetry in the lean variant». **La excepción es
   Kiroku**, que aplica Firebase sin condicional y trae `google-services.json` commiteado: su
