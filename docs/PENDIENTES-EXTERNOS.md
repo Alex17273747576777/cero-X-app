@@ -337,11 +337,13 @@ curl -sS -H "Authorization: Bearer $GP" https://api.github.com/repos/komi-store/
 curl -sS -H "Authorization: Bearer $GP" https://api.github.com/repos/komi-store/komi-store/contents/
 ```
 
-### 5. Las cuatro fuentes Dart, sin bajar
+### 5. Las cuatro fuentes Dart — LEÍDAS por API (cabo absorbido por F3, paso 1, 2026-11-14)
 
-`mangayomi` (4.475★), `AnymeX` (1.283★), `watchtower` y `Foxlations` suman 927 MB según la
-API —que cuenta historial; su peso real con `--depth 1` no se midió porque no se bajaron. No
-se portan ni se compilan aquí: se leen. Para un fichero suelto no hace falta el clon.
+`mangayomi` (4.480★), `AnymeX` (1.283★), `watchtower` y `Foxlations` no se portan ni se
+compilan aquí (no hay toolchain de Flutter y cero-X es Kotlin): **se leen**. Censadas por la
+API el 2026-11-14 por la estructura de su `lib/`, no por la descripción; el resultado y las
+tres brechas concretas que aportan están en `docs/ASISTENTE-Y-COMPETENCIA.md` (sección «Las
+cuatro fuentes Dart»). No hace falta el clon para leerlas: la API de contenidos basta.
 
 ```bash
 # leer un fichero concreto sin gastar disco:

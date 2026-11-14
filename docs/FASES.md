@@ -1,6 +1,6 @@
 # Estado secuencial del proyecto
 
-Actualizado: 2026-11-13. Este archivo registra trabajo pendiente y evidencia; no sustituye los resultados XML ni los APK.
+Actualizado: 2026-11-14. Este archivo registra trabajo pendiente y evidencia; no sustituye los resultados XML ni los APK.
 
 ## Fase 0 — Recuperar el entorno (completada)
 
@@ -154,3 +154,50 @@ Una recuperación de workspace puede eliminar también JDK/SDK y procesos. Compr
   - cero-X declara **11 permisos sensibles, tantos como la que más** (AniZen), y tres que ninguna otra pide: `READ_EXTERNAL_STORAGE`, `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`. Seis de las siete piden `MANAGE_EXTERNAL_STORAGE` y `RECEIVE_BOOT_COMPLETED`, que cero-X no pide.
   - cero-X es **un solo manifiesto con 16 componentes y 3 exportados**; las referencias tienen entre 2 y 16 manifiestos y hasta 96 componentes (Kototoro) con 20-21 exportados (Kototoro, Miyorare). La modularización no es adorno: es lo que permite que una capacidad falle sin arrastrar a las otras.
 - Sin cierre Gradle en estos commits: no tocan ninguna fuente Android (dos docs, un script de bash y una herramienta Python), así que no aplica la regla 9. Las comprobaciones baratas sí se ejecutaron: `reglas`, `spdx` (23 ficheros GPL-3.0-only) y `sin-secretos` en verde, y `latido` en `HEARTBEAT_OK` tras el empuje de `79b084c`.
+
+## Cabo ④ cerrado, tres reinicios recuperados y F3 abierta (2026-11-14)
+
+- **Cabo ④ (PlayTorrio) cerrado.** PlayTorrio no tiene fuente pública; el dueño autorizó
+  sustituirlo por otra referencia de código de dos listas que aportó. Censadas por API, no por la
+  descripción: Miyomi y Wotaku son TypeScript de sitio web (Wotaku además NOASSERTION), AniPirate
+  es un índice de datos sin código, y sólo `omeg4-dev/fmhy-android` (GPL-3.0) y
+  `komi-store/komi-store` (Apache-2.0) tienen código Android real. Decisión: **komi-store** —
+  «app store for developers' releases on GitHub, Codeberg & Forgejo», antes «GitHub Store»,
+  Kotlin Multiplatform + Compose con `build-logic`, ★20.656, 100 commits en 30 días, CI verde,
+  v1.9.4—. Clonado: 108 MB, 1.818 ficheros, `19eb744`. Su ficha de F2: **0 permisos huérfanos y
+  0 telemetría** (0 SDK en 49 ficheros de build), justo la higiene que a cero-X le falta (8
+  huérfanos). Censo: **12 referencias + cero-X = 13 objetivos**. Commit `1dde9d5`; espejo de
+  `bajar-referencias.sh` republicado en edt `c2b1b44`, `comprobar-copias.sh --estricto-origen`
+  en `COPIAS_OK` (8 ficheros fieles a `1dde9d5`).
+- **Tres reinicios del sandbox en el mismo turno, recuperados.** Cada uno perdió `.git/config` de
+  los DOS repos (remoto, helper, identidad, upstream), los bits de ejecución de los ficheros
+  versionados (13 y 18), el modo 0600 de `~/.cerox-keys/tokens.txt` (lo dejó en 644, legible), el
+  toolchain (JDK 21 → 11, SDK ausente), el swap y `/var/tmp/referencias` (los 12 clones). La pista
+  fue el disco libre subiendo de golpe a 20 GB. Se rearma con **`scripts/recuperar-entorno.sh`**
+  (habilidad nueva): UNA orden que rearma Git en los dos repos —URL limpia, **nunca el token
+  dentro**—, restaura modos y `tokens.txt` a 0600, rearma toolchain y referencias y verifica con
+  `git ls-remote` real. Probada de verdad bajo un reinicio real: `RECUPERADO_OK`, 9 comprobaciones
+  en verde, `ENTORNO_OK`, `BUILD SUCCESSFUL` local (`:app:compileDebugKotlin`, 3m13s, 19 tareas) y
+  `HEARTBEAT_OK`. Commits `74c4617` (herramienta + parche a `rearmar-git.sh`: el helper se
+  contrasta con `cmp` y se reescribe canónico si deriva o está en 644, la causa del 401 histórico)
+  y `316c520` (paso 3b: restaura también las referencias).
+- **Falla C13 registrada** (edt `cd7c834`, CI success): el rearme manual del turno anterior
+  incrustó el token en la URL del remoto, una fuga en un repo público; `latido` (`comprobar_remoto`)
+  lo cazó como BLOQUEO antes del push. Contraparte: `recuperar-entorno.sh` + el parche `cmp` de
+  `rearmar-git.sh`. Es la contraparte operativa de C11.
+- **F3 abierta, paso 1.** `docs/ASISTENTE-Y-COMPETENCIA.md` extendido de 2 a 6 referencias: las
+  cuatro fuentes Dart censadas por la estructura de su `lib/` (mangayomi: motor `eval` dart-eval +
+  Isar + FFI a Go/Rust + 5 sistemas; AnymeX: trackers multi-servicio AL/MAL/Simkl + módulo `ai` +
+  web; watchtower: `remote`/`local_indexer`/`cli`/`deployment` = servidor autoalojado; Foxlations:
+  `l10n` + `presentation` ligera). Tres brechas concretas anotadas, en orden de utilidad:
+  ① servidor autoalojado e índice local (decidir alcance), ② trackers unificados (refactor F5),
+  ③ motor de extensiones (endurecer `extension_factory`, que F2 marcó con 4 fuentes y 0 pruebas).
+  El cabo ⑤ queda leído y absorbido.
+- **Bloqueos:** sin aparato (`adb devices` vacío, sin `/dev/kvm`) y sin toolchain de Flutter, así
+  que las Dart se leen por API, no se compilan ni se portan; el servidor autoalojado, los
+  recorridos visuales y la ejecución Android no se prueban aquí. El entorno cuesta ~12 GB y se
+  pierde en cada reinicio: hay 7-8 GB libres tras rearmar, y `recuperar-entorno.sh` es la orden
+  única para volver a estar al 110 %.
+- **Siguiente:** F3 paso 2 —censar las 8 fuentes Kotlin/Java (komi-store incluida) por capacidad y
+  completar la matriz de brechas de las 12— y luego F4 (los cuatro módulos sin pruebas:
+  `backup_import`, `theme`, `extension_factory`, `updates`).

@@ -285,6 +285,12 @@ cuatro ejes, cuatro TSV, y ninguna afirmación sin el comando o la línea que la
 qué hace cero-X mejor, y qué se descarta a propósito. *Criterio de salida:* cada brecha con
 su módulo destino y su prueba, o marcada como descartada con el motivo.
 
+**ABIERTA el 2026-11-14, paso 1 hecho.** Las cuatro fuentes Dart (el cabo ⑤) están censadas
+por la estructura de su `lib/` en `docs/ASISTENTE-Y-COMPETENCIA.md`, con tres brechas concretas
+anotadas: servidor autoalojado e índice local (watchtower), trackers unificados (AnymeX) y motor
+de extensiones (mangayomi/watchtower frente al QuickJS de cero-X). Queda censar las 8 fuentes
+Kotlin/Java —`komi-store` incluida— hasta completar la matriz de las 12.
+
 **Fase F4 — Los cuatro módulos sin tests, antes que ninguna función nueva.**
 `backup_import`, `theme`, `extension_factory`, `updates`. *Criterio de salida:* suite en
 verde con tests que fallen si se rompe el módulo, probado rompiéndolos a propósito.
