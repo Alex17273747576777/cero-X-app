@@ -90,9 +90,14 @@ else
     faltar "no existe $CLAVES: sin clave no hay push. Hay que volver a entregarla."
 fi
 
-# 3) Credential helper: se fija siempre; se recrea si el fichero no está.
-if [ ! -f "$HELPER" ]; then
-    cat > "$HELPER" <<'HELPEREOF'
+# 3) Credential helper: contenido canónico SIEMPRE, no sólo si el fichero falta.
+#    El reinicio del sandbox lo deja en 644 (no ejecutable → Git no puede usarlo → 401,
+#    que es el fallo histórico) y, si alguna vez su contenido derivara, un helper viejo
+#    que aún autentica con un token equivocado es peor que uno ausente: el push sale y
+#    nadie se entera. Como el helper NO guarda ningún secreto (los lee de tokens.txt),
+#    reescribirlo al contenido canónico es seguro e idempotente. Se contrasta con `cmp`.
+TMPHELPER="$(mktemp)"
+cat > "$TMPHELPER" <<'HELPEREOF'
 #!/bin/sh
 # Credential helper de Git. No contiene ningún secreto: lee la clave del único
 # archivo que la tiene, /home/user/.cerox-keys/tokens.txt (modo 0600), y la
@@ -103,9 +108,17 @@ case "$1" in
          "$(grep -E '^GP=' /home/user/.cerox-keys/tokens.txt | head -1 | cut -d= -f2- | tr -d '\r\n')" ;;
 esac
 HELPEREOF
+if [ ! -f "$HELPER" ]; then
+    install -m 700 "$TMPHELPER" "$HELPER"
     anotar "recreado $HELPER (no contiene secretos: los lee de tokens.txt)"
+elif ! cmp -s "$TMPHELPER" "$HELPER"; then
+    install -m 700 "$TMPHELPER" "$HELPER"
+    anotar "$HELPER existía con contenido distinto o modo malo: reescrito al canónico (0700)"
+else
+    chmod 700 "$HELPER"
+    ya "credential.helper ($HELPER, contenido canónico, 0700)"
 fi
-chmod 700 "$HELPER"
+rm -f "$TMPHELPER"
 if [ ! -x "$HELPER" ]; then chmod +x "$HELPER"; anotar "$HELPER recuperó el bit de ejecución"; fi
 if [ "$(git config --get credential.helper || true)" != "$HELPER" ]; then
     git config credential.helper "$HELPER"
