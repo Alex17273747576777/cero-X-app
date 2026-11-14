@@ -285,11 +285,14 @@ cuatro ejes, cuatro TSV, y ninguna afirmación sin el comando o la línea que la
 qué hace cero-X mejor, y qué se descarta a propósito. *Criterio de salida:* cada brecha con
 su módulo destino y su prueba, o marcada como descartada con el motivo.
 
-**ABIERTA el 2026-11-14, paso 1 hecho.** Las cuatro fuentes Dart (el cabo ⑤) están censadas
-por la estructura de su `lib/` en `docs/ASISTENTE-Y-COMPETENCIA.md`, con tres brechas concretas
-anotadas: servidor autoalojado e índice local (watchtower), trackers unificados (AnymeX) y motor
-de extensiones (mangayomi/watchtower frente al QuickJS de cero-X). Queda censar las 8 fuentes
-Kotlin/Java —`komi-store` incluida— hasta completar la matriz de las 12.
+**ABIERTA el 2026-11-14, pasos 1 y 2 hechos.** Paso 1: las cuatro fuentes Dart (el cabo ⑤)
+censadas por la estructura de su `lib/`, con tres brechas (servidor autoalojado e índice local de
+watchtower, trackers unificados de AnymeX, motor de extensiones de mangayomi/watchtower frente al
+QuickJS de cero-X). Paso 2: las 12 referencias Kotlin/Java censadas por sus módulos Gradle —de 0
+(AnantPlay) a 41 (komi-store), frente al **1** de cero-X—, con cinco brechas concretas (arquitectura
+limpia por capacidad, `source-api` como módulo, IA aislada, interproceso por AIDL, multiplataforma).
+Todo en `docs/ASISTENTE-Y-COMPETENCIA.md`. Queda F3 paso 3: confirmar cada brecha leyendo el código,
+no el nombre de módulo, y dar a cada una su módulo destino y su prueba o su descarte motivado.
 
 **Fase F4 — Los cuatro módulos sin tests, antes que ninguna función nueva.**
 `backup_import`, `theme`, `extension_factory`, `updates`. *Criterio de salida:* suite en

@@ -56,6 +56,56 @@ El resto de las fuentes (las 8 Kotlin/Java ya clonadas, incluida `komi-store`) s
 los pasos siguientes de F3 hasta completar la matriz de brechas capacidad por capacidad.
 Este paso cierra la lectura del cabo ⑤: las cuatro Dart están censadas y su valor, anotado.
 
+## Las fuentes Kotlin/Java, censadas por sus módulos Gradle (F3 paso 2, 2026-11-14)
+
+Las 12 referencias clonadas se censaron por la estructura de su `settings.gradle` —los módulos
+Gradle, no el README—. El conteo de módulos es la señal más dura de arquitectura: cuánta capacidad
+vive en una unidad que se compila, se prueba y se sustituye por separado. Es medido, no inferido.
+
+| fuente | módulos Gradle | patrón |
+|---|---:|---|
+| `komi-store` | 41 | KMP de arquitectura limpia: `core{data,domain,presentation}` y un triplete `feature*{data,domain,presentation}` por capacidad; `coredata-aidl` (interproceso) |
+| `houri` | 23 | el lector más partido: `coreconcurrency`, `corenavigation`, `coreviewmodel`, `llamatik-native`, `telemetry` aislado |
+| `AniZen` | 17 | derivado de Mihon: `data`/`domain`/`presentation-*`, `source-api`, `i18n` por variante, `telemetry`, `macrobenchmark` |
+| `Reikai` | 17 | ídem + `coremetro`, módulos de iconos, `baseline-profile` |
+| `kisara` | 16 | ídem que AniZen, pero parado: CI roja y 0 commits en 30 días |
+| `Tadami-Aniyomi-fork` | 14 | rama de Aniyomi: `source-api`/`source-local`, `i18n-aniyomi`, `private-gemini-bridge` (IA), `macrobenchmark` |
+| `ShinKu` | 12 | derivado de Mihon sin módulo `telemetry` (la condiciona a que exista `google-services.json`) |
+| `Kototoro` | 10 | KMP a escritorio e iOS: `cloudstream-desktop`, `desktop-app`, `ios-shared`, `mihon-*-compat` |
+| `Miyorare` | 1 | un solo módulo |
+| `DeepSync` | 1 | un solo módulo |
+| `Kiroku` | 1 | un solo módulo (UPL; telemetría activa de serie) |
+| `AnantPlay` | 0 | Java con `build.sh`, sin módulos Gradle |
+| **cero-X** | **1** | 244 fuentes `.kt` en `main` repartidas en 48 paquetes `modules/*` —paquetes, no módulos Gradle: todo compila en el único `:app` (F2: 1 manifiesto, 16 componentes) |
+
+La brecha estructural, que F2 señaló y F3 concreta: **cero-X es un solo módulo Gradle; las
+referencias que mejor funcionan parten la app en 12-41 módulos con arquitectura limpia** (`data`/
+`domain`/`presentation` por capacidad). No es cosmética: es lo que permite probar, aislar y
+sustituir una capacidad sin arrastrar a las otras, y el prerrequisito para que F4 dé pruebas a los
+cuatro módulos que hoy no las tienen. Brechas concretas que salen de los nombres —y que F3 paso 3
+confirma leyendo el código, no el nombre—:
+
+1. **Arquitectura limpia por capacidad** (komi-store, houri, los derivados de Mihon): separar
+   `data`/`domain`/`presentation`. cero-X tiene la lógica partida en paquetes `modules/*` pero todo
+   compila en `:app`. Modularización progresiva en F5, empezando por las capacidades que F4 dote de
+   pruebas: un módulo sin pruebas no se puede extraer sin romperlo.
+2. **`source-api`/`source-local` como módulo propio** (todos los lectores): el contrato de fuentes
+   aislado y testeable. En cero-X vive en `modules/source_api` dentro de `:app`; endurecer
+   `extension_factory` (4 fuentes, 0 pruebas según F2) es el paso previo a poder extraerlo.
+3. **IA en su propio módulo** (`private-gemini-bridge` de Tadami, `llamatik-native` de houri):
+   cero-X tiene `ai`/`aihub` en `:app`; la referencia es cómo aíslan el proveedor para conmutarlo o
+   quitarlo sin tocar el resto.
+4. **Interproceso por AIDL** (`coredata-aidl` de komi-store): relevante para la instalación y gestión
+   de APK que cero-X resuelve pidiendo `QUERY_ALL_PACKAGES` (hallazgo ② de F2, restringido por
+   Play); komi-store lo hace por AIDL, que es la vía que cero-X debería evaluar.
+5. **Multiplataforma real** (Kototoro a escritorio/iOS, komi-store KMP): cero-X es sólo APK de
+   Android. No es una brecha a cerrar ahora —el objetivo es Android—, pero se anota para no anunciar
+   escritorio/iOS sin build, que es lo que ya dice la tabla de Referencias comparadas.
+
+Honestidad: los nombres de módulo dicen intención, no comportamiento verificado; cada brecha lleva a
+un archivo que se lee en F3 paso 3 antes de afirmarla. Lo que sí es medido y no depende de nombres:
+el conteo de módulos de `settings.gradle` (de 0 a 41) y el de cero-X (1).
+
 ## Asistente de la 1.0.7
 
 `AIHubModule` ejecuta `POST /v1/chat/completions` contra el endpoint configurado.

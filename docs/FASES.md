@@ -193,6 +193,24 @@ Una recuperación de workspace puede eliminar también JDK/SDK y procesos. Compr
   ① servidor autoalojado e índice local (decidir alcance), ② trackers unificados (refactor F5),
   ③ motor de extensiones (endurecer `extension_factory`, que F2 marcó con 4 fuentes y 0 pruebas).
   El cabo ⑤ queda leído y absorbido.
+- **F3 paso 2.** Las 12 referencias Kotlin/Java censadas por sus módulos Gradle (de `settings.gradle`,
+  no del README): de **0** (AnantPlay, Java con `build.sh`) a **41** (komi-store, KMP de arquitectura
+  limpia con un triplete `feature*{data,domain,presentation}` por capacidad y `coredata-aidl`),
+  houri 23, AniZen y Reikai 17, kisara 16, Tadami 14 (con `private-gemini-bridge` de IA), ShinKu 12,
+  Kototoro 10 (KMP a escritorio/iOS), y Miyorare, DeepSync y Kiroku 1. **cero-X: 1 módulo Gradle**
+  (244 fuentes `.kt` en 48 paquetes `modules/*`, todo en `:app`). La brecha estructural que F2 señaló
+  queda concretada en cinco: arquitectura limpia por capacidad, `source-api` como módulo, IA aislada,
+  interproceso por AIDL y multiplataforma. Medido y honesto: el conteo de módulos es de `settings.gradle`;
+  los nombres dicen intención, no comportamiento —F3 paso 3 los confirma leyendo el código.
+- **Falla C14 y su solucionador.** El barrido de pre-commit miraba el `git diff` pero no el mensaje del
+  commit, y un lapsus coló dos ideogramas chinos (rango CJK) en el mensaje de F3 paso 1; se cazó al
+  leerlo y se enmendó antes del push (`--amend` seguro, sin force-push). Registrada como C14 en edt y
+  cerrada con `scripts/revisar-mensaje.sh` (nuevo): falla (sale 1) si el mensaje tiene CJK/kana/Hangul/
+  árabe/cirílico y avisa de anglicismos. Probado en cinco caminos, incluido el mensaje que falló de
+  verdad (lo caza) y el fichero inexistente (ERROR y exit 1, sin el OK mentiroso que daba una primera
+  versión por salir el `exit` dentro de la subshell del pipe —variante de C5/C7, corregida antes de
+  commitear). Los caracteres prohibidos no se escriben aquí ni en ningún doc: se nombran por su rango,
+  porque incrustarlos volvería a sembrar justo lo que C14 prohíbe.
 - **Bloqueos:** sin aparato (`adb devices` vacío, sin `/dev/kvm`) y sin toolchain de Flutter, así
   que las Dart se leen por API, no se compilan ni se portan; el servidor autoalojado, los
   recorridos visuales y la ejecución Android no se prueban aquí. El entorno cuesta ~12 GB y se
