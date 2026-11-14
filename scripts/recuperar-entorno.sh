@@ -19,8 +19,11 @@
 #   1. firma del reinicio → mide qué se perdió (java, swap, tokens.txt, remoto de cada repo)
 #   2. rearmar-git.sh en CADA repo de la lista, pasándole su URL del mapa de remotos
 #   3. preparar-entorno-android.sh (idempotente: si el toolchain ya está, pasa rápido)
+#   3b. bajar-referencias.sh (idempotente: el reinicio borra /var/tmp, así que los clones
+#       de las fuentes amanecen perdidos; lo ya clonado da «ya-estaba» y sólo baja lo que
+#       falta, y reescribe la evidencia referencias.tsv)
 #   4. verificación: comprobar_entorno.py (ENTORNO_OK), auth REAL (git ls-remote) en cada
-#      repo, y resumen de latido.py del repo principal
+#      repo, tokens.txt a 0600, referencias presentes y resumen de latido.py del principal
 #   5. veredicto único: RECUPERADO_OK / RECUPERADO_INCOMPLETO, con lo que falta impreso
 #
 # QUÉ NO HACE
@@ -30,8 +33,9 @@
 #     siguiente; el veredicto final refleja lo que quedó sin armar.
 #
 # USO
-#   scripts/recuperar-entorno.sh                 # rearma Git (todos los repos) + entorno
-#   scripts/recuperar-entorno.sh --sin-entorno   # sólo la capa de Git (toolchain intacto)
+#   scripts/recuperar-entorno.sh                 # rearma Git (todos los repos) + entorno + fuentes
+#   scripts/recuperar-entorno.sh --sin-entorno   # sólo Git y fuentes (toolchain intacto)
+#   scripts/recuperar-entorno.sh --sin-referencias  # no vuelve a bajar los clones de /var/tmp
 #   CEROX_REPOS="/ruta/a /ruta/b" scripts/recuperar-entorno.sh
 #
 # SALIDAS
@@ -45,7 +49,11 @@ PRINCIPAL="${CEROX_PRINCIPAL:-/home/user/work/cero-X-app}"
 CLAVES="${CEROX_CLAVES:-/home/user/.cerox-keys/tokens.txt}"
 MAPA_REMOTOS="${CEROX_MAPA_REMOTOS:-/home/user/.cerox-keys/remotos.txt}"
 CON_ENTORNO=1
-[ "${1:-}" = "--sin-entorno" ] && CON_ENTORNO=0
+CON_REFERENCIAS=1
+for arg in "$@"; do
+    [ "$arg" = "--sin-entorno" ] && CON_ENTORNO=0
+    [ "$arg" = "--sin-referencias" ] && CON_REFERENCIAS=0
+done
 
 FALTAN=()
 HECHOS=()
@@ -117,6 +125,25 @@ else
     info "--sin-entorno: se omite el toolchain"
 fi
 
+if [ "$CON_REFERENCIAS" = 1 ]; then
+    echo
+    echo "══════ 3b. restaurar las referencias (bajar-referencias.sh, idempotente) ══════"
+    DESTINO="${REFERENCIAS_DESTINO:-/var/tmp/referencias}"
+    if [ -d "$DESTINO" ] && [ -n "$(ls -A "$DESTINO" 2>/dev/null)" ]; then
+        info "referencias: $DESTINO ya tiene $(ls -d "$DESTINO"/*/ 2>/dev/null | wc -l) clone(s); se repasa por si falta alguno"
+    else
+        info "referencias: $DESTINO vacío o ausente (el reinicio borra /var/tmp); se bajan de nuevo"
+    fi
+    set +e
+    bash "$ROOT/scripts/bajar-referencias.sh"
+    rc=$?
+    set -e
+    [ "$rc" = 0 ] && anotar "referencias: bajar-referencias.sh salió 0 (REFERENCIAS_OK)" \
+                  || faltar "referencias: bajar-referencias.sh salió $rc"
+else
+    info "--sin-referencias: se omite la restauración de las fuentes"
+fi
+
 echo
 echo "══════ 4. verificación (medida) ══════"
 # 4a. ENTORNO_OK
@@ -143,7 +170,18 @@ if [ -f "$CLAVES" ] && [ "$(stat -c%a "$CLAVES")" = 600 ]; then
 elif [ -f "$CLAVES" ]; then
     faltar "tokens.txt sigue en $(stat -c%a "$CLAVES"), no en 0600"
 fi
-# 4d. latido del repo principal (informativo: la recuperación puede dejar árbol sucio con
+# 4d. referencias presentes (si se pidieron): el número de clones y la evidencia TSV.
+if [ "$CON_REFERENCIAS" = 1 ]; then
+    DESTINO="${REFERENCIAS_DESTINO:-/var/tmp/referencias}"
+    EVIDENCIA="${REFERENCIAS_EVIDENCIA:-$HOME/work/ci/frankie/referencias.tsv}"
+    nclones="$(ls -d "$DESTINO"/*/ 2>/dev/null | wc -l)"
+    if [ "$nclones" -ge 1 ]; then
+        anotar "referencias: $nclones clone(s) en $DESTINO · evidencia $( [ -f "$EVIDENCIA" ] && wc -l < "$EVIDENCIA" || echo 0 ) fila(s) en $(basename "$EVIDENCIA")"
+    else
+        faltar "referencias: ningún clon en $DESTINO"
+    fi
+fi
+# 4e. latido del repo principal (informativo: la recuperación puede dejar árbol sucio con
 #     sus propias ediciones; el veredicto de latido se atiende antes de commitear, no aquí).
 if [ -d "$PRINCIPAL" ] && [ -f "$PRINCIPAL/tools/latido.py" ]; then
     resumen="$(cd "$PRINCIPAL" && python3 tools/latido.py 2>&1 | grep -E 'HEARTBEAT|bloqueos=' | head -1 || true)"
